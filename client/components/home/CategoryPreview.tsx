@@ -106,6 +106,7 @@ export const CategoryPreview = () => {
                                         src={item.image}
                                         alt={item.name}
                                         fill
+                                        sizes="(max-width: 768px) 80px, 96px"
                                         className="object-cover"
                                     />
                                 </div>
@@ -115,10 +116,10 @@ export const CategoryPreview = () => {
                             </div>
                         </SwiperSlide>
                     ))}
-                    <SwiperSlide style={{ width: 'auto' }}>
-                        <div className="flex flex-col items-center gap-2">
+                    <SwiperSlide style={{ width: 'auto' }} className="select-none cursor-pointer">
+                        <div className="flex flex-col items-center gap-2 select-none">
                             <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center cursor-pointer hover:bg-gray-300 transition-colors">
-                                <p className="text-xs md:text-sm text-center px-2 text-gray-700 font-medium">
+                                <p className="text-xs md:text-sm text-center px-2 text-gray-700 font-medium select-none">
                                     Показать больше
                                 </p>
                             </div>

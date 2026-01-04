@@ -32,7 +32,7 @@ export default function RootLayout({
         suppressHydrationWarning={true}
       >
         <Navbar />
-        <div className="min-h-screen px-3 pt-[90px] md:pt-[80px] pb-[70px] md:pb-0">
+        <div className="min-h-screen px-3 xl:px-0 pt-[90px] md:pt-[150px] pb-[70px] md:pb-0">
           {children}
           <Footer />
         </div>

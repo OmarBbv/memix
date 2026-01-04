@@ -38,17 +38,29 @@ export const CategoryTabs = () => {
                 modules={[FreeMode]}
                 freeMode={true}
                 spaceBetween={16}
-                slidesPerView={'auto'}
-                loop={false}
-                loopAdditionalSlides={0}
-                centeredSlides={false}
-                centerInsufficientSlides={false}
-                className="w-full overflow-visible!"
-                wrapperClass="!ease-out"
-                watchSlidesProgress={true}
+                slidesPerView="auto"
+                className="w-full"
+                breakpoints={{
+                    320: {
+                        slidesPerView: 2.5,
+                        spaceBetween: 12,
+                    },
+                    640: {
+                        slidesPerView: 3.5,
+                        spaceBetween: 16,
+                    },
+                    768: {
+                        slidesPerView: 4.5,
+                        spaceBetween: 20,
+                    },
+                    1024: {
+                        slidesPerView: 6,
+                        spaceBetween: 24,
+                    },
+                }}
             >
                 {categories.map((category) => (
-                    <SwiperSlide key={category.id} style={{ width: 'auto' }}>
+                    <SwiperSlide key={category.id} className="w-auto!">
                         <Button
                             variant="outline"
                             className={cn(
