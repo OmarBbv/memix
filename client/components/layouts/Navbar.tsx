@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import { TopBar } from "../home/TopBar";
 import { Input } from "../ui/input";
@@ -10,7 +10,7 @@ import { CircleUserRound, Heart, ShoppingBag } from "lucide-react"
 import Link from "next/link";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { AuthModal } from "./AuthModal";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { CartDrawer } from "../home/CartDrawer";
 
 // URL mapping fonksiyonu
@@ -193,6 +193,7 @@ const navItems = [
 export default function Navbar() {
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
     const router = useRouter()
+    const pathname = usePathname()
 
     return (
         <>
@@ -236,7 +237,11 @@ export default function Navbar() {
                 <div className="hidden md:block w-full h-auto bg-[#F9F9F9] py-4 px-2">
                     <div className="max-w-7xl flex mx-auto items-center gap-4">
                         {navItems.map((item) => (
-                            <HoverCard key={item.id} openDelay={20} closeDelay={100}>
+                            <HoverCard
+                                key={`${item.id}-${pathname}`}
+                                openDelay={20}
+                                closeDelay={100}
+                            >
                                 <HoverCardTrigger asChild>
                                     <Link href={item.url} className="text-base font-normal text-gray-700 hover:text-gray-900 flex items-center gap-2">
                                         {item.name}
