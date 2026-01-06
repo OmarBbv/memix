@@ -1,33 +1,33 @@
 'use client'
+import { cn } from "@/lib/utils"
+import { FreeMode } from "swiper/modules"
 import { Swiper, SwiperSlide } from "swiper/react"
 import { Button } from "../ui/button"
-import { FreeMode } from "swiper/modules"
-import { cn } from "@/lib/utils"
 
 const categories = [
     {
         id: 1,
-        name: "Жени",
+        name: "Qadınlar",
     },
     {
         id: 2,
-        name: "Мажи",
+        name: "Kişilər",
     },
     {
         id: 3,
-        name: "Детско",
+        name: "Uşaq",
     },
     {
         id: 4,
-        name: "Дом и живот",
+        name: "Ev və Həyat",
     },
     {
         id: 5,
-        name: "Техника",
+        name: "Texnika",
     },
     {
         id: 6,
-        name: "Спорт и отдих",
+        name: "İdman və İstirahət",
     }
 ]
 

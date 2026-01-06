@@ -1,9 +1,8 @@
 'use client'
+import { Eye, EyeOff, X } from "lucide-react"
 import { useState } from "react"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
-import { X, Eye, EyeOff } from "lucide-react"
-import Image from "next/image"
 
 interface AuthModalProps {
     isOpen: boolean
@@ -27,7 +26,7 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                         <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
                             <span className="text-white text-sm font-bold">R</span>
                         </div>
-                        <span className="font-bold text-lg">remix</span>
+                        <span className="font-bold text-lg">Memix</span>
                         <span className="text-sm text-gray-500">PRELOVED FASHION</span>
                     </div>
                     <button
@@ -47,12 +46,12 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                                 <span className="text-white text-2xl">✈</span>
                             </div>
                             <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                                ВЗЕМИ -20% ОТСТЪПКА + БЕЗПЛАТНА ДОСТАВКА
+                                -20% ENDİRİM + PULSUZ ÇATDIRILMA AL
                             </h2>
-                            <p className="text-gray-700">WELCOME ПОДАРЪК!</p>
+                            <p className="text-gray-700">WELCOME HƏDVİ!</p>
                         </div>
                         <div className="text-right">
-                            <p className="text-sm text-gray-600 mb-2">Въведи код</p>
+                            <p className="text-sm text-gray-600 mb-2">Kodu daxil et</p>
                             <div className="bg-white px-4 py-2 rounded-full inline-block">
                                 <span className="font-bold">WELCOME</span>
                             </div>
@@ -62,7 +61,7 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                     {/* Right Side - Login Form */}
                     <div className="flex-1 p-8 flex flex-col justify-center">
                         <div className="max-w-md mx-auto w-full">
-                            <h3 className="text-2xl font-bold text-center mb-8">ВХОД</h3>
+                            <h3 className="text-2xl font-bold text-center mb-8">GİRİŞ</h3>
 
                             <div className="space-y-4 mb-6">
                                 <Input
@@ -77,7 +76,7 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                                 <div className="relative">
                                     <Input
                                         type={showPassword ? "text" : "password"}
-                                        placeholder="Password"
+                                        placeholder="Şifrə"
                                         autoComplete="off"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
@@ -95,12 +94,12 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
 
                             <div className="text-center mb-6">
                                 <a href="#" className="text-sm text-blue-600 hover:underline">
-                                    Забравили сте паролата си?
+                                    Şifrənizi unutmusunuz?
                                 </a>
                             </div>
 
                             <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-lg font-medium mb-6">
-                                Вход
+                                Daxil ol
                             </Button>
 
                             <div className="space-y-3 mb-6">
@@ -111,7 +110,7 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                                     <div className="w-5 h-5 bg-blue-600 rounded flex items-center justify-center">
                                         <span className="text-white text-xs font-bold">f</span>
                                     </div>
-                                    Влезте с Facebook
+                                    Facebook ilə daxil ol
                                 </Button>
 
                                 <Button
@@ -121,14 +120,14 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                                     <div className="w-5 h-5 bg-red-500 rounded flex items-center justify-center">
                                         <span className="text-white text-xs font-bold">G</span>
                                     </div>
-                                    Влезте с Google
+                                    Google ilə daxil ol
                                 </Button>
                             </div>
 
                             <div className="text-center text-sm text-gray-600">
-                                Нямате профил в Remix? {" "}
+                                Memix-də hesabınız yoxdur? {" "}
                                 <a href="#" className="text-blue-600 hover:underline">
-                                    Регистрирайте се.
+                                    Qeydiyyatdan keçin.
                                 </a>
                             </div>
                         </div>
@@ -152,12 +151,12 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                         <div className="absolute inset-0 flex items-center justify-center">
                             <div className="text-center text-white">
                                 <div className="text-4xl font-bold mb-2">CBB</div>
-                                <div className="text-sm">Започни новата</div>
+                                <div className="text-sm">Yenisini başlat</div>
                             </div>
                         </div>
                         <div className="absolute bottom-4 left-4">
                             <a href="#" className="text-white text-sm underline hover:no-underline">
-                                Към селекцията →
+                                Seçimə keç →
                             </a>
                         </div>
                     </div>
@@ -166,19 +165,19 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                         <div className="absolute inset-0 bg-linear-to-r from-green-300 to-green-400"></div>
                         <div className="absolute top-4 right-4">
                             <div className="bg-black text-white px-3 py-1 rounded text-sm">
-                                До -50%
+                                50%-ə qədər
                             </div>
-                            <div className="text-xs text-gray-700 mt-1">с код FRESH</div>
+                            <div className="text-xs text-gray-700 mt-1">FRESH kodu ilə</div>
                         </div>
                         <div className="absolute bottom-4 left-4 text-green-800">
-                            <div className="text-sm font-medium">Започни с Wear&Share</div>
+                            <div className="text-sm font-medium">Wear&Share ilə başla</div>
                         </div>
                     </div>
 
                     <div className="flex-1 h-32 bg-gray-100 relative overflow-hidden">
                         <div className="absolute inset-0 bg-linear-to-r from-gray-200 to-gray-300"></div>
                         <div className="absolute bottom-4 right-4 text-gray-700">
-                            <div className="text-sm">Условия</div>
+                            <div className="text-sm">Şərtlər</div>
                         </div>
                     </div>
                 </div>

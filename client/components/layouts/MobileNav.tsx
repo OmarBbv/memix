@@ -7,12 +7,12 @@ import { cn } from "@/lib/utils"
 
 const navItems = [
     {
-        name: "Начало",
+        name: "Ana səhifə",
         href: "/",
         icon: Home
     },
     {
-        name: "Продукти",
+        name: "Məhsullar",
         href: "/products",
         icon: Shirt
     },
@@ -22,12 +22,12 @@ const navItems = [
         icon: RefreshCw
     },
     {
-        name: "Любими",
+        name: "Sevimlilər",
         href: "/favorites",
         icon: Heart
     },
     {
-        name: "Профил",
+        name: "Profil",
         href: "/profile",
         icon: User
     }

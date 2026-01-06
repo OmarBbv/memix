@@ -1,7 +1,6 @@
-import Link from "next/link"
+import { Facebook, Instagram, Mail, MessageSquare, Phone } from "lucide-react"
 import Image from "next/image"
-import { Facebook, Instagram, Mail, Phone, MessageSquare } from "lucide-react"
-import logoIcon from "@/public/logo-Cr-ALXoK.svg"
+import Link from "next/link"
 
 export default function Footer() {
     return (
@@ -9,63 +8,63 @@ export default function Footer() {
             <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-20">
                     <div className="flex flex-col gap-3">
-                        <h3 className="font-semibold text-base mb-2">Магазин</h3>
+                        <h3 className="font-semibold text-base mb-2">Mağaza</h3>
                         <Link href="#" className="text-gray-700 hover:text-black transition-colors">
-                            Условия
+                            Şərtlər
                         </Link>
                         <Link href="#" className="text-gray-700 hover:text-black transition-colors">
-                            Доставка и връщане
+                            Çatdırılma və qaytarma
                         </Link>
                         <Link href="#" className="text-gray-700 hover:text-black transition-colors">
-                            Промоции
-                        </Link>
-                    </div>
-
-                    <div className="flex flex-col gap-3">
-                        <h3 className="font-semibold text-base mb-2">Сервиз</h3>
-                        <Link href="#" className="text-gray-700 hover:text-black transition-colors">
-                            Продай с Wear&Share
-                        </Link>
-                        <Link href="#" className="text-gray-700 hover:text-black transition-colors">
-                            Как работи Wear&Share?
-                        </Link>
-                        <Link href="#" className="text-gray-700 hover:text-black transition-colors">
-                            Моите продажби
+                            Promosiyalar
                         </Link>
                     </div>
 
                     <div className="flex flex-col gap-3">
-                        <h3 className="font-semibold text-base mb-2">За повече информация</h3>
+                        <h3 className="font-semibold text-base mb-2">Xidmət</h3>
                         <Link href="#" className="text-gray-700 hover:text-black transition-colors">
-                            Въпроси
+                            Wear&Share ilə sat
+                        </Link>
+                        <Link href="#" className="text-gray-700 hover:text-black transition-colors">
+                            Wear&Share necə işləyir?
+                        </Link>
+                        <Link href="#" className="text-gray-700 hover:text-black transition-colors">
+                            Satışlarım
+                        </Link>
+                    </div>
+
+                    <div className="flex flex-col gap-3">
+                        <h3 className="font-semibold text-base mb-2">Əlavə məlumat üçün</h3>
+                        <Link href="#" className="text-gray-700 hover:text-black transition-colors">
+                            Suallar
                         </Link>
                         <Link href="#" className="flex items-center gap-2 text-gray-700 hover:text-black transition-colors">
                             <MessageSquare className="w-4 h-4" />
-                            <span>Свържете се с нас</span>
+                            <span>Bizimlə əlaqə</span>
                         </Link>
-                        <Link href="mailto:bg@remixshop.com" className="flex items-center gap-2 text-gray-700 hover:text-black transition-colors">
+                        <Link href="mailto:bg@Memixshop.com" className="flex items-center gap-2 text-gray-700 hover:text-black transition-colors">
                             <Mail className="w-4 h-4" />
-                            <span>bg@remixshop.com</span>
+                            <span>bg@Memixshop.com</span>
                         </Link>
                         <Link href="tel:024932555" className="flex items-center gap-2 text-gray-700 hover:text-black transition-colors">
                             <Phone className="w-4 h-4" />
                             <span>02 4932 555</span>
                         </Link>
                         <p className="text-gray-500 text-xs mt-1">
-                            Понеделник - Петък, 09:00 - 18:00 ч.
+                            Bazar ertəsi - Cümə, 09:00 - 18:00
                         </p>
                     </div>
 
                     <div className="flex flex-col gap-3">
-                        <h3 className="font-semibold text-base mb-2">Компания</h3>
+                        <h3 className="font-semibold text-base mb-2">Şirkət</h3>
                         <Link href="#" className="text-gray-700 hover:text-black transition-colors">
-                            За Remix
+                            Memix haqqında
                         </Link>
                         <Link href="#" className="text-gray-700 hover:text-black transition-colors">
-                            Кариерни възможности
+                            Karyera imkanları
                         </Link>
                         <Link href="#" className="text-gray-700 hover:text-black transition-colors">
-                            Remix Blog
+                            Memix Blog
                         </Link>
                     </div>
                 </div>
@@ -73,7 +72,7 @@ export default function Footer() {
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-10 mb-16 pb-16 border-b border-gray-200">
                     <div className="flex flex-col gap-6">
                         <div className="flex flex-col">
-                            <Image src={logoIcon} alt="Remix Logo" width={120} height={45} className="mb-2" />
+                            <Image src="/logo-Cr-ALXoK.svg" alt="Memix Logo" width={120} height={45} className="mb-2" />
                             <span className="text-[11px] tracking-[0.2em] font-normal text-gray-600 ml-1">
                                 PRELOVED FASHION
                             </span>
@@ -95,7 +94,7 @@ export default function Footer() {
                     </div>
 
                     <div className="flex flex-col items-start lg:items-end gap-4">
-                        <h3 className="font-semibold text-base">Remix App</h3>
+                        <h3 className="font-semibold text-base">Memix App</h3>
                         <div className="flex gap-4">
                             <div className="w-28 h-28 bg-black p-2 hidden sm:block">
                                 <svg
@@ -179,27 +178,27 @@ export default function Footer() {
 
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 text-xs">
                     <div className="text-gray-600 whitespace-nowrap">
-                        © Copyright 2026 Remix Global EAD
+                        © Copyright 2026 Memix Global EAD
                     </div>
 
                     <div className="flex flex-wrap gap-x-4 gap-y-2 text-gray-600">
                         <Link href="#" className="hover:text-black transition-colors whitespace-nowrap">
-                            Условия за ползване
+                            İstifadə şərtləri
                         </Link>
                         <Link href="#" className="hover:text-black transition-colors whitespace-nowrap">
-                            Правна информация
+                            Hüquqi məlumat
                         </Link>
                         <Link href="#" className="hover:text-black transition-colors whitespace-nowrap">
-                            ЕС платформа за онлайн решаване на спорове
+                            AB onlayn mübahisə həlli platforması
                         </Link>
                         <Link href="#" className="hover:text-black transition-colors whitespace-nowrap">
-                            Карта на сайта
+                            Sayt xəritəsi
                         </Link>
                         <Link href="#" className="hover:text-black transition-colors whitespace-nowrap">
-                            Политика за поверителност и за бисквитките
+                            Məxfilik və cookie siyasəti
                         </Link>
                         <Link href="#" className="hover:text-black transition-colors whitespace-nowrap">
-                            Настройки на бисквитките
+                            Cookie parametrləri
                         </Link>
                     </div>
 

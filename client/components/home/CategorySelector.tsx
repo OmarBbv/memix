@@ -1,23 +1,23 @@
-import Image from "next/image"
-import childImgOne from "@/public/home/category-selector/kids-2y.webp"
-import childImgTwo from "@/public/home/category-selector/kids-10y.webp"
-import childImgThree from "@/public/home/category-selector/kids-18y.webp"
+import childImgTwo from "@/public/home/category-selector/kids-10y.webp";
+import childImgThree from "@/public/home/category-selector/kids-18y.webp";
+import childImgOne from "@/public/home/category-selector/kids-2y.webp";
+import Image from "next/image";
 
 const childrenCategories = [
     {
         img: childImgOne,
         alt: 'childImgOne',
-        label: 'Деца до 2 години',
+        label: '2 yaşa qədər uşaqlar',
     },
     {
         img: childImgTwo,
         alt: 'childImgTwo',
-        label: 'Деца до 10 години',
+        label: '10 yaşa qədər uşaqlar',
     },
     {
         img: childImgThree,
         alt: 'childImgThree',
-        label: 'Тийнейджъри',
+        label: 'Yeniyetmələr',
     },
 ];
 
@@ -25,7 +25,7 @@ const childrenCategories = [
 export const CategorySelector = () => {
     return <div className="flex flex-col p-3">
         <h2 className="text-2xl text-center">
-            Детски дрехи
+            Uşaq geyimləri
         </h2>
         <div className="flex flex-nowrap justify-center gap-4 mt-4">
             {childrenCategories.map((child, index) => (

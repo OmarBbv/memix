@@ -1,9 +1,9 @@
 'use client'
 
-import { Swiper, SwiperSlide } from "swiper/react"
-import { FreeMode } from "swiper/modules"
-import Image from "next/image"
 import img1 from '@/public/home/category-preview/img1.webp'
+import img10 from '@/public/home/category-preview/img10.webp'
+import img11 from '@/public/home/category-preview/img11.webp'
+import img12 from '@/public/home/category-preview/img12.webp'
 import img2 from '@/public/home/category-preview/img2.webp'
 import img3 from '@/public/home/category-preview/img3.webp'
 import img4 from '@/public/home/category-preview/img4.webp'
@@ -12,20 +12,20 @@ import img6 from '@/public/home/category-preview/img6.webp'
 import img7 from '@/public/home/category-preview/img7.webp'
 import img8 from '@/public/home/category-preview/img8.webp'
 import img9 from '@/public/home/category-preview/img9.webp'
-import img10 from '@/public/home/category-preview/img10.webp'
-import img11 from '@/public/home/category-preview/img11.webp'
-import img12 from '@/public/home/category-preview/img12.webp'
+import Image from "next/image"
+import { FreeMode } from "swiper/modules"
+import { Swiper, SwiperSlide } from "swiper/react"
 import { CategoryTabs } from "./CategoryTabs"
 
 const categoryItems = [
     {
         id: 1,
-        name: "Якета",
+        name: "Gödəkcələr",
         image: img1,
     },
     {
         id: 2,
-        name: "Палта",
+        name: "Paltolar",
         image: img2,
     },
     {
@@ -35,47 +35,47 @@ const categoryItems = [
     },
     {
         id: 4,
-        name: "Пуловери",
+        name: "Sviterlər",
         image: img4,
     },
     {
         id: 5,
-        name: "Дрехи",
+        name: "Geyimlər",
         image: img5,
     },
     {
         id: 6,
-        name: "Обувки",
+        name: "Ayaqqabılar",
         image: img6,
     },
     {
         id: 7,
-        name: "Чанти",
+        name: "Çantalar",
         image: img7,
     },
     {
         id: 8,
-        name: "Аксесоари",
+        name: "Aksesuarlar",
         image: img8,
     },
     {
         id: 9,
-        name: "Спорт",
+        name: "İdman",
         image: img9,
     },
     {
         id: 10,
-        name: "Косметика",
+        name: "Kosmetika",
         image: img10,
     },
     {
         id: 11,
-        name: "Бижута",
+        name: "Zərgərlik",
         image: img11,
     },
     {
         id: 12,
-        name: "Часовници",
+        name: "Saatlar",
         image: img12,
     },
 ]
@@ -120,7 +120,7 @@ export const CategoryPreview = () => {
                         <div className="flex flex-col items-center gap-2 select-none">
                             <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center cursor-pointer hover:bg-gray-300 transition-colors">
                                 <p className="text-xs md:text-sm text-center px-2 text-gray-700 font-medium select-none">
-                                    Показать больше
+                                    Daha çox göstər
                                 </p>
                             </div>
                         </div>
@@ -130,4 +130,3 @@ export const CategoryPreview = () => {
         </div>
     )
 }
-

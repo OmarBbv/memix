@@ -6,9 +6,9 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet"
-import { ReactNode } from "react"
 import { Shirt } from "lucide-react"
 import Link from "next/link"
+import { ReactNode } from "react"
 
 interface CartDrawerProps {
     children: ReactNode
@@ -22,7 +22,7 @@ export function CartDrawer({ children }: CartDrawerProps) {
             </SheetTrigger>
             <SheetContent side="right" className="w-full sm:max-w-[500px]! sm:w-[500px] p-0 flex flex-col [&>button]:top-[18px] [&>button]:right-6">
                 <SheetHeader className="px-6 py-[18px] border-b">
-                    <SheetTitle className="text-xl font-normal m-0">Кошница</SheetTitle>
+                    <SheetTitle className="text-xl font-normal m-0">Səbət</SheetTitle>
                 </SheetHeader>
 
                 <div className="flex-1 flex flex-col justify-center items-center px-16 py-[30px] text-center">
@@ -35,22 +35,22 @@ export function CartDrawer({ children }: CartDrawerProps) {
 
                     <div className="space-y-2 mb-8">
                         <p className="text-base leading-6 text-gray-900">
-                            Все още нямате продукти в кошницата.
+                            Səbətinizdə hələ məhsul yoxdur.
                         </p>
                         <p className="text-base leading-6 text-gray-900">
-                            Добавете нещо стилно днес.
+                            Bu gün dəbli bir şey əlavə edin.
                         </p>
                     </div>
 
                     <div className="w-full space-y-3">
                         <Link href="/category/women" className="block">
                             <Button className="w-full bg-black hover:bg-gray-800 text-white rounded-xl px-6 text-base font-medium h-[42px] relative after:content-['→'] after:ml-2 after:text-xl after:font-normal">
-                                Дамска мода
+                                Qadın modası
                             </Button>
                         </Link>
                         <Link href="/category/men" className="block">
                             <Button className="w-full bg-black hover:bg-gray-800 text-white rounded-xl px-6 text-base font-medium h-[42px] relative after:content-['→'] after:ml-2 after:text-xl after:font-normal">
-                                Мъжка мода
+                                Kişi modası
                             </Button>
                         </Link>
                     </div>

@@ -1,15 +1,14 @@
-import Image from "next/image"
-import { ArrowRight } from "lucide-react"
-import img1 from '@/public/home/promo-banners/img1.jpg'
 import img from '@/public/home/promo-banners/img.jpg'
+import img1 from '@/public/home/promo-banners/img1.jpg'
+import Image from "next/image"
 
 export const PromoBanners = () => {
     return (
         <div className="flex flex-col gap-2 md:gap-6 mb-6 mt-4 md:mt-6">
             <div className="text-center space-y-1">
                 <p className="flex flex-col gap-1 md:flex-row items-center justify-center text-lg font-medium">
-                    <span>Пазарувай secondhand и нови с етикет.</span>
-                    <span>Продавай лесно. Прави добро.</span>
+                    <span>İkinci əl və etiketli yeni məhsulları al.</span>
+                    <span>Asanlıqla sat. Yaxşılıq et.</span>
                 </p>
             </div>
             <div className="relative w-full rounded-lg overflow-hidden">
@@ -21,4 +20,3 @@ export const PromoBanners = () => {
         </div>
     )
 }
-

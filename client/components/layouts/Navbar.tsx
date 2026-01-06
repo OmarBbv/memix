@@ -1,58 +1,57 @@
 'use client'
 
-import { useState, useEffect } from "react"
-import Image from "next/image"
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import logoIcon from "@/public/logo.jpeg";
+import searchIcon from "@/public/navbar/search.svg";
+import { CircleUserRound, Heart, ShoppingBag } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
+import { CartDrawer } from "../home/CartDrawer";
 import { TopBar } from "../home/TopBar";
 import { Input } from "../ui/input";
-import logoIcon from "@/public/logo-Cr-ALXoK.svg"
-import searchIcon from "@/public/navbar/search.svg"
-import { CircleUserRound, Heart, ShoppingBag } from "lucide-react"
-import Link from "next/link";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { AuthModal } from "./AuthModal";
-import { useRouter, usePathname } from "next/navigation";
-import { CartDrawer } from "../home/CartDrawer";
 
-// URL mapping fonksiyonu
 const getSlugFromText = (text: string): string => {
     const slugMap: { [key: string]: string } = {
-        'Добавени днес': 'added-today',
-        'Най-ниски цени': 'lowest-prices',
-        'Най-харесвани': 'most-liked',
-        '🔥 Находките на деня': 'daily-finds',
-        'Зимни класики': 'winter-classics',
-        'Сака, якета и жилетки': 'jackets-coats',
-        'В уюта на зимата': 'winter-comfort',
+        'Bu gün əlavə edilənlər': 'added-today',
+        'Ən aşağı qiymətlər': 'lowest-prices',
+        'Ən çox bəyənilənlər': 'most-liked',
+        '🔥 Günün tapıntıları': 'daily-finds',
+        'Qış klassikləri': 'winter-classics',
+        'Ceketlər, paltolar və jiletlər': 'jackets-coats',
+        'Qışın rahatlığında': 'winter-comfort',
         '🇹🇭 Tommy Hilfiger Shop': 'tommy-hilfiger',
-        'Анцузи': 'tracksuits',
-        'Бански': 'swimwear',
-        'Бельо': 'underwear',
-        'Блузи': 'blouses',
-        'Боксро и пончо': 'ponchos',
-        'Гащеризони': 'jumpsuits',
-        'Дънки': 'jeans',
-        'Елеци': 'vests',
-        'Жилетки': 'cardigans',
-        'Клинове': 'skirts',
-        'Кожени якета': 'leather-jackets',
-        'Костюми': 'suits',
-        'Къси панталони': 'shorts',
-        'Палта': 'coats',
+        'Trenco': 'tracksuits',
+        'Üzgüçülük geyimləri': 'swimwear',
+        'Alt geyim': 'underwear',
+        'Bluzkalar': 'blouses',
+        'Ponço və boksro': 'ponchos',
+        'Kombinezonlar': 'jumpsuits',
+        'Cins': 'jeans',
+        'Yeleklər': 'vests',
+        'Jiletlər': 'cardigans',
+        'Yubkalar': 'skirts',
+        'Dəri ceketlər': 'leather-jackets',
+        'Kostyumlar': 'suits',
+        'Şortlar': 'shorts',
+        'Paltolar': 'coats',
         'Zara': 'zara',
         'Tommy Hilfiger': 'tommy-hilfiger',
         'Nike': 'nike',
         'Pinko': 'pinko',
         'Karl Lagerfeld': 'karl-lagerfeld',
-        'Вижте всички марки': 'all-brands',
+        'Bütün brendləri gör': 'all-brands',
         'FRESH': 'fresh',
-        'Раници': 'backpacks',
-        'Чанти за рамо': 'shoulder-bags',
-        'Бижута': 'jewelry',
-        'Часовници': 'watches',
-        'Спортни обувки': 'sport-shoes',
-        'Елегантни обувки': 'elegant-shoes',
-        'Бебета': 'babies',
-        'Малки деца': 'toddlers'
+        'Sırt çantaları': 'backpacks',
+        'Çiyin çantaları': 'shoulder-bags',
+        'Biju': 'jewelry',
+        'Saatlar': 'watches',
+        'İdman ayaqqabıları': 'sport-shoes',
+        'Zərif ayaqqabılar': 'elegant-shoes',
+        'Körpələr': 'babies',
+        'Kiçik uşaqlar': 'toddlers'
     }
 
     return slugMap[text] || text.toLowerCase().replace(/\s+/g, '-')
@@ -61,67 +60,67 @@ const getSlugFromText = (text: string): string => {
 const navItems = [
     {
         id: 1,
-        name: 'Жени',
+        name: 'Qadınlar',
         url: '/category/women',
         categories: {
-            'Популярни': [
-                'Добавени днес',
-                'Най-ниски цени',
-                'Най-харесвани',
-                '🔥 Находките на деня',
-                'Зимни класики',
-                'Сака, якета и жилетки',
-                'В уюта на зимата',
+            'Populyar': [
+                'Bu gün əlavə edilənlər',
+                'Ən aşağı qiymətlər',
+                'Ən çox bəyənilənlər',
+                '🔥 Günün tapıntıları',
+                'Qış klassikləri',
+                'Ceketlər, paltolar və jiletlər',
+                'Qışın rahatlığında',
                 '🇹🇭 Tommy Hilfiger Shop'
             ],
-            'Дамски дрехи': [
-                'Анцузи',
-                'Бански',
-                'Бельо',
-                'Блузи',
-                'Боксро и пончо',
-                'Гащеризони',
-                'Дънки',
-                'Елеци',
-                'Жилетки',
-                'Клинове',
-                'Кожени якета',
-                'Костюми',
-                'Къси панталони',
-                'Палта'
+            'Qadın geyimləri': [
+                'Trenco',
+                'Üzgüçülük geyimləri',
+                'Alt geyim',
+                'Bluzkalar',
+                'Ponço və boksro',
+                'Kombinezonlar',
+                'Cins',
+                'Yeleklər',
+                'Jiletlər',
+                'Yubkalar',
+                'Dəri ceketlər',
+                'Kostyumlar',
+                'Şortlar',
+                'Paltolar'
             ],
-            'Марки': [
+            'Brendlər': [
                 'Zara',
                 'Tommy Hilfiger',
                 'Nike',
                 'Pinko',
                 'Karl Lagerfeld',
-                'Вижте всички марки'
+                'Bütün brendləri gör'
             ],
-            'Персонални ваучери': [
+            'Şəxsi vaucherlər': [
                 'FRESH'
             ],
-            'Запазени филтри': [
-                'За да видиш запазените си филтри, влез в профила си.'
+            'Saxlanılmış filtrlər': [
+                'Saxlanılmış filtrlərinizi görmək üçün profilə daxil olun.'
             ]
         }
     },
     {
         id: 2,
-        name: 'Мъже',
+        name: 'Kişilər',
         url: '/category/men',
         categories: {
-            'Популярни': [
-                'Добавени днес',
-                'Най-ниски цени',
-                'Най-харесвани'
+            'Populyar': [
+                'Bu gün əlavə edilənlər',
+                'Ən aşağı qiymətlər',
+                'Ən çox bəyənilənlər'
             ],
-            'Мъжки дрехи': [
-                'Анцузи',
-                'Бански',
-                'Бельо'
+            'Kişi geyimləri': [
+                'Trenco',
+                'Üzgüçülük geyimləri',
+                'Alt geyim'
             ],
-            'Марки': [
+            'Brendlər': [
                 'Zara',
                 'Tommy Hilfiger',
                 'Nike'
@@ -130,61 +129,61 @@ const navItems = [
     },
     {
         id: 3,
-        name: 'Чанти',
+        name: 'Çantalar',
         url: '/category/bags',
         categories: {
-            'Популярни': [
-                'Добавени днес',
-                'Най-ниски цени'
+            'Populyar': [
+                'Bu gün əlavə edilənlər',
+                'Ən aşağı qiymətlər'
             ],
-            'Видове чанти': [
-                'Раници',
-                'Чанти за рамо'
+            'Çanta növləri': [
+                'Sırt çantaları',
+                'Çiyin çantaları'
             ]
         }
     },
     {
         id: 4,
-        name: 'Аксесоари',
+        name: 'Aksesuarlar',
         url: '/category/accessories',
         categories: {
-            'Популярни': [
-                'Добавени днес',
-                'Най-ниски цени'
+            'Populyar': [
+                'Bu gün əlavə edilənlər',
+                'Ən aşağı qiymətlər'
             ],
-            'Видове': [
-                'Бижута',
-                'Часовници'
+            'Növlər': [
+                'Biju',
+                'Saatlar'
             ]
         }
     },
     {
         id: 5,
-        name: 'Обувки',
+        name: 'Ayaqqabılar',
         url: '/category/shoes',
         categories: {
-            'Популярни': [
-                'Добавени днес',
-                'Най-ниски цени'
+            'Populyar': [
+                'Bu gün əlavə edilənlər',
+                'Ən aşağı qiymətlər'
             ],
-            'Видове': [
-                'Спортни обувки',
-                'Елегантни обувки'
+            'Növlər': [
+                'İdman ayaqqabıları',
+                'Zərif ayaqqabılar'
             ]
         }
     },
     {
         id: 6,
-        name: 'Деца',
+        name: 'Uşaqlar',
         url: '/category/children',
         categories: {
-            'Популярни': [
-                'Добавени днес',
-                'Най-ниски цени'
+            'Populyar': [
+                'Bu gün əlavə edilənlər',
+                'Ən aşağı qiymətlər'
             ],
-            'Възрастови групи': [
-                'Бебета',
-                'Малки деца'
+            'Yaş qrupları': [
+                'Körpələr',
+                'Kiçik uşaqlar'
             ]
         }
     }
@@ -202,17 +201,17 @@ export default function Navbar() {
                 <div className="max-w-7xl mx-auto h-full px-3 py-2 md:px-0  sm:py-3 flex items-center gap-2 w-full">
                     <div className="w-[85px] md:w-auto h-[47px] flex justify-center items-center gap-2 rounded-lg pl-[2px] pr-[3px] sm:mx-2">
                         <Link href="/">
-                            <Image src={logoIcon} alt={logoIcon} width={85} height={85} />
+                            <Image src={logoIcon} alt="Memix Logo" width={85} height={85} />
                         </Link>
                         <div className="hidden md:flex items-center gap-4 ml-5">
-                            <Link href="/" className="flex h-full -translate-y-[2px] items-center font-bold tracking-tighter text-lg">ПАЗАРУВАЙ</Link>
-                            <Link href="/" className="flex h-full -translate-y-[2px] items-center font-bold tracking-tighter text-lg">ПРОДАЙ</Link>
+                            <Link href="/" className="flex h-full -translate-y-[2px] items-center font-bold tracking-tighter text-lg">ALIŞ</Link>
+                            <Link href="/" className="flex h-full -translate-y-[2px] items-center font-bold tracking-tighter text-lg">SATIŞ</Link>
                         </div>
                     </div>
                     <div className="w-2/4 flex-1 shrink border-2 h-auto md:h-[40px] border-gray-300 rounded-[12px] flex items-center pl-1.5 sm:pl-2">
                         <Image src={searchIcon} alt={searchIcon} height={25} width={25} />
                         <Input
-                            placeholder="Търси ленени панталони"
+                            placeholder="Pambıq şalvar axtar"
                             className="border-none shadow-none"
                         />
                     </div>
@@ -264,7 +263,7 @@ export default function Navbar() {
                                                                     className={`block text-sm hover:text-gray-900 transition-colors ${categoryItem.includes('🔥') ? 'text-red-500 hover:text-red-600' :
                                                                         categoryItem.includes('🇹🇭') ? 'text-blue-600 hover:text-blue-700' :
                                                                             categoryItem === 'FRESH' ? 'bg-black text-white px-2 py-1 rounded text-xs font-medium inline-block' :
-                                                                                categoryItem === 'Вижте всички марки' ? 'text-gray-600 underline hover:no-underline' :
+                                                                                categoryItem === 'Bütün brendləri gör' ? 'text-gray-600 underline hover:no-underline' :
                                                                                     'text-gray-600'
                                                                         }`}
                                                                 >
@@ -272,15 +271,15 @@ export default function Navbar() {
                                                                 </Link>
                                                             ))}
                                                         </div>
-                                                        {categoryName === 'Персонални ваучери' && (
+                                                        {categoryName === 'Şəxsi vaucherlər' && (
                                                             <div className="space-y-2 mt-4">
-                                                                <h4 className="font-semibold text-gray-900 text-base">Цена</h4>
+                                                                <h4 className="font-semibold text-gray-900 text-base">Qiymət</h4>
                                                                 <div className="space-y-1 text-sm text-gray-600">
-                                                                    <div>до 10 €</div>
-                                                                    <div>до 30 €</div>
-                                                                    <div>до 50 €</div>
-                                                                    <div>до 70 €</div>
-                                                                    <div>до 100 €</div>
+                                                                    <div>10 €-a qədər</div>
+                                                                    <div>30 €-a qədər</div>
+                                                                    <div>50 €-a qədər</div>
+                                                                    <div>70 €-a qədər</div>
+                                                                    <div>100 €-a qədər</div>
                                                                 </div>
                                                             </div>
                                                         )}

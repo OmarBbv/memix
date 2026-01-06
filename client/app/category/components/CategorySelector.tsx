@@ -11,43 +11,43 @@ import 'swiper/css/pagination'
 const categoryItems = [
     {
         id: 1,
-        name: 'Дънки',
+        name: 'Cins',
         slug: 'jeans',
-        image: '/placeholder-jeans.jpg' // Gerçek resim yolu
+        image: '/placeholder-jeans.jpg'
     },
     {
         id: 2,
-        name: 'Панталони',
+        name: 'Şalvar',
         slug: 'pants',
         image: '/placeholder-pants.jpg'
     },
     {
         id: 3,
-        name: 'Ризи',
+        name: 'Köynəklər',
         slug: 'shirts',
         image: '/placeholder-shirts.jpg'
     },
     {
         id: 4,
-        name: 'Тениски',
+        name: 'T-shirtlər',
         slug: 'tshirts',
         image: '/placeholder-tshirts.jpg'
     },
     {
         id: 5,
-        name: 'Пуловери и суитшърти',
+        name: 'Svetr və hoodielər',
         slug: 'sweaters',
         image: '/placeholder-sweaters.jpg'
     },
     {
         id: 6,
-        name: 'Якета',
+        name: 'Ceketlər',
         slug: 'jackets',
         image: '/placeholder-jackets.jpg'
     },
     {
         id: 7,
-        name: 'Обувки',
+        name: 'Ayaqqabılar',
         slug: 'shoes',
         image: '/placeholder-shoes.jpg'
     }
@@ -77,7 +77,7 @@ export const CategorySelector = ({ currentCategory }: CategorySelectorProps) => 
                                         <div className="w-full h-full bg-linear-to-br from-gray-200 to-gray-300 flex items-center justify-center">
                                             <span className="text-xs text-gray-500">IMG</span>
                                         </div>
-                                        {/* 
+                                        {/*
                                         <Image
                                             src={item.image}
                                             alt={item.name}
@@ -111,7 +111,7 @@ export const CategorySelector = ({ currentCategory }: CategorySelectorProps) => 
                                     <div className="w-full h-full bg-linear-to-br from-gray-200 to-gray-300 flex items-center justify-center">
                                         <span className="text-sm text-gray-500">IMG</span>
                                     </div>
-                                    {/* 
+                                    {/*
                                     <Image
                                         src={item.image}
                                         alt={item.name}

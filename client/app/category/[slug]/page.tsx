@@ -3,64 +3,60 @@ import { useParams } from 'next/navigation'
 import { CategorySelector } from '../components/CategorySelector'
 
 const categoryTitles: { [key: string]: string } = {
-    'women': 'Дамска мода',
-    'men': 'Мъжка мода',
-    'bags': 'Чанти',
-    'accessories': 'Аксесоари',
-    'shoes': 'Обувки',
-    'children': 'Деца'
+    'women': 'Qadın modası',
+    'men': 'Kişi modası',
+    'bags': 'Çantalar',
+    'accessories': 'Aksesuarlar',
+    'shoes': 'Ayaqqabılar',
+    'children': 'Uşaqlar'
 }
 
 const subcategoryTitles: { [key: string]: string } = {
-    // Популярни
-    'added-today': 'Добавени днес',
-    'lowest-prices': 'Най-ниски цени',
-    'most-liked': 'Най-харесвани',
-    'daily-finds': 'Находките на деня',
-    'winter-classics': 'Зимни класики',
-    'jackets-coats': 'Сака, якета и жилетки',
-    'winter-comfort': 'В уюта на зимата',
+    'added-today': 'Bu gün əlavə edilənlər',
+    'lowest-prices': 'Ən aşağı qiymətlər',
+    'most-liked': 'Ən çox bəyənilənlər',
+    'daily-finds': 'Günün tapıntıları',
+    'winter-classics': 'Qış klassikləri',
+    'jackets-coats': 'Ceketlər, paltolar və jiletlər',
+    'winter-comfort': 'Qışın rahatlığında',
     'tommy-hilfiger': 'Tommy Hilfiger Shop',
 
-    // Дамски дрехи
-    'tracksuits': 'Анцузи',
-    'swimwear': 'Бански',
-    'underwear': 'Бельо',
-    'blouses': 'Блузи',
-    'ponchos': 'Боксро и пончо',
-    'jumpsuits': 'Гащеризони',
-    'jeans': 'Дънки',
-    'vests': 'Елеци',
-    'cardigans': 'Жилетки',
-    'skirts': 'Клинове',
-    'leather-jackets': 'Кожени якета',
-    'suits': 'Костюми',
-    'shorts': 'Къси панталони',
-    'coats': 'Палта',
+    'tracksuits': 'Trenco',
+    'swimwear': 'Üzgüçülük geyimləri',
+    'underwear': 'Alt geyim',
+    'blouses': 'Bluzkalar',
+    'ponchos': 'Ponço və boksro',
+    'jumpsuits': 'Kombinezonlar',
+    'jeans': 'Cins',
+    'vests': 'Yeleklər',
+    'cardigans': 'Jiletlər',
+    'skirts': 'Yubkalar',
+    'leather-jackets': 'Dəri ceketlər',
+    'suits': 'Kostyumlar',
+    'shorts': 'Şortlar',
+    'coats': 'Paltolar',
 
-    // Марки
     'zara': 'Zara',
     'nike': 'Nike',
     'pinko': 'Pinko',
     'karl-lagerfeld': 'Karl Lagerfeld',
-    'all-brands': 'Вижте всички марки',
+    'all-brands': 'Bütün brendləri gör',
 
-    // Други
-    'backpacks': 'Раници',
-    'shoulder-bags': 'Чанти за рамо',
-    'jewelry': 'Бижута',
-    'watches': 'Часовници',
-    'sport-shoes': 'Спортни обувки',
-    'elegant-shoes': 'Елегантни обувки',
-    'babies': 'Бебета',
-    'toddlers': 'Малки деца'
+    'backpacks': 'Sırt çantaları',
+    'shoulder-bags': 'Çiyin çantaları',
+    'jewelry': 'Biju',
+    'watches': 'Saatlar',
+    'sport-shoes': 'İdman ayaqqabıları',
+    'elegant-shoes': 'Zərif ayaqqabılar',
+    'babies': 'Körpələr',
+    'toddlers': 'Kiçik uşaqlar'
 }
 
 export default function CategoryPage() {
     const params = useParams()
     const slug = params.slug as string
 
-    const title = categoryTitles[slug] || subcategoryTitles[slug] || 'Категория'
+    const title = categoryTitles[slug] || subcategoryTitles[slug] || 'Kateqoriya'
 
     return (
         <div className="min-h-screen">
@@ -70,15 +66,13 @@ export default function CategoryPage() {
                 <CategorySelector currentCategory={slug} />
 
                 <p className="text-lg text-gray-600 mb-8">
-                    Открийте най-добрите продукти в категория "{title}"
+                    "{title}" kateqoriyasında ən yaxşı məhsulları kəşf edin
                 </p>
 
-                {/* Тук ще бъде продуктовият списък */}
                 <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {/* Placeholder за продукти */}
                     {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
                         <div key={item} className="bg-gray-100 rounded-lg p-4 h-64 flex items-center justify-center">
-                            <span className="text-gray-500">Продукт {item}</span>
+                            <span className="text-gray-500">Məhsul {item}</span>
                         </div>
                     ))}
                 </div>
