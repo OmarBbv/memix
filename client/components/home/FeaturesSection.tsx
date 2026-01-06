@@ -57,7 +57,6 @@ const sustainabilityFeatures = [
 export const FeaturesSection = () => {
     return (
         <section className="w-full space-y-24 py-12">
-            {/* Main Features */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-16">
                     <span className="text-sm font-semibold tracking-wider text-rose-500 uppercase mb-2 block">Avantajlarımız</span>
@@ -83,9 +82,8 @@ export const FeaturesSection = () => {
                 </div>
             </div>
 
-            {/* Sustainability Section */}
             <div className="relative overflow-hidden w-full">
-                <div className="absolute inset-0 bg-gradient-to-br from-teal-50 to-emerald-50 -z-10" />
+                <div className="absolute inset-0 bg-linear-to-br from-teal-50 to-emerald-50 -z-10" />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-24">
                     <div className="text-center mb-16 space-y-4">
                         <div className="inline-flex items-center justify-center p-3 bg-white rounded-full shadow-sm mb-4">

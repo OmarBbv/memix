@@ -1,7 +1,7 @@
 'use client'
 
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
-import logoIcon from "@/public/logo.jpeg";
+import logoIcon from "@/public/memi.svg";
 import searchIcon from "@/public/navbar/search.svg";
 import { CircleUserRound, Heart, ShoppingBag } from "lucide-react";
 import Image from "next/image";
