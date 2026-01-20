@@ -1,0 +1,29 @@
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { Product } from '@/components/shared/Card';
+
+interface WishlistState {
+  items: Product[];
+}
+
+const initialState: WishlistState = {
+  items: [],
+};
+
+export const wishlistSlice = createSlice({
+  name: 'wishlist',
+  initialState,
+  reducers: {
+    toggleWishlist: (state, action: PayloadAction<Product>) => {
+      const existingIndex = state.items.findIndex((item) => item.id === action.payload.id);
+      if (existingIndex >= 0) {
+        state.items.splice(existingIndex, 1);
+      } else {
+        state.items.push(action.payload);
+      }
+    },
+  },
+});
+
+export const { toggleWishlist } = wishlistSlice.actions;
+
+export default wishlistSlice.reducer;

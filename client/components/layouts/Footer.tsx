@@ -1,6 +1,6 @@
 import { Facebook, Instagram, Mail, MessageSquare, Phone } from "lucide-react"
 import Image from "next/image"
-import Link from "next/link"
+import { Link } from "@/i18n/routing"
 
 export default function Footer() {
     return (
@@ -35,10 +35,10 @@ export default function Footer() {
 
                     <div className="flex flex-col gap-3">
                         <h3 className="font-semibold text-base mb-2">Əlavə məlumat üçün</h3>
-                        <Link href="#" className="text-gray-700 hover:text-black transition-colors">
+                        <Link href="/faq" className="text-gray-700 hover:text-black transition-colors">
                             Suallar
                         </Link>
-                        <Link href="#" className="flex items-center gap-2 text-gray-700 hover:text-black transition-colors">
+                        <Link href="/contact" className="flex items-center gap-2 text-gray-700 hover:text-black transition-colors">
                             <MessageSquare className="w-4 h-4" />
                             <span>Bizimlə əlaqə</span>
                         </Link>
@@ -57,7 +57,7 @@ export default function Footer() {
 
                     <div className="flex flex-col gap-3">
                         <h3 className="font-semibold text-base mb-2">Şirkət</h3>
-                        <Link href="#" className="text-gray-700 hover:text-black transition-colors">
+                        <Link href="/about" className="text-gray-700 hover:text-black transition-colors">
                             Memix haqqında
                         </Link>
                         <Link href="#" className="text-gray-700 hover:text-black transition-colors">

@@ -5,13 +5,15 @@ import logoIcon from "@/public/memi.svg";
 import searchIcon from "@/public/navbar/search.svg";
 import { CircleUserRound, Heart, ShoppingBag } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
-import { CartDrawer } from "../home/CartDrawer";
+import { Link, usePathname, useRouter } from "@/i18n/routing";
+import LanguageSwitcher from "./LanguageSwitcher";
+
+import { useState, useEffect } from "react";
 import { TopBar } from "../home/TopBar";
 import { Input } from "../ui/input";
 import { AuthModal } from "./AuthModal";
+import { openCart } from "@/lib/redux/features/cartSlice";
+import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 
 const getSlugFromText = (text: string): string => {
     const slugMap: { [key: string]: string } = {
@@ -191,33 +193,62 @@ const navItems = [
 
 export default function Navbar() {
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
+    const [showCategories, setShowCategories] = useState(true)
+    const [lastScrollY, setLastScrollY] = useState(0)
     const router = useRouter()
     const pathname = usePathname()
 
+    const dispatch = useAppDispatch();
+    const cartItemsCount = useAppSelector((state) => state.cart.items.reduce((acc, item) => acc + item.quantity, 0));
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const currentScrollY = window.scrollY;
+
+            if (currentScrollY > lastScrollY && currentScrollY > 100) {
+                setShowCategories(false);
+            } else if (currentScrollY < lastScrollY) {
+                setShowCategories(true);
+            }
+
+            setLastScrollY(currentScrollY);
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [lastScrollY]);
+
     return (
         <>
-            <nav className="fixed top-0 w-full h-auto z-50 bg-white">
+            <nav className="fixed top-0 w-full overflow-hidden h-auto z-50 bg-white">
                 <TopBar />
                 <div className="max-w-7xl mx-auto h-full px-3 py-2 md:px-0  sm:py-3 flex items-center gap-2 w-full">
-                    <div className="w-[85px] md:w-auto h-[47px] flex justify-center items-center gap-2 rounded-lg pl-[2px] pr-[3px] sm:mx-2">
-                        <Link href="/">
-                            <Image src={logoIcon} alt="Memix Logo" width={85} height={85} />
+                    <div className="w-[85px] md:w-auto h-[47px] flex justify-center items-center gap-2 rounded-lg pl-[2px] pr-[3px] sm:mx-2 overflow-hidden shrink-0">
+                        <Link href="/" className="flex items-center">
+                            <Image src={logoIcon} alt="Memix Logo" width={75} height={40} className="object-contain" />
                         </Link>
-                        <div className="hidden md:flex items-center gap-4 ml-5">
-                            <Link href="/" className="flex h-full -translate-y-[2px] items-center font-bold tracking-tighter text-lg">ALIŞ</Link>
-                            <Link href="/" className="flex h-full -translate-y-[2px] items-center font-bold tracking-tighter text-lg">SATIŞ</Link>
-                        </div>
                     </div>
-                    <div className="w-2/4 flex-1 shrink border-2 h-auto md:h-[40px] border-gray-300 rounded-[12px] flex items-center pl-1.5 sm:pl-2">
+                    <div className="hidden md:flex items-center gap-4 ml-2">
+                        <Link href="/" className="flex h-full -translate-y-[2px] items-center font-bold tracking-tighter text-lg">ALIŞ</Link>
+                        <Link href="/" className="flex h-full -translate-y-[2px] items-center font-bold tracking-tighter text-lg">SATIŞ</Link>
+                    </div>
+                    <div className="flex-1 border-2 h-auto md:h-[40px] border-gray-300 rounded-[12px] flex items-center pl-1.5 sm:pl-2">
                         <Image src={searchIcon} alt={searchIcon} height={25} width={25} />
                         <Input
                             placeholder="Pambıq şalvar axtar"
-                            className="border-none shadow-none"
+                            className="border-none shadow-none focus-visible:ring-0"
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    const target = e.target as HTMLInputElement;
+                                    router.push(`/search?q=${target.value}`);
+                                }
+                            }}
                         />
                     </div>
                     <button
                         className="hidden md:flex items-center justify-center pl-1.5 cursor-pointer"
-                        onClick={() => setIsAuthModalOpen(true)}
+                        // onClick={() => setIsAuthModalOpen(true)}
+                        onClick={() => router.push('/profile')}
                     >
                         <CircleUserRound className="w-6 h-6" />
                     </button>
@@ -226,14 +257,27 @@ export default function Navbar() {
                         className="hidden md:flex items-center justify-center pl-1.5 cursor-pointer">
                         <Heart className="w-6 h-6" />
                     </button>
-                    <CartDrawer>
-                        <button className="flex items-center justify-center pl-1.5 pr-1.5 cursor-pointer">
-                            <ShoppingBag className="w-6 h-6" />
-                        </button>
-                    </CartDrawer>
+                    <LanguageSwitcher />
+
+                    <button
+                        onClick={() => dispatch(openCart())}
+                        className="flex items-center justify-center pl-1.5 pr-1.5 cursor-pointer relative"
+                    >
+                        <ShoppingBag className="w-6 h-6" />
+                        {cartItemsCount > 0 && (
+                            <span className="absolute -top-1 -right-1 bg-black text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
+                                {cartItemsCount}
+                            </span>
+                        )}
+                    </button>
                 </div>
 
-                <div className="hidden md:block w-full h-auto bg-[#F9F9F9] py-4 px-2">
+                <div
+                    className={`hidden md:block w-full bg-white px-2 transition-all duration-300 ease-in-out overflow-hidden ${showCategories
+                        ? 'max-h-16 py-4 opacity-100'
+                        : 'max-h-0 py-0 opacity-0'
+                        }`}
+                >
                     <div className="max-w-7xl flex mx-auto items-center gap-4">
                         {navItems.map((item) => (
                             <HoverCard
