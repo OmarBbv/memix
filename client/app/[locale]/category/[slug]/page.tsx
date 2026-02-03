@@ -7,6 +7,7 @@ import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import dynamic from 'next/dynamic';
+import { PRODUCTS } from '@/lib/products';
 
 
 export default function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -111,9 +112,18 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                 {/* Product Grid */}
                 <div className="flex-1">
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-8">
-                        {/* Simulating varied content */}
-                        {Array.from({ length: 9 }).map((_, i) => (
-                            <Card key={i} index={i} category={slug} />
+                        {PRODUCTS.filter(p => {
+                            const lowerSlug = slug.toLowerCase();
+                            // Handle 'accessories' vs 'accessory' mapping or direct category match
+                            if (lowerSlug.includes('accessor')) return p.category === 'accessories';
+                            if (lowerSlug.includes('child') || lowerSlug.includes('kid')) return p.category === 'kids';
+                            if (lowerSlug.includes('bag')) return p.category === 'bags';
+                            if (lowerSlug.includes('shoe')) return p.category === 'shoes';
+
+                            // Exact match fallback
+                            return p.category === lowerSlug;
+                        }).map((product) => (
+                            <Card key={product.id} product={product} />
                         ))}
                     </div>
 

@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface CartItem {
-  id: string; // or number, aligning with product id type
+  id: string | number;
   title: string;
   price: number;
   image: string;
@@ -38,12 +38,12 @@ export const cartSlice = createSlice({
       }
       state.isOpen = true; // Open cart when adding item
     },
-    removeFromCart: (state, action: PayloadAction<{ id: string; size: string }>) => {
+    removeFromCart: (state, action: PayloadAction<{ id: string | number; size: string }>) => {
       state.items = state.items.filter(
         (item) => !(item.id === action.payload.id && item.size === action.payload.size)
       );
     },
-    updateQuantity: (state, action: PayloadAction<{ id: string; size: string; quantity: number }>) => {
+    updateQuantity: (state, action: PayloadAction<{ id: string | number; size: string; quantity: number }>) => {
       const item = state.items.find(
         (i) => i.id === action.payload.id && i.size === action.payload.size
       );

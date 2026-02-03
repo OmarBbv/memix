@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, use } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import { notFound } from 'next/navigation';
 
 import {
   Heart,
@@ -19,32 +20,46 @@ import { Link } from '@/i18n/routing';
 import { Breadcrumb } from '@/components/shared/Breadcrumb';
 import { addToCart } from '@/lib/redux/features/cartSlice';
 import { useAppDispatch } from '@/lib/redux/hooks';
+import { PRODUCTS } from '@/lib/products';
 
-export default function ProductDetailPage({ params }: { params: { id: string } }) {
-  // Mock data
+export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
+
+  // Find product by ID
+  const foundProduct = PRODUCTS.find((p) => p.id === Number(id));
+
+  if (!foundProduct) {
+    // In a real app we might use notFound() here, but for client component simple return is safer
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+        <h1 className="text-2xl font-bold">Məhsul tapılmadı</h1>
+        <Link href="/" className="text-blue-600 hover:underline">Ana səhifəyə qayıt</Link>
+      </div>
+    );
+  }
+
   const product = {
-    title: "Vintage Oversize Qəhvəyi Dəri Gödəkçə",
-    price: 85.00,
-    originalPrice: 120.00,
+    title: foundProduct.title,
+    price: foundProduct.price,
+    originalPrice: foundProduct.oldPrice || Math.floor(foundProduct.price * 1.5),
     currency: "₼",
-    brand: "Zara",
-    condition: "Yeni",
-    size: "M / 38",
-    description: "Az istifadə olunub, heç bir defekti yoxdur. Oversize modeldir, S-L bədənlərə uyğundur. İçi astarlıdır, payız və qış üçün idealdır. Rəngi tünd şokolad qəhvəyidir.",
+    brand: foundProduct.brand,
+    condition: foundProduct.condition || "Yeni",
+    size: foundProduct.size || "S",
+    description: "Az istifadə olunub, heç bir defekti yoxdur. Bu unikal parça qarderobunuzun əvəzolunmaz hissəsi olacaq. Həm gündəlik, həm də özəl günlər üçün uyğundur.",
     images: [
-      "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=800&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1520975661595-6453be3f7070?w=800&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1559563458-527698bf5295?w=800&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?w=800&auto=format&fit=crop&q=80"
+      foundProduct.image,
+      foundProduct.image,
+      foundProduct.image,
     ],
     seller: {
-      name: "Aysel M.",
+      name: "Satıcı",
       rating: 4.8,
       reviews: 124,
       image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80",
       lastActive: "10 dəqiqə əvvəl"
     },
-    tags: ["Vintage", "Dəri", "Payız", "Qış", "Zara"],
+    tags: [foundProduct.category, foundProduct.brand, "Yeni", "Dəb"],
     sizes: ["XS", "S", "M", "L", "XL"]
   };
 
@@ -57,7 +72,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
     if (!selectedSize) return;
 
     dispatch(addToCart({
-      id: params.id,
+      id: id,
       title: product.title,
       price: product.price,
       image: product.images[0],
@@ -72,13 +87,13 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
     <div className="bg-white min-h-screen pb-20">
       <Breadcrumb
         items={[
-          { label: "Qadın", href: "/category/women" },
-          { label: "Gödəkçələr", href: "/category/women/jackets" },
+          { label: "Ana Səhifə", href: "/" },
+          { label: foundProduct.category.charAt(0).toUpperCase() + foundProduct.category.slice(1), href: `/category/${foundProduct.category}` },
           { label: product.title }
         ]}
       />
 
-      <div className="max-w-7xl mx-auto py-8">
+      <div className="max-w-7xl mx-auto py-8 px-4 md:px-0">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
           {/* Left Column - Images */}
           <div className="lg:col-span-6 flex flex-col gap-4">
@@ -183,7 +198,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             </div>
 
             {/* Seller Info Card */}
-            <div className="bg-gray-50 p-4 rounded-2xl flex items-center justify-between group cursor-pointer hover:bg-gray-100 transition-colors">
+            {/* <div className="bg-gray-50 p-4 rounded-2xl flex items-center justify-between group cursor-pointer hover:bg-gray-100 transition-colors">
               <div className="flex items-center gap-4">
                 <div className="relative flex-shrink-0">
                   <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-sm">
@@ -207,7 +222,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                 </div>
               </div>
               <ChevronRight className="text-gray-400 group-hover:translate-x-1 transition-transform flex-shrink-0" />
-            </div>
+            </div> */}
 
             {/* Action Buttons */}
             <div className="grid grid-cols-2 gap-4">
