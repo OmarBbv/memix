@@ -1,5 +1,6 @@
 'use client';
 
+import { use, useEffect } from 'react';
 import { Card } from '@/components/shared/Card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -8,14 +9,34 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import dynamic from 'next/dynamic';
 
 
-export default function CategoryPage({ params }: { params: { slug: string } }) {
-    const categoryTitle = decodeURIComponent(params.slug).split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+export default function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = use(params);
+    const categoryTitle = decodeURIComponent(slug).split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+
+    const getSubcategories = (slug: string) => {
+        switch (slug) {
+            case 'women':
+                return ['Cins şalvarlar', 'Bluzlar', 'Ətəklər və donlar', 'Pencəklər və jiletlər', 'Puloverlər və svitşotlar', 'Üst geyimlər', 'Ayaqqabılar'];
+            case 'men':
+                return ['Cins şalvarlar', 'Şalvarlar', 'Köynəklər', 'Tişörtlər', 'Puloverlər və svitşotlar', 'Gödəkçələr', 'Ayaqqabılar'];
+            case 'bags':
+                return ['Qadın çantaları', 'Bel çantaları', 'Səyahət çantaları', 'Pulqabılar', 'Kişi çantaları'];
+            case 'accessories':
+                return ['Eynəklər', 'Papaqlar', 'Saatlar', 'Şərflər', 'Əlcəklər', 'Kəmərlər'];
+            case 'shoes':
+                return ['Qadın ayaqqabıları', 'Kişi ayaqqabıları', 'Uşaq ayaqqabıları', 'İdman ayaqqabıları', 'Ziyafət ayaqqabıları'];
+            case 'kids':
+                return ['2 yaşa qədər uşaqlar', '10 yaşa qədər uşaqlar', 'Yeniyetmələr'];
+            default:
+                return ['Köynəklər', 'Şalvarlar', 'Donlar', 'Gödəkçələr', 'Sviterlər', 'İdman geyimləri'];
+        }
+    };
 
     const filters = [
         {
-            id: 'clothing',
-            name: 'Geyim Növü',
-            options: ['Köynəklər', 'Şalvarlar', 'Donlar', 'Gödəkçələr', 'Sviterlər', 'İdman geyimləri']
+            id: 'subcategory',
+            name: 'Kateqoriya',
+            options: getSubcategories(slug)
         },
         {
             id: 'size',
@@ -39,6 +60,10 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
         }
     ];
 
+    useEffect(() => {
+        window.scrollTo(0, 0)
+    }, [slug]);
+
     return (
         <div className="min-h-screen py-8 px-4 max-w-7xl mx-auto">
             <h1 className="text-2xl font-bold mb-6">
@@ -57,7 +82,7 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
 
                     <Separator />
 
-                    <Accordion type="multiple" defaultValue={['clothing', 'price', 'size']} className="w-full">
+                    <Accordion type="multiple" defaultValue={['subcategory', 'price', 'size']} className="w-full">
                         {filters.map((filter) => (
                             <AccordionItem key={filter.id} value={filter.id} className="border-b-0">
                                 <AccordionTrigger className="hover:no-underline py-3 text-base font-medium">
@@ -88,7 +113,7 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-8">
                         {/* Simulating varied content */}
                         {Array.from({ length: 9 }).map((_, i) => (
-                            <Card key={i} index={i} />
+                            <Card key={i} index={i} category={slug} />
                         ))}
                     </div>
 

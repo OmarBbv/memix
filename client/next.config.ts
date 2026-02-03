@@ -16,6 +16,21 @@ const nextConfig: NextConfig = {
       }
     ],
   },
+
+  async redirects() {
+    return [
+      {
+        source: '/:locale/categories',
+        destination: '/:locale/category',
+        permanent: true,
+      },
+      {
+        source: '/categories',
+        destination: '/category',
+        permanent: true,
+      },
+    ]
+  },
 };
 
 export default withNextIntl(nextConfig);

@@ -177,7 +177,7 @@ const navItems = [
     {
         id: 6,
         name: 'Uşaqlar',
-        url: '/category/children',
+        url: '/category/kids',
         categories: {
             'Populyar': [
                 'Bu gün əlavə edilənlər',
@@ -222,16 +222,16 @@ export default function Navbar() {
         <>
             <nav className="fixed top-0 w-full overflow-hidden h-auto z-50 bg-white">
                 <TopBar />
-                <div className="max-w-7xl mx-auto h-full px-3 py-2 md:px-0  sm:py-3 flex items-center gap-2 w-full">
-                    <div className="w-[85px] md:w-auto h-[47px] flex justify-center items-center gap-2 rounded-lg pl-[2px] pr-[3px] sm:mx-2 overflow-hidden shrink-0">
+                <div className="max-w-7xl mx-auto h-full px-3 py-2 md:px-0  sm:py-2 flex items-center gap-2 w-full">
+                    <div className="w-[110px] md:w-auto h-[55px] flex justify-center items-center gap-2 rounded-lg pl-[2px] pr-[3px] sm:mr-2 overflow-hidden shrink-0">
                         <Link href="/" className="flex items-center">
-                            <Image src={logoIcon} alt="Memix Logo" width={75} height={40} className="object-contain" />
+                            <Image src={logoIcon} alt="Memix Logo" width={110} height={55} className="object-contain" />
                         </Link>
                     </div>
-                    <div className="hidden md:flex items-center gap-4 ml-2">
+                    {/* <div className="hidden md:flex items-center gap-4 ml-2">
                         <Link href="/" className="flex h-full -translate-y-[2px] items-center font-bold tracking-tighter text-lg">ALIŞ</Link>
                         <Link href="/" className="flex h-full -translate-y-[2px] items-center font-bold tracking-tighter text-lg">SATIŞ</Link>
-                    </div>
+                    </div> */}
                     <div className="flex-1 border-2 h-auto md:h-[40px] border-gray-300 rounded-[12px] flex items-center pl-1.5 sm:pl-2">
                         <Image src={searchIcon} alt={searchIcon} height={25} width={25} />
                         <Input
@@ -274,11 +274,11 @@ export default function Navbar() {
 
                 <div
                     className={`hidden md:block w-full bg-white px-2 transition-all duration-300 ease-in-out overflow-hidden ${showCategories
-                        ? 'max-h-16 py-4 opacity-100'
+                        ? 'h-auto pt-1 pb-0 opacity-100'
                         : 'max-h-0 py-0 opacity-0'
                         }`}
                 >
-                    <div className="max-w-7xl flex mx-auto items-center gap-4">
+                    <div className="max-w-7xl flex mx-auto items-center gap-4 pb-4">
                         {navItems.map((item) => (
                             <HoverCard
                                 key={`${item.id}-${pathname}`}

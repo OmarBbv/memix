@@ -24,8 +24,8 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   // Mock data
   const product = {
     title: "Vintage Oversize Qəhvəyi Dəri Gödəkçə",
-    price: 85,
-    originalPrice: 120,
+    price: 85.00,
+    originalPrice: 120.00,
     currency: "₼",
     brand: "Zara",
     condition: "Yeni",
@@ -132,7 +132,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             {/* Header Info */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <div className="text-2xl font-bold">{product.price}{product.currency}</div>
+                <div className="text-2xl font-bold">{product.price}.00 {product.currency}</div>
                 <div className="flex items-center gap-2">
                   <span className="px-3 py-1 bg-green-50 rounded-full text-xs font-semibold text-green-700">
                     {product.condition}

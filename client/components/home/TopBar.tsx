@@ -21,9 +21,9 @@ export const TopBar = () => {
                 <div className="w-[50px] h-[47px] bg-success flex justify-center items-center rounded-lg px-[3px]">
                     <Image src={logoIcon} alt={'logoIcon'} width={50} height={50} />
                 </div>
-                <div className="flex flex-col leading-3">
+                <div className="flex flex-col leading-3 gap-2">
                     <h1 className="text-[13px]">Memix</h1>
-                    <p className="text-[10px]">Android tətbiqini yükləyin</p>
+                    <p className="text-[10px]">Mobil tətbiqini yükləyin</p>
                 </div>
             </div>
             <div className="flex items-center gap-2">

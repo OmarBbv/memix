@@ -1,6 +1,6 @@
 'use client';
 
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/shared/Card";
@@ -45,12 +45,12 @@ export default function Home() {
   ];
 
   const categories = [
-    { name: "Qadın", image: "https://images.unsplash.com/photo-1525845859779-54d477ff291f?auto=format&fit=crop&q=80&w=800", count: "12.5K+" },
-    { name: "Kişi", image: "https://images.unsplash.com/photo-1617137968427-85924c809a10?auto=format&fit=crop&q=80&w=800", count: "8.2K+" },
-    { name: "Uşaq", image: "https://images.unsplash.com/photo-1519457431-44ccd64a579b?auto=format&fit=crop&q=80&w=800", count: "4.1K+" },
-    { name: "Çantalar", image: "https://images.unsplash.com/photo-1590874102752-ce22d84f5fa1?auto=format&fit=crop&q=80&w=800", count: "3.8K+" },
-    { name: "Ayaqqabılar", image: "https://images.unsplash.com/photo-1560769629-975e13f0c470?auto=format&fit=crop&q=80&w=800", count: "6.5K+" },
-    { name: "Aksesuarlar", image: "https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=800", count: "5.3K+" },
+    { name: "Qadın", slug: "women", image: "/cat.jpeg", count: "12.5K+" },
+    { name: "Kişi", slug: "men", image: "/cat2.jpeg", count: "8.2K+" },
+    { name: "Uşaq", slug: "kids", image: "/cat3.jpeg", count: "4.1K+" },
+    { name: "Çantalar", slug: "bags", image: "/cat4.jpeg", count: "3.8K+" },
+    { name: "Ayaqqabılar", slug: "shoes", image: "/cat5.jpeg", count: "6.5K+" },
+    { name: "Aksesuarlar", slug: "accessories", image: "/cat6.jpeg", count: "5.3K+" },
   ];
 
   const stats = [
@@ -66,7 +66,6 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-white text-zinc-950">
 
-      {/* Hero Section - Full Width Elegant */}
       <section className="relative h-[85vh] min-h-[600px] w-full overflow-hidden">
         <Swiper
           modules={[Pagination, Autoplay, EffectFade]}
@@ -90,9 +89,8 @@ export default function Home() {
                   priority
                   className="object-cover"
                 />
-                {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-r from-black/70 via-black/40 to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-transparent" />
 
                 {/* Content */}
                 <div className="absolute inset-0 flex items-center">
@@ -188,13 +186,12 @@ export default function Home() {
             </Link>
           </div>
 
-          {/* Categories Grid */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 lg:gap-6">
             {categories.map((cat, idx) => (
               <Link
                 key={idx}
-                href={`/search?category=${cat.name}`}
-                className="group relative aspect-[3/4] overflow-hidden rounded-2xl bg-zinc-100"
+                href={`/category/${cat.slug}`}
+                className="group relative aspect-3/4 overflow-hidden rounded-2xl bg-zinc-100"
               >
                 <Image
                   src={cat.image}
@@ -203,8 +200,7 @@ export default function Home() {
                   sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 16vw"
                   className="object-cover transition-all duration-700 group-hover:scale-110"
                 />
-                {/* Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+                <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
 
                 {/* Content */}
                 <div className="absolute inset-0 flex flex-col justify-end p-4 lg:p-5">
@@ -412,19 +408,23 @@ export default function Home() {
                 Memix-də keyfiyyətli və orijinal brend geyimlərini münasib qiymətlərlə əldə edin. Hər məhsul diqqətlə seçilir və yoxlanılır.
               </p>
               <div className="flex flex-wrap justify-center gap-4">
-                <Button
-                  size="lg"
-                  className="rounded-full bg-white text-zinc-900 hover:bg-white/90 px-10 h-14 text-base font-semibold shadow-lg transition-all duration-300 hover:scale-[1.02]"
-                >
-                  Alış-verişə Başla
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-                <Button
-                  size="lg"
-                  className="rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/30 px-10 h-14 text-base font-semibold transition-all duration-300"
-                >
-                  Haqqımızda
-                </Button>
+                <Link href="/category">
+                  <Button
+                    size="lg"
+                    className="rounded-full bg-white text-zinc-900 hover:bg-white/90 px-10 h-14 text-base font-semibold shadow-lg transition-all duration-300 hover:scale-[1.02]"
+                  >
+                    Alış-verişə Başla
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </Button>
+                </Link>
+                <Link href="/about">
+                  <Button
+                    size="lg"
+                    className="rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/30 px-10 h-14 text-base font-semibold transition-all duration-300"
+                  >
+                    Haqqımızda
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>

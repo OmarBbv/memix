@@ -2,6 +2,8 @@ import { Facebook, Instagram, Mail, MessageSquare, Phone } from "lucide-react"
 import Image from "next/image"
 import { Link } from "@/i18n/routing"
 
+import logoIcon from "@/public/memi.svg";
+
 export default function Footer() {
     return (
         <footer className="bg-white text-[#2d2d2d] pt-16 pb-6 text-sm">
@@ -9,13 +11,13 @@ export default function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-20">
                     <div className="flex flex-col gap-3">
                         <h3 className="font-semibold text-base mb-2">Mağaza</h3>
-                        <Link href="#" className="text-gray-700 hover:text-black transition-colors">
+                        <Link href="/terms" className="text-gray-700 hover:text-black transition-colors">
                             Şərtlər
                         </Link>
-                        <Link href="#" className="text-gray-700 hover:text-black transition-colors">
+                        <Link href="/delivery-return" className="text-gray-700 hover:text-black transition-colors">
                             Çatdırılma və qaytarma
                         </Link>
-                        <Link href="#" className="text-gray-700 hover:text-black transition-colors">
+                        <Link href="/promotions" className="text-gray-700 hover:text-black transition-colors">
                             Promosiyalar
                         </Link>
                     </div>
@@ -72,7 +74,7 @@ export default function Footer() {
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-10 mb-16 pb-16 border-b border-gray-200">
                     <div className="flex flex-col gap-6">
                         <div className="flex flex-col">
-                            <Image src="/logo-Cr-ALXoK.svg" alt="Memix Logo" width={120} height={45} className="mb-2" />
+                            <Image src={logoIcon} alt="Memix Logo" width={120} height={45} className="mb-2 object-contain" />
                             <span className="text-[11px] tracking-[0.2em] font-normal text-gray-600 ml-1">
                                 PRELOVED FASHION
                             </span>
