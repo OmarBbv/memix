@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+    }
+
+    .header {
+      text-align: center;
+      color: #2196F3;
+    }
+
+    .status {
+      background: #e3f2fd;
+      padding: 15px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 5px;
+      color: #1976d2;
+    }
+
+    .content {
+      margin: 20px 0;
+      line-height: 1.6;
+    }
+
+    .footer {
+      text-align: center;
+      color: #888;
+      font-size: 12px;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1 class="header">📦 Sifariş Statusu Yeniləndi</h1>
+    <p>Salam <strong>{{customerName}}</strong>,</p>
+    <p>Sifariş #{{orderId}} statusu dəyişdi:</p>
+    <div class="status">{{status}}</div>
+    <div class="content">
+      <p>Sifarişinizlə bağlı hər hansı sualınız varsa, bizimlə əlaqə saxlaya bilərsiniz.</p>
+    </div>
+    <div class="footer">
+      <p>© 2026 Memix. Bütün hüquqlar qorunur.</p>
+    </div>
+  </div>
+</body>
+
+</html>

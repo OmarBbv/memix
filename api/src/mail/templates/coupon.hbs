@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+    }
+
+    .header {
+      text-align: center;
+      color: #FF9800;
+    }
+
+    .coupon-code {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 32px;
+      font-weight: bold;
+      border-radius: 10px;
+      letter-spacing: 3px;
+      margin: 20px 0;
+    }
+
+    .discount {
+      text-align: center;
+      font-size: 24px;
+      color: #4CAF50;
+      margin: 20px 0;
+    }
+
+    .content {
+      margin: 20px 0;
+      line-height: 1.6;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 12px 30px;
+      background: #FF9800;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      margin: 20px 0;
+    }
+
+    .footer {
+      text-align: center;
+      color: #888;
+      font-size: 12px;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1 class="header">🎁 Sizin Üçün Xüsusi Endirim!</h1>
+    <div class="content">
+      <p>Salam,</p>
+      <p>Sizin üçün xüsusi endirim kuponu hazırladıq!</p>
+    </div>
+    <div class="coupon-code">{{code}}</div>
+    <div class="discount">
+      {{#if (eq type 'percentage')}}
+      {{discount}}% Endirim
+      {{else}}
+      {{discount}} AZN Endirim
+      {{/if}}
+    </div>
+    <div class="content">
+      <p>Bu kuponu istifadə edərək sifarişinizdə endirim əldə edə bilərsiniz.</p>
+      {{#if expiresAt}}
+      <p><strong>Bitmə tarixi:</strong> {{expiresAt}}</p>
+      {{/if}}
+      <a href="{{frontendUrl}}" class="button">İndi Alış-veriş Et</a>
+    </div>
+    <div class="footer">
+      <p>© 2026 Memix. Bütün hüquqlar qorunur.</p>
+    </div>
+  </div>
+</body>
+
+</html>
