@@ -3,7 +3,7 @@
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import logoIcon from "@/public/memi.svg";
 import searchIcon from "@/public/navbar/search.svg";
-import { CircleUserRound, Heart, ShoppingBag } from "lucide-react";
+import { CircleUserRound, Heart, ShoppingBag, User } from "lucide-react";
 import Image from "next/image";
 import { Link, usePathname, useRouter } from "@/i18n/routing";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -13,7 +13,16 @@ import { TopBar } from "../home/TopBar";
 import { Input } from "../ui/input";
 import { AuthModal } from "./AuthModal";
 import { openCart } from "@/lib/redux/features/cartSlice";
+import { logout } from "@/lib/redux/features/authSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 const getSlugFromText = (text: string): string => {
     const slugMap: { [key: string]: string } = {
@@ -200,6 +209,11 @@ export default function Navbar() {
 
     const dispatch = useAppDispatch();
     const cartItemsCount = useAppSelector((state) => state.cart.items.reduce((acc, item) => acc + item.quantity, 0));
+    const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+
+    const profileName = user?.name && user.name !== 'undefined'
+        ? user.name
+        : (user?.email?.split('@')[0] ?? "İstifadəçi");
 
     useEffect(() => {
         const handleScroll = () => {
@@ -245,13 +259,39 @@ export default function Navbar() {
                             }}
                         />
                     </div>
-                    <button
-                        className="hidden md:flex items-center justify-center pl-1.5 cursor-pointer"
-                        // onClick={() => setIsAuthModalOpen(true)}
-                        onClick={() => router.push('/profile')}
-                    >
-                        <CircleUserRound className="w-6 h-6" />
-                    </button>
+                    {isAuthenticated ? (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <button
+                                    className="hidden md:flex items-center justify-center pl-1.5 cursor-pointer outline-none"
+                                >
+                                    <div className="relative w-full h-full rounded-full overflow-hidden">
+                                        <CircleUserRound className="w-full h-full text-gray-700" />
+                                    </div>
+                                </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-56 bg-white z-9999">
+                                <DropdownMenuLabel>Xoş gəldin, {profileName}</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={() => router.push('/profile')} className="cursor-pointer">
+                                    Profil
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => {
+                                    dispatch(logout());
+                                    router.push('/');
+                                }} className="cursor-pointer text-red-600 focus:text-red-600">
+                                    Çıxış et
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    ) : (
+                        <button
+                            className="hidden md:flex items-center justify-center pl-1.5 cursor-pointer"
+                            onClick={() => setIsAuthModalOpen(true)}
+                        >
+                            <User className="w-6 h-6 text-gray-700" />
+                        </button>
+                    )}
                     <button
                         onClick={() => router.push('/wishlist')}
                         className="hidden md:flex items-center justify-center pl-1.5 cursor-pointer">

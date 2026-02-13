@@ -2,6 +2,7 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import topBarReducer from './features/topBarSlice';
 import cartReducer from './features/cartSlice';
 import wishlistReducer from './features/wishlistSlice';
+import authReducer from './features/authSlice';
 import {
   persistStore,
   persistReducer,
@@ -34,12 +35,13 @@ const rootReducer = combineReducers({
   topBar: topBarReducer,
   cart: cartReducer,
   wishlist: wishlistReducer,
+  auth: authReducer,
 });
 
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['cart', 'topBar', 'wishlist'],
+  whitelist: ['cart', 'topBar', 'wishlist', 'auth'],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

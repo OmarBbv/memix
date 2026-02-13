@@ -19,8 +19,8 @@ export class UsersController {
 
   @UseGuards(AuthGuard('jwt'))
   @Get('profile')
-  getProfile(@Request() req: any): any {
-    return req.user;
+  getProfile(@Request() req: any) {
+    return this.usersService.findOne(req.user.userId);
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)

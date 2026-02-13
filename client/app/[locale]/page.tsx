@@ -116,7 +116,7 @@ export default function Home() {
                       <div className="flex flex-wrap gap-4 pt-4">
                         <Button
                           size="lg"
-                          className="rounded-full bg-white text-zinc-900 hover:bg-white/90 px-8 h-14 text-base font-semibold shadow-lg shadow-black/20 transition-all duration-300 hover:shadow-xl hover:scale-[1.02]"
+                          className="rounded-full bg-white text-zinc-900 hover:bg-white/90 px-8 h-14 text-base font-semibold shadow-lg shadow-black/20 transition-all duration-300 hover:shadow-xl"
                         >
                           {slide.buttonText}
                           <ArrowRight className="ml-2 w-5 h-5" />
@@ -411,7 +411,7 @@ export default function Home() {
                 <Link href="/category">
                   <Button
                     size="lg"
-                    className="rounded-full bg-white text-zinc-900 hover:bg-white/90 px-10 h-14 text-base font-semibold shadow-lg transition-all duration-300 hover:scale-[1.02]"
+                    className="rounded-full bg-white text-zinc-900 hover:bg-white/90 px-10 h-14 text-base font-semibold shadow-lg transition-all duration-300"
                   >
                     Alış-verişə Başla
                     <ArrowRight className="ml-2 w-5 h-5" />

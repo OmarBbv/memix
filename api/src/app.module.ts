@@ -20,6 +20,8 @@ import { CouponsModule } from './coupons/coupons.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { MailModule } from './mail/mail.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { BannersModule } from './banners/banners.module';
+import { SearchModule } from './search/search.module';
 
 @Module({
   imports: [
@@ -45,14 +47,17 @@ import { NotificationsModule } from './notifications/notifications.module';
     AnalyticsModule,
     MailModule,
     NotificationsModule,
+    BannersModule,
+    SearchModule,
   ],
   controllers: [UploadsController],
   providers: [],
 })
+
 export class AppModule implements OnModuleInit {
   private readonly logger = new Logger(AppModule.name);
 
-  constructor(private dataSource: DataSource) {}
+  constructor(private dataSource: DataSource) { }
 
   onModuleInit() {
     if (this.dataSource.isInitialized) {

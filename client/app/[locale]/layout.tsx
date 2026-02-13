@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { ContainerWapper } from "@/components/layouts/Container";
 import StoreProvider from "@/lib/redux/StoreProvider";
 import { CartDrawer } from "@/components/shared/CartDrawer";
+import QueryProvider from "@/lib/QueryProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -50,13 +51,15 @@ export default async function LocaleLayout({
       >
         <NextIntlClientProvider messages={messages}>
           <StoreProvider>
-            <Navbar />
-            <CartDrawer />
-            <ContainerWapper className={cn('min-h-screen px-3 xl:px-0 pb-[70px] md:pb-0')}>
-              {children}
-              <Footer />
-            </ContainerWapper>
-            <MobileNav />
+            <QueryProvider>
+              <Navbar />
+              <CartDrawer />
+              <ContainerWapper className={cn('min-h-screen px-3 xl:px-0 pb-[70px] md:pb-0')}>
+                {children}
+                <Footer />
+              </ContainerWapper>
+              <MobileNav />
+            </QueryProvider>
           </StoreProvider>
         </NextIntlClientProvider>
       </body>

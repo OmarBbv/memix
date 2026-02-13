@@ -5,50 +5,60 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
 import { ErrorMessages } from '../common/constants/error-messages';
+import { SearchService } from '../search/search.service';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectRepository(Product)
     private productsRepository: Repository<Product>,
+    private readonly searchService: SearchService,
   ) { }
 
   async create(createProductDto: CreateProductDto) {
-    // Kateqoriya ID-sini götürürük
     const { categoryId, ...productData } = createProductDto;
-    // Məhsul obyektini yaradırıq
+
     const product = this.productsRepository.create({
       ...productData,
       category: categoryId ? { id: categoryId } : undefined,
-    } as any);
+    } as any) as unknown as Product;
 
-    return this.productsRepository.save(product);
+    const savedProduct = await this.productsRepository.save(product);
+
+    await this.searchService.indexProduct(savedProduct);
+
+    return savedProduct;
   }
 
   async findAll(query: any = {}) {
+    if (query.search) {
+      const searchResults = await this.searchService.search(query.search);
+      const ids = (searchResults as any[]).map(p => p.id);
+      if (ids.length === 0) return [];
+
+      return this.productsRepository.createQueryBuilder('product')
+        .whereInIds(ids)
+        .leftJoinAndSelect('product.category', 'category')
+        .getMany();
+    }
+
     const qb = this.productsRepository.createQueryBuilder('product');
 
     qb.leftJoinAndSelect('product.category', 'category');
     qb.leftJoinAndSelect('product.stocks', 'stocks');
 
-    // 1. Kateqoriya üzrə filtr
     if (query.categoryId) {
       qb.andWhere('category.id = :categoryId', {
         categoryId: query.categoryId,
       });
     }
 
-    // 2. Qiymət aralığı (min - max)
     if (query.minPrice) {
       qb.andWhere('product.price >= :minPrice', { minPrice: query.minPrice });
     }
     if (query.maxPrice) {
       qb.andWhere('product.price <= :maxPrice', { maxPrice: query.maxPrice });
     }
-
-    // 3. Variantlar üzrə filtr (JSONB sahəsi: variants)
-    // Diqqət: PostgreSQL-də JSONB sahəsindəki dəyəri oxumaq üçün ->> istifadə olunur.
-    // Məsələn: variants->>'brand' = 'Nike'
 
     if (query.brand) {
       qb.andWhere(`product.variants ->> 'brand' = :brand`, {
@@ -66,11 +76,6 @@ export class ProductsService {
       qb.andWhere(`product.variants ->> 'size' = :size`, {
         size: query.size,
       });
-    }
-
-    // Axtarış sözü (Search Query)
-    if (query.search) {
-      qb.andWhere('LOWER(product.name) LIKE LOWER(:search)', { search: `%${query.search}%` });
     }
 
     return qb.getMany();
@@ -96,11 +101,19 @@ export class ProductsService {
       category: categoryId ? { id: categoryId } : undefined,
     } as any);
 
-    return this.productsRepository.save(product);
+    const updatedProduct = await this.productsRepository.save(product) as Product;
+
+    await this.searchService.indexProduct(updatedProduct);
+
+    return updatedProduct;
   }
 
   async remove(id: number) {
     const product = await this.findOne(id);
-    return this.productsRepository.remove(product);
+    await this.productsRepository.remove(product);
+
+    await this.searchService.removeProduct(id);
+
+    return product;
   }
 }
