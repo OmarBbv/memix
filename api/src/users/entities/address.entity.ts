@@ -15,11 +15,20 @@ export class Address {
   @Column({ type: 'varchar', length: 50 })
   title: string; // Məsələn: "Ev", "İş"
 
+  @Column({ type: 'varchar', length: 20 })
+  phone: string; // Əlaqə nömrəsi
+
   @Column({ type: 'text' })
-  addressLine: string; // Tam ünvan
+  addressLine1: string; // Əsas ünvan (Rayon, küçə, bina)
+
+  @Column({ type: 'text', nullable: true })
+  addressLine2: string; // Əlavə ünvan (Mənzil, blok, mərtəbə)
+
+  @Column({ type: 'varchar', length: 100 })
+  city: string;
 
   @Column({ type: 'varchar', length: 100, nullable: true })
-  city: string;
+  country: string;
 
   @Column({ type: 'varchar', length: 20, nullable: true })
   zipCode: string;

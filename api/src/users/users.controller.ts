@@ -6,27 +6,82 @@ import {
   Param,
   UseGuards,
   Request,
+  Patch,
+  Delete,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { UserRole } from './entities/user.entity';
+import { User, UserRole } from './entities/user.entity';
+import type { AuthenticatedRequest } from '../common/interfaces/request.interface';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateAddressDto } from './dto/create-address.dto';
+import { UpdateAddressDto } from './dto/update-address.dto';
+import { AddressesService } from './addresses.service';
+import { Address } from './entities/address.entity';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly addressesService: AddressesService,
+  ) { }
 
   @UseGuards(AuthGuard('jwt'))
   @Get('profile')
-  getProfile(@Request() req: any) {
+  getProfile(@Request() req: AuthenticatedRequest): Promise<User> {
     return this.usersService.findOne(req.user.userId);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Patch('profile')
+  updateProfile(
+    @Request() req: AuthenticatedRequest,
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<User> {
+    return this.usersService.update(req.user.userId, updateUserDto);
+  }
+
+  // Ünvanlarım
+  @UseGuards(AuthGuard('jwt'))
+  @Post('addresses')
+  createAddress(@Request() req: AuthenticatedRequest, @Body() createAddressDto: CreateAddressDto): Promise<Address> {
+    return this.addressesService.create(req.user.userId, createAddressDto);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('addresses')
+  findAllAddresses(@Request() req: AuthenticatedRequest): Promise<Address[]> {
+    return this.addressesService.findAll(req.user.userId);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('addresses/:id')
+  findOneAddress(@Request() req: AuthenticatedRequest, @Param('id') id: string): Promise<Address> {
+    return this.addressesService.findOne(+id, req.user.userId);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Patch('addresses/:id')
+  updateAddress(
+    @Request() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Body() updateAddressDto: UpdateAddressDto,
+  ): Promise<Address> {
+    return this.addressesService.update(+id, req.user.userId, updateAddressDto);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Delete('addresses/:id')
+  removeAddress(@Request() req: AuthenticatedRequest, @Param('id') id: string): Promise<void> {
+    return this.addressesService.remove(+id, req.user.userId);
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(UserRole.ADMIN)
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<any> {
+  async findOne(@Param('id') id: string): Promise<User | null> {
     return this.usersService.findOne(+id);
   }
 }

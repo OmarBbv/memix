@@ -9,7 +9,7 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
-  ) {}
+  ) { }
 
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
@@ -30,6 +30,7 @@ export class AuthService {
   async validateGoogleUser(details: {
     email: string;
     name: string;
+    surname?: string;
     photo: string;
     googleId: string;
   }) {
@@ -39,6 +40,7 @@ export class AuthService {
       const newUser = new User();
       newUser.email = details.email;
       newUser.name = details.name;
+      newUser.surname = details.surname || '';
       newUser.googleId = details.googleId;
       newUser.avatar = details.photo;
       // No password for google user

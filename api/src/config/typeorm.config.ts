@@ -9,5 +9,6 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   database: 'memix',
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
   synchronize: true,
+  // dropSchema: true,
   logging: false,
 };
