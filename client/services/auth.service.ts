@@ -1,22 +1,27 @@
-import { httpClient } from "@/lib/httpClient";
+import { httpClientPublic, httpClientPrivate } from "@/lib/httpClient";
+import { AuthServiceTypes, LoginRequest, RegisterRequest, AuthResponse } from "@/types/auth.types";
+import { User } from "@/lib/redux/features/authSlice";
 
-export class AuthService {
-  static async login(data: any) {
-    const response = await httpClient.post('/auth/login', data);
+class AuthService implements AuthServiceTypes {
+  async login(data: LoginRequest): Promise<AuthResponse> {
+    const response = await httpClientPublic.post('/auth/login', data);
     return response.data;
   }
 
-  static async register(data: any) {
-    const response = await httpClient.post('/auth/register', data);
+  async register(data: RegisterRequest): Promise<AuthResponse> {
+    const response = await httpClientPublic.post('/auth/register', data);
     return response.data;
   }
 
-  static async getProfile(token: string) {
-    const response = await httpClient.get('/users/profile', {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+  async getProfile(): Promise<User> {
+    const response = await httpClientPrivate.get('/users/profile');
+    return response.data;
+  }
+
+  async updateProfile(data: any): Promise<User> {
+    const response = await httpClientPrivate.patch('/users/profile', data);
     return response.data;
   }
 }
+
+export const authService = new AuthService();

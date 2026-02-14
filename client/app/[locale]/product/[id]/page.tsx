@@ -95,32 +95,32 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
       <div className="max-w-7xl mx-auto py-8 px-4 md:px-0">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
-          {/* Left Column - Images */}
           <div className="lg:col-span-6 flex flex-col gap-4">
-            <div className="relative aspect-3/4 w-full rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 shadow-sm">
-              <Image
-                src={mainImage}
-                alt={product.title}
-                fill
-                className="object-cover"
-                priority
-              />
+            <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-white border border-gray-100 shadow-sm">
+              <div className="absolute inset-4 lg:inset-8">
+                <Image
+                  src={mainImage}
+                  alt={product.title}
+                  fill
+                  className="object-contain"
+                  priority
+                />
+              </div>
               <div className="absolute top-4 right-4 flex flex-col gap-3">
                 <button
                   onClick={() => setIsLiked(!isLiked)}
-                  className="p-3 bg-white rounded-full shadow-lg hover:scale-110 transition-transform active:scale-95"
+                  className="p-3 bg-white/80 backdrop-blur-sm rounded-full shadow-lg hover:scale-110 transition-transform active:scale-95"
                 >
                   <Heart
                     className={cn("w-6 h-6", isLiked ? "fill-red-500 text-red-500" : "text-gray-700")}
                   />
                 </button>
-                <button className="p-3 bg-white rounded-full shadow-lg hover:scale-110 transition-transform active:scale-95 text-gray-700">
+                <button className="p-3 bg-white/80 backdrop-blur-sm rounded-full shadow-lg hover:scale-110 transition-transform active:scale-95 text-gray-700">
                   <Share2 className="w-6 h-6" />
                 </button>
               </div>
             </div>
 
-            {/* Thumbnails */}
             <div className="grid grid-cols-5 gap-3 sm:gap-4 overflow-x-auto pb-2 scrollbar-hide">
               {product.images.map((img, idx) => (
                 <button

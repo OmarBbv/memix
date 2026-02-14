@@ -2,10 +2,13 @@
 
 import { Link, usePathname } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
-import { Box, CreditCard, Heart, LogOut, MapPin, Settings, User } from 'lucide-react';
+import { Box, CreditCard, Heart, LogOut, MapPin, User } from 'lucide-react';
+import { useMyProfile } from '@/hooks/useUser';
+import Image from 'next/image';
 
 export function ProfileSidebar() {
   const pathname = usePathname();
+  const { profile } = useMyProfile();
 
   const menuItems = [
     {
@@ -22,14 +25,13 @@ export function ProfileSidebar() {
 
   return (
     <div className="w-full md:w-64 space-y-6">
-      {/* User Summary Widget */}
       <div className="bg-white border border-zinc-200 rounded-2xl p-4 flex items-center gap-4 shadow-sm">
         <div className="w-12 h-12 rounded-full bg-zinc-100 flex items-center justify-center border border-zinc-200">
-          <User className="w-6 h-6 text-zinc-500" />
+          {profile?.avatar ? <Image src={profile.avatar} alt={profile.name + ' ' + profile.surname} width={48} height={48} className="w-full h-full rounded-full" /> : <User className="w-6 h-6 text-zinc-500" />}
         </div>
         <div className="overflow-hidden">
           <p className="text-xs text-zinc-500 font-medium truncate">Xoş gəldin,</p>
-          <p className="text-sm font-bold text-zinc-900 truncate">Nadir Həbibov</p>
+          <p className="text-sm font-bold text-zinc-900 truncate">{profile?.name} {profile?.surname}</p>
         </div>
       </div>
 

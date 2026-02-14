@@ -4,7 +4,7 @@ import Navbar from "@/components/layouts/Navbar";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Inter_Tight } from "next/font/google";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import "../globals.css";
@@ -13,6 +13,7 @@ import { ContainerWapper } from "@/components/layouts/Container";
 import StoreProvider from "@/lib/redux/StoreProvider";
 import { CartDrawer } from "@/components/shared/CartDrawer";
 import QueryProvider from "@/lib/QueryProvider";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,6 +22,11 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const interTight = Inter_Tight({
+  variable: "--font-inter-tight",
   subsets: ["latin"],
 });
 
@@ -46,7 +52,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${interTight.variable} ${interTight.className} antialiased`}
         suppressHydrationWarning={true}
       >
         <NextIntlClientProvider messages={messages}>
@@ -59,6 +65,7 @@ export default async function LocaleLayout({
                 <Footer />
               </ContainerWapper>
               <MobileNav />
+              <Toaster richColors position="top-right" closeButton />
             </QueryProvider>
           </StoreProvider>
         </NextIntlClientProvider>
