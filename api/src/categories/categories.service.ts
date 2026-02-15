@@ -4,7 +4,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, IsNull } from 'typeorm';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { Category } from './entities/category.entity';
@@ -19,44 +19,65 @@ export class CategoriesService {
   ) { }
 
   async create(createCategoryDto: CreateCategoryDto) {
-    const slug = generateSlug(createCategoryDto.name);
+    const { parentId, ...rest } = createCategoryDto;
+    const slug = generateSlug(rest.name);
 
     const existing = await this.categoriesRepository.findOneBy({ slug });
     if (existing) {
-      // If exact slug exists, maybe append random string or throw error?
-      // But better to handle duplicate names
       throw new ConflictException('Bu kateqoriya artıq mövcuddur');
     }
 
     const category = this.categoriesRepository.create({
-      ...createCategoryDto,
+      ...rest,
       slug,
     });
+
+    if (parentId) {
+      category.parent = { id: parentId } as Category;
+    }
+
     return this.categoriesRepository.save(category);
   }
 
   async findAll() {
-    return this.categoriesRepository.find();
+    return this.categoriesRepository.find({
+      relations: ['parent'],
+      order: { order: 'ASC', name: 'ASC' },
+    });
+  }
+
+  async findTree() {
+    return this.categoriesRepository.find({
+      where: { parent: IsNull() },
+      relations: ['children', 'children.children'],
+      order: { order: 'ASC' },
+    });
   }
 
   async findOne(id: number) {
-    const category = await this.categoriesRepository.findOneBy({ id });
+    const category = await this.categoriesRepository.findOne({
+      where: { id },
+      relations: ['parent', 'children'],
+    });
     if (!category) {
       throw new NotFoundException(ErrorMessages.CATEGORY_NOT_FOUND);
-      // Note: Add CATEGORY_NOT_FOUND later
     }
     return category;
   }
 
   async update(id: number, updateCategoryDto: UpdateCategoryDto) {
     const category = await this.findOne(id);
+    const { parentId, ...rest } = updateCategoryDto;
 
-    if (updateCategoryDto.name) {
-      const slug = generateSlug(updateCategoryDto.name);
-      category.slug = slug;
+    if (rest.name) {
+      category.slug = generateSlug(rest.name);
     }
 
-    this.categoriesRepository.merge(category, updateCategoryDto);
+    if (parentId !== undefined) {
+      category.parent = parentId ? ({ id: parentId } as Category) : (null as any);
+    }
+
+    this.categoriesRepository.merge(category, rest);
     return this.categoriesRepository.save(category);
   }
 

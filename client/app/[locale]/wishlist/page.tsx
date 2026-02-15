@@ -36,7 +36,7 @@ export default function WishlistPage() {
                         <Link href="/">
                             <Button
                                 variant="outline"
-                                className="px-8 cursor-pointer py-6 text-base font-bold uppercase border-2 border-gray-900 hover:bg-gray-50 transition-colors"
+                                className="px-8 cursor-pointer py-5 text-base font-bold uppercase border-2 border-gray-900 hover:bg-gray-50 transition-colors"
                             >
                                 ALIŞ-VERİŞƏ BAŞLA
                             </Button>

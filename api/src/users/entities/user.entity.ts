@@ -2,6 +2,8 @@ import { Column, Entity, PrimaryGeneratedColumn, OneToMany, OneToOne } from 'typ
 import { Address } from './address.entity';
 import { Order } from '../../orders/entities/order.entity';
 import { Cart } from '../../carts/entities/cart.entity';
+import { Card } from '../../cards/entities/card.entity';
+
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -56,4 +58,7 @@ export class User {
 
   @OneToMany(() => Order, (order) => order.user)
   orders: Order[];
+
+  @OneToMany(() => Card, (card) => card.user)
+  cards: Card[];
 }

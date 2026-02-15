@@ -22,6 +22,7 @@ import { MailModule } from './mail/mail.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { BannersModule } from './banners/banners.module';
 import { SearchModule } from './search/search.module';
+import { CardsModule } from './cards/cards.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { SearchModule } from './search/search.module';
     NotificationsModule,
     BannersModule,
     SearchModule,
+    CardsModule,
   ],
   controllers: [UploadsController],
   providers: [],

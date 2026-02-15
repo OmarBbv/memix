@@ -65,7 +65,7 @@ export default async function LocaleLayout({
                 <Footer />
               </ContainerWapper>
               <MobileNav />
-              <Toaster richColors position="top-right" closeButton />
+              <Toaster richColors position="top-right" closeButton className="select-none" />
             </QueryProvider>
           </StoreProvider>
         </NextIntlClientProvider>

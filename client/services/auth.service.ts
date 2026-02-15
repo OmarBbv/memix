@@ -4,23 +4,43 @@ import { User } from "@/lib/redux/features/authSlice";
 
 class AuthService implements AuthServiceTypes {
   async login(data: LoginRequest): Promise<AuthResponse> {
-    const response = await httpClientPublic.post('/auth/login', data);
-    return response.data;
+    try {
+      const response = await httpClientPublic.post('/auth/login', data);
+      return response.data;
+    } catch (error) {
+      console.error("AuthService login error:", error);
+      throw error;
+    }
   }
 
   async register(data: RegisterRequest): Promise<AuthResponse> {
-    const response = await httpClientPublic.post('/auth/register', data);
-    return response.data;
+    try {
+      const response = await httpClientPublic.post('/auth/register', data);
+      return response.data;
+    } catch (error) {
+      console.error("AuthService register error:", error);
+      throw error;
+    }
   }
 
   async getProfile(): Promise<User> {
-    const response = await httpClientPrivate.get('/users/profile');
-    return response.data;
+    try {
+      const response = await httpClientPrivate.get('/users/profile');
+      return response.data;
+    } catch (error) {
+      console.error("AuthService getProfile error:", error);
+      throw error;
+    }
   }
 
   async updateProfile(data: any): Promise<User> {
-    const response = await httpClientPrivate.patch('/users/profile', data);
-    return response.data;
+    try {
+      const response = await httpClientPrivate.patch('/users/profile', data);
+      return response.data;
+    } catch (error) {
+      console.error("AuthService updateProfile error:", error);
+      throw error;
+    }
   }
 }
 

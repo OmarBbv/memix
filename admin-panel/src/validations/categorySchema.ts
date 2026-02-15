@@ -1,0 +1,11 @@
+import { z } from 'zod';
+
+export const categorySchema = z.object({
+  name: z.string().min(2, 'Kateqoriya adı ən azı 2 simvol olmalıdır'),
+  parentId: z.preprocess((val) => (val === "" ? null : Number(val)), z.number().nullable()).optional(),
+  imageUrl: z.string().url('Düzgün URL daxil edin').optional().or(z.literal('')),
+  order: z.preprocess((val) => Number(val), z.number()).default(0),
+  isActive: z.boolean().default(true),
+});
+
+export type CategoryFormValues = z.infer<typeof categorySchema>;

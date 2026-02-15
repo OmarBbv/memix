@@ -285,7 +285,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           {/* Placeholder for similar products slider/grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="aspect-[3/4] bg-gray-100 rounded-xl animate-pulse"></div>
+              <div key={i} className="aspect-3/4 bg-gray-100 rounded-xl animate-pulse"></div>
             ))}
           </div>
         </div>

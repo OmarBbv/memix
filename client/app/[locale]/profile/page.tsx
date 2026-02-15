@@ -12,6 +12,7 @@ import { z } from "zod";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 const profileSchema = z.object({
   name: z.string().min(2, "Ad ən az 2 simvol olmalıdır"),
@@ -23,6 +24,7 @@ const profileSchema = z.object({
   newPassword: z.string().optional(),
   confirmPassword: z.string().optional(),
 });
+
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
 export default function ProfilePage() {
@@ -35,47 +37,57 @@ export default function ProfilePage() {
 
   const { register, handleSubmit, control, formState: { errors }, reset } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
-    defaultValues: {
-      name: "",
-      surname: "",
-      email: "",
-      phone: "",
-      gender: "",
-    }
   });
 
   useEffect(() => {
-    if (profile) {
-      reset({
-        name: profile.name,
-        surname: profile.surname,
-        email: profile.email,
-        phone: profile.phone,
-        gender: profile.gender,
-      });
+    if (!profile) return;
 
-      if (profile.birthday) {
-        const [d, m, y] = profile.birthday.split('.');
-        if (d && m && y) {
-          setDay(d);
-          setMonth(m);
-          setYear(y);
-        }
+    reset({
+      name: profile.name || "",
+      surname: profile.surname || "",
+      email: profile.email || "",
+      phone: profile.phone || "",
+      gender: profile.gender || "",
+    });
+
+    if (profile.birthday) {
+      const parts = profile.birthday.split('.');
+      if (parts.length === 3) {
+        const [d, m, y] = parts;
+        setDay(d.trim().padStart(2, '0'));
+        setMonth(m.trim().padStart(2, '0'));
+        setYear(y.trim());
       }
+    } else {
+      setDay("");
+      setMonth("");
+      setYear("");
     }
   }, [profile, reset]);
 
   const handleUpdate = (data: ProfileFormValues) => {
     const payload: any = { ...data };
 
-    if (day && month && year) {
+    // Doğum tarixi yoxlaması
+    const hasDay = day !== "";
+    const hasMonth = month !== "";
+    const hasYear = year !== "";
+    const hasAnyDate = hasDay || hasMonth || hasYear;
+    const hasAllDate = hasDay && hasMonth && hasYear;
+
+    if (hasAnyDate && !hasAllDate) {
+      toast.error("Doğum tarixini tam daxil edin (Gün, Ay, İl)");
+      return;
+    }
+
+    if (hasAllDate) {
       payload.birthday = `${day}.${month}.${year}`;
     }
 
+    // Boş field-ləri sil
     if (!payload.currentPassword) delete payload.currentPassword;
     if (!payload.newPassword) delete payload.newPassword;
     if (!payload.confirmPassword) delete payload.confirmPassword;
-
     if (!payload.surname) delete payload.surname;
     if (!payload.phone) delete payload.phone;
 
@@ -96,6 +108,7 @@ export default function ProfilePage() {
 
         <div className="bg-white border border-zinc-200 rounded-2xl p-6 md:p-8 shadow-sm">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+            {/* Ad */}
             <div className="space-y-2">
               <Label htmlFor="name" className="text-zinc-600">Ad</Label>
               <Input
@@ -107,6 +120,7 @@ export default function ProfilePage() {
               {errors.name && <p className="text-red-500 text-xs">{errors.name.message}</p>}
             </div>
 
+            {/* Soyad */}
             <div className="space-y-2">
               <Label htmlFor="surname" className="text-zinc-600">Soyad</Label>
               <Input
@@ -118,6 +132,7 @@ export default function ProfilePage() {
               {errors.surname && <p className="text-red-500 text-xs">{errors.surname.message}</p>}
             </div>
 
+            {/* E-mail */}
             <div className="space-y-2">
               <Label htmlFor="email" className="text-zinc-600">E-mail</Label>
               <Input
@@ -131,6 +146,7 @@ export default function ProfilePage() {
               {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
             </div>
 
+            {/* Telefon */}
             <div className="space-y-2">
               <Label htmlFor="phone" className="text-zinc-600">Telefon</Label>
               <Controller
@@ -148,44 +164,68 @@ export default function ProfilePage() {
               {errors.phone && <p className="text-red-500 text-xs">{errors.phone.message}</p>}
             </div>
 
+            {/* Doğum Tarixi */}
             <div className="space-y-2">
-              <Label htmlFor="birthday" className="text-zinc-600">Doğum Tarixi</Label>
+              <Label className="text-zinc-600">Doğum Tarixi</Label>
               <div className="flex items-center gap-2">
+                {/* Gün */}
                 <Select value={day} onValueChange={setDay}>
                   <SelectTrigger className="h-12 bg-zinc-50 border-zinc-200">
                     <SelectValue placeholder="Gün" />
                   </SelectTrigger>
                   <SelectContent>
-                    {[...Array(31)].map((_, i) => (
-                      <SelectItem key={i} value={String(i + 1).padStart(2, '0')}>{i + 1}</SelectItem>
-                    ))}
+                    {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => {
+                      const value = String(d).padStart(2, '0');
+                      return (
+                        <SelectItem key={value} value={value}>
+                          {d}
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
 
+                {/* Ay */}
                 <Select value={month} onValueChange={setMonth}>
                   <SelectTrigger className="h-12 bg-zinc-50 border-zinc-200">
                     <SelectValue placeholder="Ay" />
                   </SelectTrigger>
                   <SelectContent>
-                    {['Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'İyun', 'İyul', 'Avqust', 'Sentyabr', 'Oktyabr', 'Noyabr', 'Dekabr'].map((m, i) => (
-                      <SelectItem key={m} value={String(i + 1).padStart(2, '0')}>{m}</SelectItem>
-                    ))}
+                    {[
+                      'Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'İyun',
+                      'İyul', 'Avqust', 'Sentyabr', 'Oktyabr', 'Noyabr', 'Dekabr'
+                    ].map((monthName, index) => {
+                      const value = String(index + 1).padStart(2, '0');
+                      return (
+                        <SelectItem key={value} value={value}>
+                          {monthName}
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
 
+                {/* İl */}
                 <Select value={year} onValueChange={setYear}>
                   <SelectTrigger className="h-12 bg-zinc-50 border-zinc-200">
                     <SelectValue placeholder="İl" />
                   </SelectTrigger>
                   <SelectContent>
-                    {[...Array(100)].map((_, i) => (
-                      <SelectItem key={i} value={String(new Date().getFullYear() - 10 - i)}>{new Date().getFullYear() - 10 - i}</SelectItem>
-                    ))}
+                    {Array.from({ length: 100 }, (_, i) => {
+                      const currentYear = new Date().getFullYear();
+                      const yearValue = currentYear - 10 - i;
+                      return (
+                        <SelectItem key={yearValue} value={String(yearValue)}>
+                          {yearValue}
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
+            {/* Cinsiyyət */}
             <div className="space-y-2">
               <Label className="text-zinc-600">Cinsiyyət</Label>
               <div className="flex gap-4">
@@ -202,6 +242,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
+          {/* Şifrə Yeniləmə */}
           <div className="mt-8 pt-8 border-t border-zinc-100">
             <h3 className="text-lg font-semibold mb-6">Şifrə Yeniləmə</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
@@ -214,7 +255,9 @@ export default function ProfilePage() {
                   autoComplete="new-password"
                   className="h-12 bg-zinc-50 border-zinc-200"
                 />
-                {errors.currentPassword && <p className="text-red-500 text-xs">{errors.currentPassword.message}</p>}
+                {errors.currentPassword && (
+                  <p className="text-red-500 text-xs">{errors.currentPassword.message}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="new-password" className="text-zinc-600">Yeni Şifrə</Label>
@@ -225,13 +268,17 @@ export default function ProfilePage() {
                   autoComplete="new-password"
                   className="h-12 bg-zinc-50 border-zinc-200"
                 />
-                {errors.newPassword && <p className="text-red-500 text-xs">{errors.newPassword.message}</p>}
+                {errors.newPassword && (
+                  <p className="text-red-500 text-xs">{errors.newPassword.message}</p>
+                )}
               </div>
             </div>
           </div>
 
+          {/* Yenilə Buttonu */}
           <div className="mt-8 flex justify-end">
             <Button
+              type="submit"
               disabled={updateProfile.isPending}
               className="w-full md:w-auto h-12 px-8 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl font-semibold transition-all relative"
             >
@@ -242,7 +289,9 @@ export default function ProfilePage() {
                     <Loader2 className="w-5 h-5 animate-spin" />
                   </div>
                 </>
-              ) : "Məlumatları Yenilə"}
+              ) : (
+                "Məlumatları Yenilə"
+              )}
             </Button>
           </div>
         </div>

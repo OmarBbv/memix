@@ -265,7 +265,7 @@ export default function Navbar() {
                                 <button
                                     className="hidden md:flex items-center justify-center pl-1.5 cursor-pointer outline-none"
                                 >
-                                    <div className="relative w-8 h-8 rounded-full overflow-hidden border border-zinc-200">
+                                    <div className="relative w-8 h-8 rounded-full overflow-hidden border border-zinc-200 bg-zinc-100 flex items-center justify-center">
                                         {user?.avatar ? (
                                             <Image
                                                 src={user.avatar}
@@ -275,7 +275,9 @@ export default function Navbar() {
                                                 className="object-cover"
                                             />
                                         ) : (
-                                            <CircleUserRound className="w-full h-full text-zinc-700 p-0.5" />
+                                            <span className="font-medium text-sm text-zinc-700">
+                                                {profileName?.charAt(0).toUpperCase()}
+                                            </span>
                                         )}
                                     </div>
                                 </button>

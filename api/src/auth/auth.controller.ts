@@ -43,4 +43,10 @@ export class AuthController {
       `http://localhost:3000/az/auth/callback?token=${access_token}`,
     );
   }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('profile')
+  async getProfile(@Request() req) {
+    return this.usersService.findOne(req.user.userId);
+  }
 }
