@@ -1,11 +1,12 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { extname, join } from 'path';
 
 export const multerConfig = {
   storage: diskStorage({
-    destination: './uploads',
+    destination: join(process.cwd(), 'uploads'),
     filename: (req: any, file: any, callback: any) => {
+      console.log('Multer is processing file:', file.originalname);
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
       const ext = extname(file.originalname);
       const filename = `${file.fieldname}-${uniqueSuffix}${ext}`;
@@ -13,6 +14,7 @@ export const multerConfig = {
     },
   }),
   fileFilter: (req: any, file: any, callback: any) => {
+    console.log('Multer fileFilter for:', file.originalname, 'mimetype:', file.mimetype);
     if (!file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
       return callback(
         new HttpException(

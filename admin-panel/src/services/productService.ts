@@ -4,8 +4,8 @@ import { CreateProductDto, Product, UpdateProductDto } from '../types/product';
 interface IProductService {
   getAll(): Promise<Product[]>;
   getById(id: number): Promise<Product>;
-  create(data: CreateProductDto): Promise<Product>;
-  update(id: number, data: UpdateProductDto): Promise<Product>;
+  create(data: CreateProductDto | FormData): Promise<Product>;
+  update(id: number, data: UpdateProductDto | FormData): Promise<Product>;
   delete(id: number): Promise<void>;
 }
 
@@ -30,7 +30,7 @@ class ProductService implements IProductService {
     }
   }
 
-  async create(data: CreateProductDto): Promise<Product> {
+  async create(data: CreateProductDto | FormData): Promise<Product> {
     try {
       const response = await axiosInstance.post('/products', data);
       return response.data;
@@ -40,7 +40,7 @@ class ProductService implements IProductService {
     }
   }
 
-  async update(id: number, data: UpdateProductDto): Promise<Product> {
+  async update(id: number, data: UpdateProductDto | FormData): Promise<Product> {
     try {
       const response = await axiosInstance.patch(`/products/${id}`, data);
       return response.data;

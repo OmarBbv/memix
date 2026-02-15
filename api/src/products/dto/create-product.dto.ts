@@ -2,11 +2,11 @@ export class CreateProductDto {
   name: string; // Məhsulun adı
   description?: string; // Təsviri (Məcburi deyil)
   price: number; // Qiyməti
-  imageUrl?: string; // Əsas Şəkil URL (Məcburi deyil)
-  images?: string[]; // Digər Şəkillər
+  images?: string[]; // Digər Şəkillər (URL-lər)
+  banner?: string; // Vitrin şəkili (URL)
   stock?: number; // Stok sayı
-  category?: string; // Bu silinəcək, aşağıdakı istifadə olunacaq
-  categoryId?: number; // Kateqoriya ID-si (Məcburi deyil, məsələn: 1)
-  variants?: Record<string, any>; // Variantlar (JSON formatı: { "size": ["S", "M"], "color": ["Red"] })
+  categoryId?: number; // Kateqoriya ID-si (Məcburi deyil)
+  variants?: any; // Variantlar (JSON formatı və ya obyekt)
+  tags?: string[]; // Məhsul teqləri
   isFeatured?: boolean; // Vitrində göstərilsin?
 }

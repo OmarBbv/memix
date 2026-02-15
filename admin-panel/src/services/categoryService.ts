@@ -13,7 +13,7 @@ interface ICategoryService {
 class CategoryService implements ICategoryService {
   async getAll(): Promise<Category[]> {
     try {
-      const response = await axiosInstance.get('/categories');
+      const response = await axiosInstance.get('/categories?all=true');
       return response.data;
     } catch (error) {
       console.error('Error fetching all categories:', error);
@@ -23,7 +23,7 @@ class CategoryService implements ICategoryService {
 
   async getTree(): Promise<Category[]> {
     try {
-      const response = await axiosInstance.get('/categories/tree');
+      const response = await axiosInstance.get('/categories/tree?all=true');
       return response.data;
     } catch (error) {
       console.error('Error fetching category tree:', error);

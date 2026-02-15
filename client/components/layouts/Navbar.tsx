@@ -3,7 +3,7 @@
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import logoIcon from "@/public/memi.svg";
 import searchIcon from "@/public/navbar/search.svg";
-import { CircleUserRound, Heart, ShoppingBag, User } from "lucide-react";
+import { Heart, ShoppingBag, User } from "lucide-react";
 import Image from "next/image";
 import { Link, usePathname, useRouter } from "@/i18n/routing";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -12,6 +12,8 @@ import { useState, useEffect } from "react";
 import { TopBar } from "../home/TopBar";
 import { Input } from "../ui/input";
 import { AuthModal } from "./AuthModal";
+import { useCategoryTree } from "@/hooks/useCategories";
+import { Category } from "@/types/category.types";
 import { openCart } from "@/lib/redux/features/cartSlice";
 import { logout } from "@/lib/redux/features/authSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
@@ -68,139 +70,8 @@ const getSlugFromText = (text: string): string => {
     return slugMap[text] || text.toLowerCase().replace(/\s+/g, '-')
 }
 
-const navItems = [
-    {
-        id: 1,
-        name: 'Qadınlar',
-        url: '/category/women',
-        categories: {
-            'Populyar': [
-                'Bu gün əlavə edilənlər',
-                'Ən aşağı qiymətlər',
-                'Ən çox bəyənilənlər',
-                '🔥 Günün tapıntıları',
-                'Qış klassikləri',
-                'Ceketlər, paltolar və jiletlər',
-                'Qışın rahatlığında',
-                '🇹🇭 Tommy Hilfiger Shop'
-            ],
-            'Qadın geyimləri': [
-                'Trenco',
-                'Üzgüçülük geyimləri',
-                'Alt geyim',
-                'Bluzkalar',
-                'Ponço və boksro',
-                'Kombinezonlar',
-                'Cins',
-                'Yeleklər',
-                'Jiletlər',
-                'Yubkalar',
-                'Dəri ceketlər',
-                'Kostyumlar',
-                'Şortlar',
-                'Paltolar'
-            ],
-            'Brendlər': [
-                'Zara',
-                'Tommy Hilfiger',
-                'Nike',
-                'Pinko',
-                'Karl Lagerfeld',
-                'Bütün brendləri gör'
-            ],
-            'Şəxsi vaucherlər': [
-                'FRESH'
-            ],
-            'Saxlanılmış filtrlər': [
-                'Saxlanılmış filtrlərinizi görmək üçün profilə daxil olun.'
-            ]
-        }
-    },
-    {
-        id: 2,
-        name: 'Kişilər',
-        url: '/category/men',
-        categories: {
-            'Populyar': [
-                'Bu gün əlavə edilənlər',
-                'Ən aşağı qiymətlər',
-                'Ən çox bəyənilənlər'
-            ],
-            'Kişi geyimləri': [
-                'Trenco',
-                'Üzgüçülük geyimləri',
-                'Alt geyim'
-            ],
-            'Brendlər': [
-                'Zara',
-                'Tommy Hilfiger',
-                'Nike'
-            ]
-        }
-    },
-    {
-        id: 3,
-        name: 'Çantalar',
-        url: '/category/bags',
-        categories: {
-            'Populyar': [
-                'Bu gün əlavə edilənlər',
-                'Ən aşağı qiymətlər'
-            ],
-            'Çanta növləri': [
-                'Sırt çantaları',
-                'Çiyin çantaları'
-            ]
-        }
-    },
-    {
-        id: 4,
-        name: 'Aksesuarlar',
-        url: '/category/accessories',
-        categories: {
-            'Populyar': [
-                'Bu gün əlavə edilənlər',
-                'Ən aşağı qiymətlər'
-            ],
-            'Növlər': [
-                'Biju',
-                'Saatlar'
-            ]
-        }
-    },
-    {
-        id: 5,
-        name: 'Ayaqqabılar',
-        url: '/category/shoes',
-        categories: {
-            'Populyar': [
-                'Bu gün əlavə edilənlər',
-                'Ən aşağı qiymətlər'
-            ],
-            'Növlər': [
-                'İdman ayaqqabıları',
-                'Zərif ayaqqabılar'
-            ]
-        }
-    },
-    {
-        id: 6,
-        name: 'Uşaqlar',
-        url: '/category/kids',
-        categories: {
-            'Populyar': [
-                'Bu gün əlavə edilənlər',
-                'Ən aşağı qiymətlər'
-            ],
-            'Yaş qrupları': [
-                'Körpələr',
-                'Kiçik uşaqlar'
-            ]
-        }
-    }
-]
-
 export default function Navbar() {
+    const { data: categories = [] } = useCategoryTree();
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
     const [showCategories, setShowCategories] = useState(true)
     const [lastScrollY, setLastScrollY] = useState(0)
@@ -242,10 +113,6 @@ export default function Navbar() {
                             <Image src={logoIcon} alt="Memix Logo" width={110} height={55} className="object-contain" />
                         </Link>
                     </div>
-                    {/* <div className="hidden md:flex items-center gap-4 ml-2">
-                        <Link href="/" className="flex h-full -translate-y-[2px] items-center font-bold tracking-tighter text-lg">ALIŞ</Link>
-                        <Link href="/" className="flex h-full -translate-y-[2px] items-center font-bold tracking-tighter text-lg">SATIŞ</Link>
-                    </div> */}
                     <div className="flex-1 border-2 h-auto md:h-[40px] border-gray-300 rounded-[12px] flex items-center pl-1.5 sm:pl-2">
                         <Image src={searchIcon} alt={searchIcon} height={25} width={25} />
                         <Input
@@ -331,14 +198,14 @@ export default function Navbar() {
                         }`}
                 >
                     <div className="max-w-7xl flex mx-auto items-center gap-4 pb-4">
-                        {navItems.map((item) => (
+                        {categories?.map((item: Category) => (
                             <HoverCard
                                 key={`${item.id}-${pathname}`}
                                 openDelay={20}
                                 closeDelay={100}
                             >
                                 <HoverCardTrigger asChild>
-                                    <Link href={item.url} className="text-sm font-medium text-zinc-700 hover:text-black flex items-center gap-2 transition-colors">
+                                    <Link href={`/category/${item.slug}`} className="text-sm font-medium text-zinc-700 hover:text-black flex items-center gap-2 transition-colors">
                                         {item.name}
                                     </Link>
                                 </HoverCardTrigger>
@@ -346,28 +213,28 @@ export default function Navbar() {
                                     <div className="w-full bg-white min-h-[60vh]">
                                         <div className="max-w-7xl mx-auto py-8">
                                             <div className="grid grid-cols-5 gap-8">
-                                                {Object.entries(item.categories).map(([categoryName, categoryItems]) => (
-                                                    <div key={categoryName} className="space-y-4">
+                                                {item.children?.map((subCategory: Category) => (
+                                                    <div key={subCategory.id} className="space-y-4">
                                                         <h3 className="font-semibold text-gray-900 text-base">
-                                                            {categoryName}
+                                                            {subCategory.name}
                                                         </h3>
                                                         <div className="space-y-2">
-                                                            {categoryItems.map((categoryItem: string, index: number) => (
+                                                            {subCategory.children?.map((leaf: Category) => (
                                                                 <Link
-                                                                    key={index}
-                                                                    href={`/category/${getSlugFromText(categoryItem)}`}
-                                                                    className={`block text-sm hover:text-gray-900 transition-colors ${categoryItem.includes('🔥') ? 'text-red-500 hover:text-red-600' :
-                                                                        categoryItem.includes('🇹🇭') ? 'text-blue-600 hover:text-blue-700' :
-                                                                            categoryItem === 'FRESH' ? 'bg-black text-white px-2 py-1 rounded text-xs font-medium inline-block' :
-                                                                                categoryItem === 'Bütün brendləri gör' ? 'text-gray-600 underline hover:no-underline' :
+                                                                    key={leaf.id}
+                                                                    href={`/category/${leaf.slug}`}
+                                                                    className={`block text-sm hover:text-gray-900 transition-colors ${leaf.name.includes('🔥') ? 'text-red-500 hover:text-red-600' :
+                                                                        leaf.name.includes('🇹🇭') ? 'text-blue-600 hover:text-blue-700' :
+                                                                            leaf.name === 'FRESH' ? 'bg-black text-white px-2 py-1 rounded text-xs font-medium inline-block' :
+                                                                                leaf.name === 'Bütün brendləri gör' ? 'text-gray-600 underline hover:no-underline' :
                                                                                     'text-gray-600'
                                                                         }`}
                                                                 >
-                                                                    {categoryItem}
+                                                                    {leaf.name}
                                                                 </Link>
                                                             ))}
                                                         </div>
-                                                        {categoryName === 'Şəxsi vaucherlər' && (
+                                                        {subCategory.name === 'Şəxsi vaucherlər' && (
                                                             <div className="space-y-2 mt-4">
                                                                 <h4 className="font-semibold text-gray-900 text-base">Qiymət</h4>
                                                                 <div className="space-y-1 text-sm text-gray-600">

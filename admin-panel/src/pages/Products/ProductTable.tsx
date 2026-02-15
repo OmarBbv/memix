@@ -16,11 +16,16 @@ interface ProductTableProps {
 }
 
 export default function ProductTable({ products, onEdit, onDelete }: ProductTableProps) {
+
+  const a = products.map(item => item.banner);
+
+  console.log(a)
+
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/5 dark:bg-white/3">
       <div className="max-w-full overflow-x-auto">
         <Table>
-          <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
+          <TableHeader className="border-b border-gray-100 dark:border-white/5">
             <TableRow>
               <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                 Məhsul
@@ -43,23 +48,19 @@ export default function ProductTable({ products, onEdit, onDelete }: ProductTabl
             </TableRow>
           </TableHeader>
 
-          <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+          <TableBody className="divide-y divide-gray-100 dark:divide-white/5">
             {products.map((product) => (
-              <TableRow key={product.id} className="hover:bg-gray-50/50 dark:hover:bg-white/[0.01]">
+              <TableRow key={product.id} className="hover:bg-gray-50/50 dark:hover:bg-white/1">
                 <TableCell className="px-5 py-4 text-start">
                   <div className="flex items-center gap-3">
                     <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-gray-100 dark:border-gray-800">
-                      {product.imageUrl ? (
-                        <img
-                          src={product.imageUrl}
-                          alt={product.name}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-gray-50 text-xs font-bold text-gray-400 dark:bg-gray-800">
-                          {product.name.charAt(0)}
-                        </div>
-                      )}
+                      {product.banner ?
+                        <img src={product.banner} alt={product.name} />
+                        : (
+                          <div className="flex h-full w-full items-center justify-center bg-gray-50 text-xs font-bold text-gray-400 dark:bg-gray-800">
+                            {product.name.charAt(0)}
+                          </div>
+                        )}
                     </div>
                     <div className="flex flex-col">
                       <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">

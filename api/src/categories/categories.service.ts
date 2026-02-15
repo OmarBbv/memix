@@ -18,17 +18,63 @@ export class CategoriesService {
     private categoriesRepository: Repository<Category>,
   ) { }
 
+  private formatName(name: string): string {
+    if (!name) return name;
+    return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+  }
+
+  private async smartReorder(
+    parentId: number | null,
+    newOrder: number,
+    oldOrder?: number | null,
+  ) {
+    const qb = this.categoriesRepository.createQueryBuilder('category');
+
+    // Parent şərti
+    if (parentId) {
+      qb.where('"parentId" = :parentId', { parentId });
+    } else {
+      qb.where('"parentId" IS NULL');
+    }
+
+    if (oldOrder === undefined || oldOrder === null) {
+      await qb
+        .andWhere('"order" >= :newOrder', { newOrder })
+        .update()
+        .set({ order: () => '"order" + 1' })
+        .execute();
+    } else if (newOrder < oldOrder) {
+      await qb
+        .andWhere('"order" >= :newOrder AND "order" < :oldOrder', { newOrder, oldOrder })
+        .update()
+        .set({ order: () => '"order" + 1' })
+        .execute();
+    } else if (newOrder > oldOrder) {
+      await qb
+        .andWhere('"order" > :oldOrder AND "order" <= :newOrder', { oldOrder, newOrder })
+        .update()
+        .set({ order: () => '"order" - 1' })
+        .execute();
+    }
+  }
+
   async create(createCategoryDto: CreateCategoryDto) {
     const { parentId, ...rest } = createCategoryDto;
-    const slug = generateSlug(rest.name);
+    const formattedName = this.formatName(rest.name);
+    const slug = generateSlug(formattedName);
 
     const existing = await this.categoriesRepository.findOneBy({ slug });
     if (existing) {
       throw new ConflictException('Bu kateqoriya artıq mövcuddur');
     }
 
+    if (rest.order !== undefined) {
+      await this.smartReorder(parentId || null, rest.order);
+    }
+
     const category = this.categoriesRepository.create({
       ...rest,
+      name: formattedName,
       slug,
     });
 
@@ -39,29 +85,61 @@ export class CategoriesService {
     return this.categoriesRepository.save(category);
   }
 
-  async findAll() {
-    return this.categoriesRepository.find({
+  async findAll(all: boolean = false) {
+    const where: any = {};
+    if (!all) {
+      where.isActive = true;
+    }
+
+    const categories = await this.categoriesRepository.find({
+      where,
       relations: ['parent'],
-      order: { order: 'ASC', name: 'ASC' },
+      order: { order: 'ASC', id: 'ASC' },
     });
+    return categories.map((cat) => ({
+      ...cat,
+      name: this.formatName(cat.name),
+    }));
   }
 
-  async findTree() {
-    return this.categoriesRepository.find({
-      where: { parent: IsNull() },
+  private formatCategoryTree(category: Category, all: boolean = false): Category | null {
+    if (!all && !category.isActive) return null;
+    category.name = this.formatName(category.name);
+    if (category.children) {
+      category.children = category.children
+        .map((child) => this.formatCategoryTree(child, all))
+        .filter((c): c is Category => c !== null);
+    }
+    return category;
+  }
+
+  async findTree(all: boolean = false) {
+    const where: any = { parent: IsNull() };
+    if (!all) {
+      where.isActive = true;
+    }
+
+    const trees = await this.categoriesRepository.find({
+      where,
       relations: ['children', 'children.children'],
-      order: { order: 'ASC' },
+      order: { order: 'ASC', id: 'ASC' },
     });
+
+    return trees
+      .map((tree) => this.formatCategoryTree(tree, all))
+      .filter((t): t is Category => t !== null);
   }
 
-  async findOne(id: number) {
+  async findOne(id: number): Promise<Category> {
     const category = await this.categoriesRepository.findOne({
       where: { id },
       relations: ['parent', 'children'],
     });
+
     if (!category) {
       throw new NotFoundException(ErrorMessages.CATEGORY_NOT_FOUND);
     }
+    category.name = this.formatName(category.name);
     return category;
   }
 
@@ -69,12 +147,22 @@ export class CategoriesService {
     const category = await this.findOne(id);
     const { parentId, ...rest } = updateCategoryDto;
 
+    if (rest.order !== undefined && rest.order !== category.order) {
+      const pId =
+        parentId !== undefined ? parentId : category.parent?.id || null;
+      await this.smartReorder(pId as any, rest.order, category.order);
+    }
+
     if (rest.name) {
-      category.slug = generateSlug(rest.name);
+      const formattedName = this.formatName(rest.name);
+      category.name = formattedName;
+      category.slug = generateSlug(formattedName);
     }
 
     if (parentId !== undefined) {
-      category.parent = parentId ? ({ id: parentId } as Category) : (null as any);
+      category.parent = parentId
+        ? ({ id: parentId } as Category)
+        : (null as any);
     }
 
     this.categoriesRepository.merge(category, rest);

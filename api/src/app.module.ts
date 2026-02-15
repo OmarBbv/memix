@@ -37,7 +37,7 @@ import { CardsModule } from './cards/cards.module';
     CategoriesModule,
     BranchesModule,
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', '..', 'uploads'),
+      rootPath: join(process.cwd(), 'uploads'),
       serveRoot: '/uploads',
     }),
     CartsModule,

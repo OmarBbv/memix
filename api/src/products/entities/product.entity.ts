@@ -25,9 +25,6 @@ export class Product {
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   price: number; // Məhsulun qiyməti
 
-  @Column({ nullable: true })
-  imageUrl: string; // Əsas şəkil URL-i
-
   @Column({ type: 'simple-array', nullable: true })
   images: string[]; // Əlavə şəkillər (array formasında)
 

@@ -20,7 +20,7 @@ const CategoryItem: React.FC<CategoryItemProps> = ({
   onEdit,
   depth = 0,
 }) => {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const deleteMutation = useDeleteCategory();
 
@@ -69,9 +69,14 @@ const CategoryItem: React.FC<CategoryItemProps> = ({
           )}
 
           <div className="flex flex-col">
-            <span className="text-sm font-semibold text-gray-800 dark:text-white/90">
-              {category.name}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="flex h-5 items-center justify-center rounded-md bg-gray-100 px-1.5 text-[10px] font-bold text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                #{category.order}
+              </span>
+              <span className="text-sm font-semibold text-gray-800 dark:text-white/90">
+                {category.name}
+              </span>
+            </div>
             <span className="text-[11px] font-medium text-gray-400 dark:text-gray-500">
               /{category.slug}
             </span>

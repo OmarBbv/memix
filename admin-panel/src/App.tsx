@@ -1,5 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router";
 import PlaceholderPage from "./pages/PlaceholderPage";
+import Products from "./pages/Products";
+import AddProduct from "./pages/Products/AddProduct";
+import EditProduct from "./pages/Products/EditProduct";
 import SignIn from "./pages/AuthPages/SignIn";
 import SignUp from "./pages/AuthPages/SignUp";
 import NotFound from "./pages/OtherPage/NotFound";
@@ -34,8 +37,9 @@ export default function App() {
               <Route index path="/" element={<Home />} />
 
               {/* E-commerce Routes */}
-              <Route path="/products" element={<PlaceholderPage title="Məhsullar" />} />
-              <Route path="/products/create" element={<PlaceholderPage title="Yeni Məhsul" />} />
+              <Route path="/products" element={<Products />} />
+              <Route path="/products/create" element={<AddProduct />} />
+              <Route path="/products/edit/:id" element={<EditProduct />} />
               <Route path="/categories" element={<Categories />} />
               <Route path="/orders" element={<PlaceholderPage title="Sifarişlər" />} />
               <Route path="/orders/returns" element={<PlaceholderPage title="Geri Qaytarılanlar" />} />

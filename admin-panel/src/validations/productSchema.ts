@@ -5,8 +5,9 @@ export const productSchema = z.object({
   description: z.string().optional(),
   price: z.coerce.number().positive('Price must be a positive number'),
   stock: z.coerce.number().int().nonnegative('Stock must be a non-negative integer'),
-  imageUrl: z.string().url('Invalid image URL').optional().or(z.literal('')),
-  images: z.array(z.string().url('Invalid image URL')).optional().default([]),
+  bannerFile: z.any().optional(), // Vitrin şəkli üçün fayl
+  additionalFiles: z.any().optional(), // Digər şəkillər üçün fayllar
+  images: z.array(z.string()).optional().default([]), // For existing image URLs if editing
   categoryId: z.coerce.number().optional(),
   isFeatured: z.boolean().optional().default(false),
   tags: z.array(z.string()).optional().default([]),

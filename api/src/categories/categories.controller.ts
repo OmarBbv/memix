@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -28,13 +29,13 @@ export class CategoriesController {
   }
 
   @Get()
-  findAll() {
-    return this.categoriesService.findAll();
+  findAll(@Query('all') all?: string) {
+    return this.categoriesService.findAll(all === 'true');
   }
 
   @Get('tree')
-  findTree() {
-    return this.categoriesService.findTree();
+  findTree(@Query('all') all?: string) {
+    return this.categoriesService.findTree(all === 'true');
   }
 
   @Get(':id')

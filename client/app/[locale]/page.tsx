@@ -94,7 +94,7 @@ export default function Home() {
 
                 {/* Content */}
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full max-w-7xl mx-auto px-6 lg:px-8">
+                  <div className="w-full max-w-7xl mx-auto px-4 lg:px-8">
                     <div className="max-w-2xl space-y-6">
                       {/* Badge */}
                       <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20">
@@ -167,7 +167,7 @@ export default function Home() {
 
       {/* Categories Section */}
       <section className="py-20 lg:py-28">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 lg:px-8">
           {/* Section Header */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
             <div className="space-y-3">
@@ -219,7 +219,7 @@ export default function Home() {
 
       {/* Featured Banner */}
       <section className="py-4 lg:py-8">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 lg:px-8">
           <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900">
             <div className="absolute inset-0 opacity-30">
               <Image
@@ -282,9 +282,9 @@ export default function Home() {
 
       {/* New Arrivals Section */}
       <section className="py-20 lg:py-28">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
           {/* Section Header */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12 px-4 lg:px-8">
             <div className="space-y-3">
               <span className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-zinc-500">
                 <span className="w-8 h-px bg-zinc-300"></span>
@@ -302,31 +302,33 @@ export default function Home() {
           </div>
 
           {/* Products Grid with Swiper */}
-          <Swiper
-            slidesPerView={1.3}
-            spaceBetween={16}
-            navigation={{
-              nextEl: '.products-next',
-              prevEl: '.products-prev',
-            }}
-            modules={[Navigation]}
-            breakpoints={{
-              480: { slidesPerView: 2, spaceBetween: 16 },
-              640: { slidesPerView: 2.5, spaceBetween: 20 },
-              768: { slidesPerView: 3, spaceBetween: 20 },
-              1024: { slidesPerView: 4, spaceBetween: 24 },
-            }}
-            className="w-full pb-4"
-          >
-            {newArrivals.map((_, i) => (
-              <SwiperSlide key={i} className="h-auto">
-                <Card index={i} className="h-full" />
-              </SwiperSlide>
-            ))}
-          </Swiper>
+          <div className="px-0">
+            <Swiper
+              slidesPerView={1.3}
+              spaceBetween={16}
+              navigation={{
+                nextEl: '.products-next',
+                prevEl: '.products-prev',
+              }}
+              modules={[Navigation]}
+              breakpoints={{
+                480: { slidesPerView: 2, spaceBetween: 16 },
+                640: { slidesPerView: 2.5, spaceBetween: 20 },
+                768: { slidesPerView: 3, spaceBetween: 20 },
+                1024: { slidesPerView: 4, spaceBetween: 24 },
+              }}
+              className="w-full pb-4 px-4! md:px-0!"
+            >
+              {newArrivals.map((_, i) => (
+                <SwiperSlide key={i} className="h-auto">
+                  <Card index={i} className="h-full" />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
 
           {/* Navigation Buttons */}
-          <div className="flex justify-center gap-3 mt-8">
+          <div className="flex justify-center gap-3 mt-8 px-4 lg:px-8">
             <button className="products-prev w-12 h-12 rounded-full border border-zinc-200 flex items-center justify-center hover:bg-zinc-50 hover:border-zinc-300 transition-all disabled:opacity-30">
               <ArrowRight className="w-5 h-5 rotate-180" />
             </button>
@@ -339,7 +341,7 @@ export default function Home() {
 
       {/* Features Section */}
       <section className="py-20 lg:py-28 bg-zinc-50/80">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 lg:px-8">
           {/* Section Header */}
           <div className="text-center mb-16">
             <span className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-zinc-500 mb-4">
@@ -393,7 +395,7 @@ export default function Home() {
 
       {/* CTA Section */}
       <section className="py-20 lg:py-28">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 lg:px-8">
           <div className="relative overflow-hidden rounded-3xl bg-zinc-950 p-8 lg:p-16">
             {/* Background Pattern */}
             <div className="absolute inset-0 opacity-10">
