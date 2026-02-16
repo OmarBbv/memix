@@ -11,6 +11,15 @@ export interface Product {
   city?: string;
   storePriceFactor?: number;
   category: 'women' | 'men' | 'kids' | 'bags' | 'shoes' | 'accessories';
+  discount?: {
+    id: number;
+    type: 'percentage' | 'fixed';
+    value: number;
+    startDate?: string;
+    endDate?: string;
+    isActive: boolean;
+  };
+  variants?: Record<string, any>;
 }
 
 export const PRODUCTS: Product[] = [
@@ -21,7 +30,13 @@ export const PRODUCTS: Product[] = [
     price: 25,
     brand: 'Zara',
     storePriceFactor: 1.5,
-    category: 'women'
+    category: 'women',
+    discount: {
+      id: 1,
+      type: 'percentage',
+      value: 20,
+      isActive: true
+    }
   },
   {
     id: 2,
@@ -39,7 +54,13 @@ export const PRODUCTS: Product[] = [
     price: 120,
     brand: 'Mango',
     storePriceFactor: 2.5,
-    category: 'women'
+    category: 'women',
+    discount: {
+      id: 2,
+      type: 'fixed',
+      value: 30,
+      isActive: true
+    }
   },
   {
     id: 4,
@@ -68,7 +89,13 @@ export const PRODUCTS: Product[] = [
     price: 150,
     brand: 'Zara Man',
     storePriceFactor: 1.8,
-    category: 'men'
+    category: 'men',
+    discount: {
+      id: 3,
+      type: 'percentage',
+      value: 15,
+      isActive: true
+    }
   },
   {
     id: 101,

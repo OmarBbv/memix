@@ -38,10 +38,30 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
     );
   }
 
+  const basePrice = foundProduct.price;
+  const discount = foundProduct.discount;
+  let currentPrice = basePrice;
+  let originalPrice = foundProduct.oldPrice || Math.floor(basePrice * 1.3);
+  let discountPercentage = 0;
+
+  if (discount && discount.isActive) {
+    originalPrice = basePrice;
+    if (discount.type === 'percentage') {
+      currentPrice = basePrice * (1 - discount.value / 100);
+      discountPercentage = Math.round(discount.value);
+    } else {
+      currentPrice = basePrice - discount.value;
+      discountPercentage = Math.round((discount.value / basePrice) * 100);
+    }
+  } else if (originalPrice > basePrice) {
+    discountPercentage = Math.round(((originalPrice - basePrice) / originalPrice) * 100);
+  }
+
   const product = {
     title: foundProduct.title,
-    price: foundProduct.price,
-    originalPrice: foundProduct.oldPrice || Math.floor(foundProduct.price * 1.5),
+    price: currentPrice,
+    originalPrice: originalPrice,
+    discountPercentage,
     currency: "₼",
     brand: foundProduct.brand,
     condition: foundProduct.condition || "Yeni",
@@ -146,8 +166,18 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           <div className="lg:col-span-6 flex flex-col gap-6 lg:gap-8">
             {/* Header Info */}
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="text-2xl font-bold">{product.price}.00 {product.currency}</div>
+              <div className="flex flex-col gap-2">
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="text-3xl font-bold text-gray-900">{product.price.toFixed(2)} {product.currency}</div>
+                  {product.discountPercentage > 0 && (
+                    <>
+                      <div className="text-xl text-gray-400 line-through">{product.originalPrice.toFixed(2)} {product.currency}</div>
+                      <div className="px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-lg leading-none">
+                        -{product.discountPercentage}%
+                      </div>
+                    </>
+                  )}
+                </div>
                 <div className="flex items-center gap-2">
                   <span className="px-3 py-1 bg-green-50 rounded-full text-xs font-semibold text-green-700">
                     {product.condition}

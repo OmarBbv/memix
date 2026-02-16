@@ -40,7 +40,6 @@ export class ProductsService {
       });
     }
 
-    // FormData-dan gələn string dataları parse edirik
     let parsedVariants = variants;
     if (typeof variants === 'string') {
       try {
@@ -69,10 +68,15 @@ export class ProductsService {
     } as any) as unknown as Product;
 
     const savedProduct = await this.productsRepository.save(product);
-
     await this.searchService.indexProduct(savedProduct);
 
-    return savedProduct;
+    return {
+      ...savedProduct,
+      banner: ensureFullUrl(savedProduct.banner),
+      images: Array.isArray(savedProduct.images)
+        ? savedProduct.images.map(img => ensureFullUrl(img)).filter(Boolean)
+        : savedProduct.images,
+    };
   }
 
   async findAll(query: any = {}) {
@@ -86,12 +90,14 @@ export class ProductsService {
       products = await this.productsRepository.createQueryBuilder('product')
         .whereInIds(ids)
         .leftJoinAndSelect('product.category', 'category')
+        .leftJoinAndSelect('product.discount', 'discount')
         .getMany();
     } else {
       const qb = this.productsRepository.createQueryBuilder('product');
 
       qb.leftJoinAndSelect('product.category', 'category');
       qb.leftJoinAndSelect('product.stocks', 'stocks');
+      qb.leftJoinAndSelect('product.discount', 'discount');
 
       if (query.categoryId) {
         qb.andWhere('category.id = :categoryId', {
@@ -140,7 +146,7 @@ export class ProductsService {
   async findOne(id: number) {
     const product = await this.productsRepository.findOne({
       where: { id },
-      relations: ['category'],
+      relations: ['category', 'discount'],
     });
 
     if (!product) {
@@ -229,10 +235,15 @@ export class ProductsService {
     } as any);
 
     const updatedProduct = (await this.productsRepository.save(product)) as Product;
-
     await this.searchService.indexProduct(updatedProduct);
 
-    return updatedProduct;
+    return {
+      ...updatedProduct,
+      banner: ensureFullUrl(updatedProduct.banner),
+      images: Array.isArray(updatedProduct.images)
+        ? updatedProduct.images.map(img => ensureFullUrl(img)).filter(Boolean)
+        : updatedProduct.images,
+    };
   }
 
   async remove(id: number) {

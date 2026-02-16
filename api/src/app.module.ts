@@ -23,6 +23,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { BannersModule } from './banners/banners.module';
 import { SearchModule } from './search/search.module';
 import { CardsModule } from './cards/cards.module';
+import { DiscountsModule } from './discounts/discounts.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { CardsModule } from './cards/cards.module';
     BannersModule,
     SearchModule,
     CardsModule,
+    DiscountsModule,
   ],
   controllers: [UploadsController],
   providers: [],

@@ -12,8 +12,8 @@ export class Category {
   @Column({ unique: true })
   slug: string;
 
-  @Column({ nullable: true })
-  imageUrl: string;
+  @Column({ type: 'text', nullable: true })
+  imageUrl: string | null;
 
   @Column({ default: 0 })
   order: number;

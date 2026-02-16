@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router";
+import { Toaster } from "react-hot-toast";
 import PlaceholderPage from "./pages/PlaceholderPage";
 import Products from "./pages/Products";
 import AddProduct from "./pages/Products/AddProduct";
@@ -30,6 +31,7 @@ export default function App() {
     <>
       <Router>
         <ScrollToTop />
+        <Toaster position="top-right" />
         <Routes>
           {/* Dashboard Layout */}
           <Route element={<ProtectedRoute />}>

@@ -69,7 +69,19 @@ const categoryData = [
       },
       {
         name: 'Kişi geyimləri',
-        children: ['Trenco', 'Üzgüçülük geyimləri', 'Alt geyim']
+        children: [
+          'Kostyumlar',
+          'Ceketlər',
+          'Şalvarlar',
+          'Cinslər',
+          'Köynəklər',
+          'T-shirtlər',
+          'Paltolar',
+          'Jaketlər',
+          'Üzgüçülük geyimləri',
+          'Alt geyim',
+          'Şortlar'
+        ]
       },
       {
         name: 'Brendlər',
@@ -147,7 +159,9 @@ async function seed() {
       name: parentData.name,
       slug: generateSlug(parentData.name),
       order: parentOrder,
-      isActive: true
+      isActive: true,
+      showOnHome: true,
+      imageUrl: `/cat${parentOrder + 1}.jpeg`
     });
 
     const savedParent = await categoryRepo.save(parent);

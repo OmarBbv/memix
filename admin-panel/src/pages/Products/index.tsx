@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import { PlusIcon } from "../../icons";
@@ -7,6 +10,23 @@ import ProductTable from "./ProductTable";
 import { Product } from "../../types/product";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { useNavigate } from "react-router";
+import { Modal } from "../../components/ui/modal";
+import Label from "../../components/form/Label";
+import Input from "../../components/form/input/InputField";
+import Select from "../../components/form/Select";
+import Button from "../../components/ui/button/Button";
+import { useCreateDiscount, useUpdateDiscount, useDeleteDiscount } from "../../hooks/useDiscounts";
+import { DiscountType } from "../../services/discountService";
+import toast from "react-hot-toast";
+
+const discountSchema = z.object({
+  type: z.nativeEnum(DiscountType),
+  value: z.number().min(0, "Dəyər mənfi ola bilməz"),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+});
+
+type DiscountFormValues = z.infer<typeof discountSchema>;
 
 const Products: React.FC = () => {
   const navigate = useNavigate();
@@ -15,6 +35,23 @@ const Products: React.FC = () => {
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<number | null>(null);
+
+  const [isDiscountModalOpen, setIsDiscountModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  const { control, register, handleSubmit, reset } = useForm<DiscountFormValues>({
+    resolver: zodResolver(discountSchema),
+    defaultValues: {
+      type: DiscountType.PERCENTAGE,
+      value: 0,
+      startDate: "",
+      endDate: "",
+    },
+  });
+
+  const createDiscount = useCreateDiscount();
+  const updateDiscount = useUpdateDiscount();
+  const deleteDiscount = useDeleteDiscount();
 
   const handleEdit = (product: Product) => {
     navigate(`/products/edit/${product.id}`);
@@ -31,7 +68,72 @@ const Products: React.FC = () => {
 
   const handleDelete = () => {
     if (productToDelete) {
-      deleteMutation.mutate(productToDelete);
+      deleteMutation.mutate(productToDelete, {
+        onSuccess: () => {
+          setIsDeleteDialogOpen(false);
+          toast.success("Məhsul uğurla silindi");
+        }
+      });
+    }
+  };
+
+  const openDiscountModal = (product: Product) => {
+    setSelectedProduct(product);
+    if (product.discount) {
+      reset({
+        type: product.discount.type as DiscountType,
+        value: Number(product.discount.value),
+        startDate: product.discount.startDate ? product.discount.startDate.split('T')[0] : '',
+        endDate: product.discount.endDate ? product.discount.endDate.split('T')[0] : '',
+      });
+    } else {
+      reset({
+        type: DiscountType.PERCENTAGE,
+        value: 0,
+        startDate: '',
+        endDate: '',
+      });
+    }
+    setIsDiscountModalOpen(true);
+  };
+
+  const handleSaveDiscount = (values: DiscountFormValues) => {
+    if (!selectedProduct) return;
+
+    const data = {
+      productId: selectedProduct.id,
+      type: values.type,
+      value: Number(values.value),
+      startDate: values.startDate ? new Date(values.startDate).toISOString() : undefined,
+      endDate: values.endDate ? new Date(values.endDate).toISOString() : undefined,
+      isActive: true,
+    };
+
+    if (selectedProduct.discount) {
+      updateDiscount.mutate({ id: selectedProduct.discount.id, data: data as any }, {
+        onSuccess: () => {
+          setIsDiscountModalOpen(false);
+          toast.success("Endirim yeniləndi");
+        }
+      });
+    } else {
+      createDiscount.mutate(data as any, {
+        onSuccess: () => {
+          setIsDiscountModalOpen(false);
+          toast.success("Endirim əlavə edildi");
+        }
+      });
+    }
+  };
+
+  const handleDeleteDiscount = () => {
+    if (selectedProduct?.discount) {
+      deleteDiscount.mutate(selectedProduct.discount.id, {
+        onSuccess: () => {
+          setIsDiscountModalOpen(false);
+          toast.success("Endirim silindi");
+        }
+      });
     }
   };
 
@@ -67,6 +169,7 @@ const Products: React.FC = () => {
               products={products}
               onEdit={handleEdit}
               onDelete={openDeleteDialog}
+              onDiscount={openDiscountModal}
             />
           ) : (
             <div className="py-20 text-center">
@@ -94,6 +197,95 @@ const Products: React.FC = () => {
         cancelLabel="Ləğv et"
         isDanger={true}
       />
+
+      <Modal
+        isOpen={isDiscountModalOpen}
+        onClose={() => setIsDiscountModalOpen(false)}
+        className="max-w-[500px] p-6"
+      >
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-1">
+            <h3 className="text-lg font-bold text-gray-800 dark:text-white/90">
+              Endirim İdarəetməsi
+            </h3>
+            <p className="text-sm text-gray-500">
+              {selectedProduct?.name} üçün endirim təyin edin
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-4">
+            <div>
+              <Label>Endirim Növü</Label>
+              <Controller
+                name="type"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    options={[
+                      { label: "Faiz (%)", value: "percentage" },
+                      { label: "Sabit (AZN)", value: "fixed" },
+                    ]}
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                )}
+              />
+            </div>
+
+            <div>
+              <Label>Dəyər</Label>
+              <Input
+                type="number"
+                {...register("value", { valueAsNumber: true })}
+                placeholder="Endirim miqdarı"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Başlama Tarixi</Label>
+                <Input
+                  type="date"
+                  {...register("startDate")}
+                />
+              </div>
+              <div>
+                <Label>Bitmə Tarixi</Label>
+                <Input
+                  type="date"
+                  {...register("endDate")}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Button
+              className="flex-1"
+              onClick={handleSubmit(handleSaveDiscount)}
+              disabled={createDiscount.isPending || updateDiscount.isPending}
+            >
+              Yadda saxla
+            </Button>
+            {selectedProduct?.discount && (
+              <Button
+                variant="outline"
+                className="border-red-500 text-red-500 hover:bg-red-50"
+                onClick={handleDeleteDiscount}
+                disabled={deleteDiscount.isPending}
+              >
+                Sil
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              onClick={() => setIsDiscountModalOpen(false)}
+            >
+              Ləğv et
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 };

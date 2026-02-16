@@ -7,15 +7,16 @@ import {
 } from "../../components/ui/table";
 import Badge from "../../components/ui/badge/Badge";
 import { Product } from "../../types/product";
-import { PencilIcon, TrashBinIcon } from "../../icons";
+import { PencilIcon, TrashBinIcon, DollarLineIcon } from "../../icons";
 
 interface ProductTableProps {
   products: Product[];
   onEdit: (product: Product) => void;
   onDelete: (id: number) => void;
+  onDiscount: (product: Product) => void;
 }
 
-export default function ProductTable({ products, onEdit, onDelete }: ProductTableProps) {
+export default function ProductTable({ products, onEdit, onDelete, onDiscount }: ProductTableProps) {
 
   const a = products.map(item => item.banner);
 
@@ -76,7 +77,19 @@ export default function ProductTable({ products, onEdit, onDelete }: ProductTabl
                   {product.category?.name || "Yoxdur"}
                 </TableCell>
                 <TableCell className="px-5 py-4 text-start font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                  {product.price} AZN
+                  <div className="flex flex-col">
+                    <span className={product.discount ? "text-xs text-gray-400 line-through" : ""}>
+                      {product.price} AZN
+                    </span>
+                    {product.discount && (
+                      <span className="text-brand-500">
+                        {product.discount.type === 'percentage'
+                          ? (product.price * (1 - product.discount.value / 100)).toFixed(2)
+                          : (product.price - product.discount.value).toFixed(2)
+                        } AZN
+                      </span>
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell className="px-5 py-4 text-start text-gray-500 text-theme-sm dark:text-gray-400">
                   {product.stock} ədəd
@@ -96,6 +109,13 @@ export default function ProductTable({ products, onEdit, onDelete }: ProductTabl
                       className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-100 bg-white text-gray-500 transition-all hover:border-brand-500 hover:text-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-brand-500"
                     >
                       <PencilIcon className="size-4" />
+                    </button>
+                    <button
+                      onClick={() => onDiscount(product)}
+                      className={`flex h-8 w-8 items-center justify-center rounded-lg border border-gray-100 bg-white text-gray-500 transition-all hover:border-brand-500 hover:text-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-brand-500 ${product.discount ? 'border-brand-200 text-brand-500 bg-brand-50/50' : ''}`}
+                      title="Endirim"
+                    >
+                      <DollarLineIcon className="size-4" />
                     </button>
                     <button
                       onClick={() => onDelete(product.id)}

@@ -24,6 +24,17 @@ export default function Home() {
     return allCategories.filter(cat => cat.showOnHome && cat.isActive);
   }, [allCategories]);
 
+  const staticCategories = [
+    { name: "Qadın", slug: "women", imageUrl: "/cat.jpeg", productsCount: "12.5K+" },
+    { name: "Kişi", slug: "men", imageUrl: "/cat2.jpeg", productsCount: "8.2K+" },
+    { name: "Uşaq", slug: "kids", imageUrl: "/cat3.jpeg", productsCount: "4.1K+" },
+    { name: "Çantalar", slug: "bags", imageUrl: "/cat4.jpeg", productsCount: "3.8K+" },
+    { name: "Ayaqqabılar", slug: "shoes", imageUrl: "/cat5.jpeg", productsCount: "6.5K+" },
+    { name: "Aksesuarlar", slug: "accessories", imageUrl: "/cat6.jpeg", productsCount: "5.3K+" },
+  ];
+
+  const displayCategories = categories.length > 0 ? categories : staticCategories;
+
   const heroSlides = [
     {
       id: 1,
@@ -190,14 +201,22 @@ export default function Home() {
                 <div key={i} className="aspect-3/4 animate-pulse rounded-2xl bg-zinc-100" />
               ))
             ) : (
-              categories.map((cat, idx) => (
+              displayCategories.map((cat: any, idx) => (
                 <Link
                   key={cat.id || idx}
                   href={`/category/${cat.slug}`}
                   className="group relative aspect-3/4 overflow-hidden rounded-2xl bg-zinc-100"
                 >
                   <Image
-                    src={cat.imageUrl ? (cat.imageUrl.startsWith('http') ? cat.imageUrl : `http://localhost:4444${cat.imageUrl}`) : "/placeholder-cat.jpg"}
+                    src={
+                      cat.imageUrl
+                        ? (cat.imageUrl.startsWith('http')
+                          ? cat.imageUrl
+                          : cat.imageUrl.startsWith('/uploads')
+                            ? `http://localhost:4444${cat.imageUrl}`
+                            : cat.imageUrl)
+                        : "/placeholder-cat.jpg"
+                    }
                     alt={cat.name}
                     fill
                     unoptimized
@@ -212,7 +231,7 @@ export default function Home() {
                       {cat.name}
                     </h3>
                     <span className="text-white/70 text-sm font-medium opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-                      {cat.productsCount || 0} məhsul
+                      {cat.productsCount || 0} {typeof cat.productsCount === 'number' ? 'məhsul' : ''}
                     </span>
                   </div>
                 </Link>

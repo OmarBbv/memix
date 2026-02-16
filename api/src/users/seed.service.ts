@@ -24,7 +24,7 @@ export class SeedService implements OnModuleInit {
     if (!adminExists) {
       this.logger.log('Seeding default admin user...');
       const salt = await bcrypt.genSalt();
-      const hashedPassword = await bcrypt.hash('admin123', salt);
+      const hashedPassword = await bcrypt.hash('admin1234', salt);
 
       const admin = this.userRepository.create({
         name: 'Admin',

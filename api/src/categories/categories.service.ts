@@ -4,12 +4,14 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, IsNull } from 'typeorm';
+import { Repository, IsNull, In } from 'typeorm';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { Category } from './entities/category.entity';
+import { Product } from '../products/entities/product.entity';
 import { generateSlug } from '../common/utils/slug.util';
 import { ErrorMessages } from '../common/constants/error-messages';
+import { ensureFullUrl } from '../common/utils/file-url.util';
 
 @Injectable()
 export class CategoriesService {
@@ -85,7 +87,11 @@ export class CategoriesService {
       category.parent = { id: parentId } as Category;
     }
 
-    return this.categoriesRepository.save(category);
+    const savedCategory = await this.categoriesRepository.save(category);
+    return {
+      ...savedCategory,
+      imageUrl: ensureFullUrl(savedCategory.imageUrl),
+    };
   }
 
   async findAll(all: boolean = false) {
@@ -101,6 +107,7 @@ export class CategoriesService {
     });
     return categories.map((cat) => ({
       ...cat,
+      imageUrl: ensureFullUrl(cat.imageUrl),
       name: this.formatName(cat.name),
       productsCount: cat.products?.length || 0,
     }));
@@ -109,6 +116,7 @@ export class CategoriesService {
   private formatCategoryTree(category: Category, all: boolean = false): Category | null {
     if (!all && !category.isActive) return null;
     category.name = this.formatName(category.name);
+    category.imageUrl = ensureFullUrl(category.imageUrl);
     if (category.children) {
       category.children = category.children
         .map((child) => this.formatCategoryTree(child, all))
@@ -141,10 +149,54 @@ export class CategoriesService {
     });
 
     if (!category) {
-      throw new NotFoundException(ErrorMessages.CATEGORY_NOT_FOUND);
+      throw new NotFoundException(`Category with ID ${id} not found`);
     }
+
+    category.name = this.formatName(category.name);
+    category.imageUrl = ensureFullUrl(category.imageUrl);
+    return category;
+  }
+
+  async findBySlug(slug: string): Promise<Category> {
+    const category = await this.categoriesRepository.findOne({
+      where: { slug },
+      relations: ['parent', 'children', 'children.children', 'children.children.children'],
+    });
+
+    if (!category) {
+      throw new NotFoundException(`Category with slug ${slug} not found`);
+    }
+
+    // Bütün alt kateqoriyaların ID-lərini yığırıq
+    const categoryIds = this.getIdsFromTree(category);
+
+    // Bütün alt kateqoriyaların məhsullarını gətiririk
+    const allProducts = await this.categoriesRepository.manager.getRepository(Product).find({
+      where: { category: { id: In(categoryIds) } },
+      relations: ['category'],
+      order: { createdAt: 'DESC' }
+    });
+
+    category.products = allProducts.map(product => ({
+      ...product,
+      banner: ensureFullUrl(product.banner),
+      images: Array.isArray(product.images)
+        ? (product.images.map(img => ensureFullUrl(img)).filter(Boolean) as string[])
+        : product.images,
+    } as any));
+    category.imageUrl = ensureFullUrl(category.imageUrl);
     category.name = this.formatName(category.name);
     return category;
+  }
+
+  private getIdsFromTree(category: Category): number[] {
+    let ids = [category.id];
+    if (category.children) {
+      category.children.forEach(child => {
+        ids = [...ids, ...this.getIdsFromTree(child)];
+      });
+    }
+    return ids;
   }
 
   async update(id: number, updateCategoryDto: UpdateCategoryDto, image?: Express.Multer.File) {
@@ -174,7 +226,11 @@ export class CategoriesService {
     }
 
     this.categoriesRepository.merge(category, rest);
-    return this.categoriesRepository.save(category);
+    const updatedCategory = await this.categoriesRepository.save(category);
+    return {
+      ...updatedCategory,
+      imageUrl: ensureFullUrl(updatedCategory.imageUrl),
+    };
   }
 
   async remove(id: number) {
@@ -185,59 +241,62 @@ export class CategoriesService {
   async getFilters(id: number) {
     const category = await this.categoriesRepository.findOne({
       where: { id },
-      relations: ['products'],
+      relations: ['children', 'children.children', 'children.children.children'],
     });
 
     if (!category) {
       throw new NotFoundException(ErrorMessages.CATEGORY_NOT_FOUND);
     }
 
-    const products = category.products;
+    const categoryIds = this.getIdsFromTree(category);
+
+    const products = await this.categoriesRepository.manager.getRepository(Product).find({
+      where: { category: { id: In(categoryIds) } }
+    });
+
     if (!products || products.length === 0) {
       return {
-        brands: [],
-        colors: [],
-        sizes: [],
+        filters: {},
         priceRange: { min: 0, max: 0 },
       };
     }
 
-    // Unikal Brendlər
-    const brands = [
-      ...new Set(
-        products
-          .map((p) => p.variants?.brand)
-          .filter((v) => v !== undefined && v !== null && v !== ''),
-      ),
-    ];
+    const dynamicFilters: Record<string, any[]> = {};
 
-    // Unikal Rənglər
-    const colors = [
-      ...new Set(
-        products
-          .map((p) => p.variants?.color)
-          .filter((v) => v !== undefined && v !== null && v !== ''),
-      ),
-    ];
+    products.forEach(product => {
+      if (product.variants && typeof product.variants === 'object') {
+        Object.entries(product.variants).forEach(([key, value]) => {
+          if (!dynamicFilters[key]) {
+            dynamicFilters[key] = [];
+          }
 
-    // Unikal Ölçülər
-    const sizes = [
-      ...new Set(
-        products
-          .map((p) => p.variants?.size)
-          .filter((v) => v !== undefined && v !== null && v !== ''),
-      ),
-    ];
+          if (Array.isArray(value)) {
+            dynamicFilters[key].push(...value);
+          } else if (value !== null && value !== undefined && value !== '') {
+            if (typeof value === 'boolean') {
+              dynamicFilters[key].push(value ? 'Bəli' : 'Xeyr');
+            } else {
+              dynamicFilters[key].push(value);
+            }
+          }
+        });
+      }
+    });
 
-    // Qiymət diapazonu
+    const filters = Object.entries(dynamicFilters).reduce((acc, [key, values]) => {
+      const uniqueValues = [...new Set(values)].filter(v => v !== null && v !== '');
+      if (uniqueValues.length > 0) {
+        acc[key] = uniqueValues;
+      }
+      return acc;
+    }, {} as Record<string, any[]>);
+
     const prices = products.map((p) => Number(p.price));
     const minPrice = prices.length ? Math.min(...prices) : 0;
     const maxPrice = prices.length ? Math.max(...prices) : 0;
 
     return {
-      brands,
-      colors,
-      sizes,
+      filters,
       priceRange: {
         min: minPrice,
         max: maxPrice,

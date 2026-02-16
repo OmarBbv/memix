@@ -6,10 +6,12 @@ import {
   UpdateDateColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
 } from 'typeorm';
 import { Category } from '../../categories/entities/category.entity';
 import { ProductStock } from '../../branches/entities/product-stock.entity';
 import { Review } from '../../reviews/entities/review.entity';
+import { Discount } from '../../discounts/entities/discount.entity';
 
 @Entity('products')
 export class Product {
@@ -44,7 +46,7 @@ export class Product {
   variants: Record<string, any>; // Məhsul variantları (Ölçü, Rəng və s.)
 
   @Column({ type: 'text', nullable: true })
-  banner: string; // Vitrin şəkili
+  banner: string | null; // Vitrin şəkili
 
   @Column({ type: 'simple-array', nullable: true })
   tags: string[]; // Məhsulun tagları (array formasında)
@@ -54,6 +56,9 @@ export class Product {
 
   @OneToMany(() => Review, (review) => review.product)
   reviews: Review[];
+
+  @OneToOne(() => Discount, (discount) => discount.product, { nullable: true })
+  discount: Discount;
 
   @CreateDateColumn()
   createdAt: Date; // Yaradılma tarixi

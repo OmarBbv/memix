@@ -56,7 +56,7 @@ export const FilterSidebar = ({ filters, className, onClose }: FilterSidebarProp
                     <Checkbox id={`${filter.id}-${option}`} className="h-5 w-5 rounded-md border-gray-300 transition-colors data-[state=checked]:bg-black data-[state=checked]:border-black" />
                     <label
                       htmlFor={`${filter.id}-${option}`}
-                      className="text-sm font-medium leading-none cursor-pointer select-none text-gray-600 hover:text-black transition-colors"
+                      className="text-sm w-full font-medium leading-none cursor-pointer select-none text-gray-600 hover:text-black transition-colors"
                     >
                       {option}
                     </label>

@@ -14,3 +14,19 @@ export const useCategories = () => {
     queryFn: () => categoryService.getAll(),
   });
 };
+
+export const useCategoryBySlug = (slug: string) => {
+  return useQuery({
+    queryKey: ["category", slug],
+    queryFn: () => categoryService.getBySlug(slug),
+    enabled: !!slug,
+  });
+};
+
+export const useCategoryFilters = (id: number) => {
+  return useQuery({
+    queryKey: ["categoryFilters", id],
+    queryFn: () => categoryService.getFilters(id),
+    enabled: !!id,
+  });
+};

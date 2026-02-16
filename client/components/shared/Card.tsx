@@ -23,9 +23,7 @@ export const Card = ({ className, index = 0, category, product: propProduct }: C
 
   let productData = propProduct;
 
-  // Fallback logic for backward compatibility (e.g. Home page)
   if (!productData) {
-    // Create a filtered list if category is present to pick a random item from that category
     let sourceList = PRODUCTS;
     if (category) {
       const lowerCat = category.toLowerCase();
@@ -37,7 +35,6 @@ export const Card = ({ className, index = 0, category, product: propProduct }: C
       else if (lowerCat.includes('women')) sourceList = PRODUCTS.filter(p => p.category === 'women');
     }
 
-    // Safe access
     if (sourceList.length > 0) {
       productData = sourceList[index % sourceList.length];
     }
@@ -45,19 +42,40 @@ export const Card = ({ className, index = 0, category, product: propProduct }: C
 
   if (!productData) return null;
 
-  const { id, title, image: imageSrc, brand, price } = productData;
-  const oldPrice = productData.oldPrice || Math.floor(price * 1.25);
-  const storePrice = productData.storePriceFactor
-    ? Math.floor(price * productData.storePriceFactor)
-    : Math.floor(price * 1.5);
+  const { id, title, image: imageSrc, brand, price: basePrice, discount } = productData;
 
-  // Construct for Redux
+  let currentPrice = basePrice;
+  let originalPrice = productData.oldPrice || basePrice;
+  let discountPercentage = 0;
+
+  if (discount && discount.isActive) {
+    originalPrice = basePrice;
+    if (discount.type === 'percentage') {
+      currentPrice = basePrice * (1 - discount.value / 100);
+      discountPercentage = Math.round(discount.value);
+    } else {
+      currentPrice = basePrice - discount.value;
+      discountPercentage = Math.round((discount.value / basePrice) * 100);
+    }
+  } else if (originalPrice > basePrice) {
+    discountPercentage = Math.round(((originalPrice - basePrice) / originalPrice) * 100);
+  }
+
+  const storePrice = productData.storePriceFactor
+    ? Math.floor(originalPrice * productData.storePriceFactor)
+    : 0;
+
+  const rawSize = productData.variants?.size || productData.size;
+  const size = Array.isArray(rawSize) ? rawSize.join(', ') : rawSize;
+  const city = productData.variants?.city || productData.city;
+  const condition = productData.variants?.condition || productData.condition || 'Çox yaxşı';
+
   const productObj: Product = {
     ...productData,
-    oldPrice,
-    size: productData.size || 'S',
-    condition: productData.condition || 'Çox yaxşı',
-    city: productData.city || 'Bakı'
+    oldPrice: originalPrice,
+    size,
+    condition,
+    city
   };
 
   const isWishlisted = wishlistItems.some((item) => item.id === id);
@@ -76,6 +94,7 @@ export const Card = ({ className, index = 0, category, product: propProduct }: C
             src={imageSrc}
             alt={title}
             fill
+            unoptimized
             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
             className="object-cover transition-transform duration-500 group-hover:scale-110"
           />
@@ -88,9 +107,9 @@ export const Card = ({ className, index = 0, category, product: propProduct }: C
           >
             <Heart className={cn("h-4 w-4", isWishlisted && "fill-current")} />
           </button>
-          {(oldPrice && price < oldPrice) && (
+          {discountPercentage > 0 && (
             <span className="absolute left-3 top-3 rounded-md bg-red-500 px-2 py-1 text-[10px] font-bold text-white shadow-sm z-10">
-              -{Math.round(((oldPrice - price) / oldPrice) * 100)}%
+              -{discountPercentage}%
             </span>
           )}
         </div>
@@ -99,8 +118,7 @@ export const Card = ({ className, index = 0, category, product: propProduct }: C
           <div className="flex flex-col sm:flex-row justify-between items-start gap-1">
             <div className="flex flex-col min-w-0 flex-1">
               <div className="flex items-center flex-wrap gap-1.5 relative z-20">
-                <span className="font-bold text-base sm:text-lg text-gray-900 whitespace-nowrap">{price}.00 ₼</span>
-
+                <span className="font-bold text-base sm:text-lg text-gray-900 whitespace-nowrap">{currentPrice.toFixed(2)} ₼</span>
                 <div className="flex items-center gap-1.5">
                   <HoverCard openDelay={0} closeDelay={0}>
                     <HoverCardTrigger asChild>
@@ -112,43 +130,33 @@ export const Card = ({ className, index = 0, category, product: propProduct }: C
                       <div className="space-y-2">
                         <h4 className="text-xs font-semibold text-gray-900 border-b pb-1">Qiymət Tarixçəsi</h4>
                         <div className="space-y-1.5">
-                          <div className="flex justify-between items-center text-xs">
-                            <span className="text-gray-500">10 Yanvar</span>
-                            <span className="font-medium text-gray-400 line-through">{Math.floor(price * 1.2)}.00 ₼</span>
-                          </div>
-                          <div className="flex justify-between items-center text-xs">
-                            <span className="text-gray-500">25 Yanvar</span>
-                            <span className="font-medium text-gray-400 line-through">{Math.floor(price * 1.1)}.00 ₼</span>
-                          </div>
-                          <div className="flex justify-between items-center text-xs">
-                            <span className="text-gray-500">01 Fevral</span>
-                            <span className="font-medium text-gray-400 line-through">{price + 2}.00 ₼</span>
-                          </div>
                           <div className="flex justify-between items-center text-xs bg-green-50 p-1 rounded">
                             <span className="text-green-700 font-medium">Bu gün</span>
-                            <span className="font-bold text-green-700">{price}.00 ₼</span>
+                            <span className="font-bold text-green-700">{currentPrice.toFixed(2)} ₼</span>
                           </div>
                         </div>
                       </div>
                     </HoverCardContent>
                   </HoverCard>
 
-                  {oldPrice && (
-                    <span className="text-[10px] sm:text-xs text-gray-400 line-through whitespace-nowrap">{oldPrice}.00 ₼</span>
+                  {originalPrice > currentPrice && (
+                    <span className="text-[10px] sm:text-xs text-gray-400 line-through whitespace-nowrap">{originalPrice.toFixed(2)} ₼</span>
                   )}
                 </div>
               </div>
 
-              <div className="flex items-center gap-1 mt-1 px-1.5 py-0.5 bg-indigo-50/50 rounded border border-indigo-100/50 w-fit">
-                <span className="text-[9px] sm:text-[10px] text-gray-500 font-medium whitespace-nowrap">Orijinal:</span>
-                <span className="text-[10px] sm:text-xs font-semibold text-gray-600 decoration-gray-400/50 line-through whitespace-nowrap">
-                  {storePrice}.00 ₼
-                </span>
-              </div>
+              {storePrice > 0 && (
+                <div className="flex items-center gap-1 mt-1 px-1.5 py-0.5 bg-indigo-50/50 rounded border border-indigo-100/50 w-fit">
+                  <span className="text-[9px] sm:text-[10px] text-gray-500 font-medium whitespace-nowrap">Orijinal:</span>
+                  <span className="text-[10px] sm:text-xs font-semibold text-gray-600 decoration-gray-400/50 line-through whitespace-nowrap">
+                    {storePrice.toFixed(2)} ₼
+                  </span>
+                </div>
+              )}
             </div>
             <div className="flex flex-col items-start sm:items-end shrink-0">
               <span className="text-[10px] sm:text-xs font-semibold text-gray-900">{brand}</span>
-              <span className="text-[9px] sm:text-[10px] text-gray-500">Çox yaxşı</span>
+              <span className="text-[9px] sm:text-[10px] text-gray-500">{condition}</span>
             </div>
           </div>
 
@@ -157,9 +165,13 @@ export const Card = ({ className, index = 0, category, product: propProduct }: C
           </p>
 
           <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-[9px] sm:text-[10px] px-2 py-0.5 bg-gray-100 rounded text-gray-600 font-medium">{productData.size || 'S'} ölçü</span>
-            <div className="w-1 h-1 bg-gray-300 rounded-full"></div>
-            <span className="text-[9px] sm:text-[10px] text-gray-500">{productData.city || 'Bakı'}</span>
+            {size && (
+              <>
+                <span className="text-[9px] sm:text-[10px] px-2 py-0.5 bg-gray-100 rounded text-gray-600 font-medium">{size} ölçü</span>
+                {city && <div className="w-1 h-1 bg-gray-300 rounded-full"></div>}
+              </>
+            )}
+            {city && <span className="text-[9px] sm:text-[10px] text-gray-500">{city}</span>}
           </div>
         </div>
       </div>

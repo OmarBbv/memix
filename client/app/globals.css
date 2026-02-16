@@ -152,22 +152,6 @@
   animation-play-state: paused;
 }
 
-html {
-  scroll-behavior: smooth;
-  scrollbar-gutter: stable;
-  overflow-y: scroll;
-}
-
-/* Radix UI scroll lock-un qarşısını almaq üçün */
-html,
-body,
-[data-scroll-locked],
-body[style*="padding-right"],
-[style*="padding-right"] {
-  padding-right: 0px !important;
-  overflow: auto !important;
-}
-
 .swiper-pagination-bullet {
   transition: all 0.3s ease;
 }

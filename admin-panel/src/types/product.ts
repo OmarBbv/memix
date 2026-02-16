@@ -15,6 +15,14 @@ export interface Product {
   banner: string;
   tags: string[];
   isFeatured: boolean;
+  discount?: {
+    id: number;
+    type: 'percentage' | 'fixed';
+    value: number;
+    startDate?: string;
+    endDate?: string;
+    isActive: boolean;
+  };
   createdAt: string;
   updatedAt: string;
 }

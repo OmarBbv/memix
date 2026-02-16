@@ -4,6 +4,8 @@ import { Category } from "@/types/category.types";
 interface ICategoryService {
   getTree(): Promise<Category[]>;
   getAll(): Promise<Category[]>;
+  getBySlug(slug: string): Promise<Category>;
+  getFilters(id: number): Promise<any>;
 }
 
 class CategoryService implements ICategoryService {
@@ -23,6 +25,26 @@ class CategoryService implements ICategoryService {
       return response.data;
     } catch (error) {
       console.error("CategoryService getAll error:", error);
+      throw error;
+    }
+  }
+
+  async getBySlug(slug: string): Promise<Category> {
+    try {
+      const response = await httpClientPublic.get(`/categories/slug/${slug}`);
+      return response.data;
+    } catch (error) {
+      console.error(`CategoryService getBySlug error for ${slug}:`, error);
+      throw error;
+    }
+  }
+
+  async getFilters(id: number): Promise<any> {
+    try {
+      const response = await httpClientPublic.get(`/categories/${id}/filters`);
+      return response.data;
+    } catch (error) {
+      console.error(`CategoryService getFilters error for ${id}:`, error);
       throw error;
     }
   }
