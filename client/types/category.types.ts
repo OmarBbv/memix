@@ -5,6 +5,8 @@ export interface Category {
   imageUrl?: string;
   order: number;
   isActive: boolean;
+  showOnHome: boolean;
+  productsCount?: number;
   children?: Category[];
 }
 

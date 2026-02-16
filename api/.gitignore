@@ -60,3 +60,6 @@ client_secret_*.json
 
 # Test files
 websocket-test.html
+
+# Uploads
+/uploads

@@ -7,10 +7,10 @@ export class Category {
   id: number;
 
   @Column()
-  name: string; // Kateqoriya adı
+  name: string;
 
   @Column({ unique: true })
-  slug: string; // URL-də istifadə üçün (məs: 'ayakkabi')
+  slug: string;
 
   @Column({ nullable: true })
   imageUrl: string;
@@ -21,7 +21,10 @@ export class Category {
   @Column({ default: true })
   isActive: boolean;
 
-  @ManyToOne(() => Category, (category) => category.children, { onDelete: 'SET NULL' })
+  @Column({ default: false })
+  showOnHome: boolean;
+
+  @ManyToOne(() => Category, (category) => category.children, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'parentId' })
   parent: Category;
 

@@ -5,6 +5,7 @@ export interface Category {
   imageUrl?: string;
   order: number;
   isActive: boolean;
+  showOnHome: boolean;
   parentId?: number;
   parent?: Category;
   children?: Category[];
@@ -17,6 +18,7 @@ export interface CreateCategoryDto {
   imageUrl?: string;
   order?: number;
   isActive?: boolean;
+  showOnHome?: boolean;
   parentId?: number | null;
 }
 

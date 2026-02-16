@@ -154,6 +154,18 @@
 
 html {
   scroll-behavior: smooth;
+  scrollbar-gutter: stable;
+  overflow-y: scroll;
+}
+
+/* Radix UI scroll lock-un qarşısını almaq üçün */
+html,
+body,
+[data-scroll-locked],
+body[style*="padding-right"],
+[style*="padding-right"] {
+  padding-right: 0px !important;
+  overflow: auto !important;
 }
 
 .swiper-pagination-bullet {
@@ -180,7 +192,8 @@ html {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-/* Custom Scrollbar */
+
+/* Custom Scrollbar Utility */
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
 }
@@ -196,4 +209,14 @@ html {
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #cbd5e1;
+}
+
+/* Hide Scrollbar Utility */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

@@ -8,6 +8,8 @@ import {
   Delete,
   UseGuards,
   Query,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -16,6 +18,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '../users/entities/user.entity';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { multerConfig } from '../common/utils/multer.config';
 
 @Controller('categories')
 export class CategoriesController {
@@ -24,8 +28,12 @@ export class CategoriesController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(UserRole.ADMIN)
   @Post()
-  create(@Body() createCategoryDto: CreateCategoryDto) {
-    return this.categoriesService.create(createCategoryDto);
+  @UseInterceptors(FileInterceptor('image', multerConfig))
+  create(
+    @Body() createCategoryDto: CreateCategoryDto,
+    @UploadedFile() image?: Express.Multer.File,
+  ) {
+    return this.categoriesService.create(createCategoryDto, image);
   }
 
   @Get()
@@ -46,11 +54,13 @@ export class CategoriesController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(UserRole.ADMIN)
   @Patch(':id')
+  @UseInterceptors(FileInterceptor('image', multerConfig))
   update(
     @Param('id') id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
+    @UploadedFile() image?: Express.Multer.File,
   ) {
-    return this.categoriesService.update(+id, updateCategoryDto);
+    return this.categoriesService.update(+id, updateCategoryDto, image);
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)

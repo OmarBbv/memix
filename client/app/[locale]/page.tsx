@@ -8,6 +8,8 @@ import { ArrowRight, Leaf, ShieldCheck, Sparkles, Zap, ChevronRight, Star, Trend
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay, EffectFade } from 'swiper/modules';
+import { useEffect, useState, useMemo } from "react";
+import { useCategories } from "@/hooks/useCategories";
 
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -15,7 +17,12 @@ import 'swiper/css/pagination';
 import 'swiper/css/effect-fade';
 
 export default function Home() {
+  const { data: allCategories = [], isLoading } = useCategories();
   const newArrivals = Array.from({ length: 8 });
+
+  const categories = useMemo(() => {
+    return allCategories.filter(cat => cat.showOnHome && cat.isActive);
+  }, [allCategories]);
 
   const heroSlides = [
     {
@@ -42,15 +49,6 @@ export default function Home() {
       description: "Gələcəyi düşünərək geyinin.",
       buttonText: "Kolleksiyanı Gör"
     }
-  ];
-
-  const categories = [
-    { name: "Qadın", slug: "women", image: "/cat.jpeg", count: "12.5K+" },
-    { name: "Kişi", slug: "men", image: "/cat2.jpeg", count: "8.2K+" },
-    { name: "Uşaq", slug: "kids", image: "/cat3.jpeg", count: "4.1K+" },
-    { name: "Çantalar", slug: "bags", image: "/cat4.jpeg", count: "3.8K+" },
-    { name: "Ayaqqabılar", slug: "shoes", image: "/cat5.jpeg", count: "6.5K+" },
-    { name: "Aksesuarlar", slug: "accessories", image: "/cat6.jpeg", count: "5.3K+" },
   ];
 
   const stats = [
@@ -187,32 +185,39 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 lg:gap-6">
-            {categories.map((cat, idx) => (
-              <Link
-                key={idx}
-                href={`/category/${cat.slug}`}
-                className="group relative aspect-3/4 overflow-hidden rounded-2xl bg-zinc-100"
-              >
-                <Image
-                  src={cat.image}
-                  alt={cat.name}
-                  fill
-                  sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 16vw"
-                  className="object-cover transition-all duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+            {isLoading ? (
+              Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="aspect-3/4 animate-pulse rounded-2xl bg-zinc-100" />
+              ))
+            ) : (
+              categories.map((cat, idx) => (
+                <Link
+                  key={cat.id || idx}
+                  href={`/category/${cat.slug}`}
+                  className="group relative aspect-3/4 overflow-hidden rounded-2xl bg-zinc-100"
+                >
+                  <Image
+                    src={cat.imageUrl ? (cat.imageUrl.startsWith('http') ? cat.imageUrl : `http://localhost:4444${cat.imageUrl}`) : "/placeholder-cat.jpg"}
+                    alt={cat.name}
+                    fill
+                    unoptimized
+                    sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 16vw"
+                    className="object-cover transition-all duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
 
-                {/* Content */}
-                <div className="absolute inset-0 flex flex-col justify-end p-4 lg:p-5">
-                  <h3 className="text-white font-bold text-lg lg:text-xl mb-1 transform translate-y-1 group-hover:translate-y-0 transition-transform duration-300">
-                    {cat.name}
-                  </h3>
-                  <span className="text-white/70 text-sm font-medium opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-                    {cat.count} məhsul
-                  </span>
-                </div>
-              </Link>
-            ))}
+                  {/* Content */}
+                  <div className="absolute inset-0 flex flex-col justify-end p-4 lg:p-5">
+                    <h3 className="text-white font-bold text-lg lg:text-xl mb-1 transform translate-y-1 group-hover:translate-y-0 transition-transform duration-300">
+                      {cat.name}
+                    </h3>
+                    <span className="text-white/70 text-sm font-medium opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                      {cat.productsCount || 0} məhsul
+                    </span>
+                  </div>
+                </Link>
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -220,7 +225,7 @@ export default function Home() {
       {/* Featured Banner */}
       <section className="py-4 lg:py-8">
         <div className="max-w-7xl mx-auto px-4 lg:px-8">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900">
+          <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-zinc-900 via-zinc-800 to-zinc-900">
             <div className="absolute inset-0 opacity-30">
               <Image
                 src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=2574&auto=format&fit=crop"
@@ -230,8 +235,8 @@ export default function Home() {
               />
             </div>
             {/* Decorative Elements */}
-            <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-amber-500/20 to-transparent rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-purple-500/20 to-transparent rounded-full blur-3xl" />
+            <div className="absolute top-0 right-0 w-96 h-96 bg-linear-to-br from-amber-500/20 to-transparent rounded-full blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-linear-to-tr from-purple-500/20 to-transparent rounded-full blur-3xl" />
 
             <div className="relative z-10 grid lg:grid-cols-2 gap-8 p-8 lg:p-16 items-center min-h-[400px]">
               <div className="space-y-6">

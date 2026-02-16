@@ -5,8 +5,8 @@ interface ICategoryService {
   getAll(): Promise<Category[]>;
   getTree(): Promise<Category[]>;
   getById(id: number): Promise<Category>;
-  create(data: CreateCategoryDto): Promise<Category>;
-  update(id: number, data: UpdateCategoryDto): Promise<Category>;
+  create(data: CreateCategoryDto | FormData): Promise<Category>;
+  update(id: number, data: UpdateCategoryDto | FormData): Promise<Category>;
   delete(id: number): Promise<void>;
 }
 
@@ -41,9 +41,11 @@ class CategoryService implements ICategoryService {
     }
   }
 
-  async create(data: CreateCategoryDto): Promise<Category> {
+  async create(data: CreateCategoryDto | FormData): Promise<Category> {
     try {
-      const response = await axiosInstance.post('/categories', data);
+      const response = await axiosInstance.post('/categories', data, {
+        headers: data instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {},
+      });
       return response.data;
     } catch (error) {
       console.error('Error creating category:', error);
@@ -51,9 +53,11 @@ class CategoryService implements ICategoryService {
     }
   }
 
-  async update(id: number, data: UpdateCategoryDto): Promise<Category> {
+  async update(id: number, data: UpdateCategoryDto | FormData): Promise<Category> {
     try {
-      const response = await axiosInstance.patch(`/categories/${id}`, data);
+      const response = await axiosInstance.patch(`/categories/${id}`, data, {
+        headers: data instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {},
+      });
       return response.data;
     } catch (error) {
       console.error(`Error updating category with id ${id}:`, error);

@@ -26,50 +26,6 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-const getSlugFromText = (text: string): string => {
-    const slugMap: { [key: string]: string } = {
-        'Bu gün əlavə edilənlər': 'added-today',
-        'Ən aşağı qiymətlər': 'lowest-prices',
-        'Ən çox bəyənilənlər': 'most-liked',
-        '🔥 Günün tapıntıları': 'daily-finds',
-        'Qış klassikləri': 'winter-classics',
-        'Ceketlər, paltolar və jiletlər': 'jackets-coats',
-        'Qışın rahatlığında': 'winter-comfort',
-        '🇹🇭 Tommy Hilfiger Shop': 'tommy-hilfiger',
-        'Trenco': 'tracksuits',
-        'Üzgüçülük geyimləri': 'swimwear',
-        'Alt geyim': 'underwear',
-        'Bluzkalar': 'blouses',
-        'Ponço və boksro': 'ponchos',
-        'Kombinezonlar': 'jumpsuits',
-        'Cins': 'jeans',
-        'Yeleklər': 'vests',
-        'Jiletlər': 'cardigans',
-        'Yubkalar': 'skirts',
-        'Dəri ceketlər': 'leather-jackets',
-        'Kostyumlar': 'suits',
-        'Şortlar': 'shorts',
-        'Paltolar': 'coats',
-        'Zara': 'zara',
-        'Tommy Hilfiger': 'tommy-hilfiger',
-        'Nike': 'nike',
-        'Pinko': 'pinko',
-        'Karl Lagerfeld': 'karl-lagerfeld',
-        'Bütün brendləri gör': 'all-brands',
-        'FRESH': 'fresh',
-        'Sırt çantaları': 'backpacks',
-        'Çiyin çantaları': 'shoulder-bags',
-        'Biju': 'jewelry',
-        'Saatlar': 'watches',
-        'İdman ayaqqabıları': 'sport-shoes',
-        'Zərif ayaqqabılar': 'elegant-shoes',
-        'Körpələr': 'babies',
-        'Kiçik uşaqlar': 'toddlers'
-    }
-
-    return slugMap[text] || text.toLowerCase().replace(/\s+/g, '-')
-}
-
 export default function Navbar() {
     const { data: categories = [] } = useCategoryTree();
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)

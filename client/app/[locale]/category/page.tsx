@@ -63,7 +63,7 @@ export default function CategoryIndexPage() {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
-        <aside className="hidden lg:block w-64 shrink-0">
+        <aside className="hidden lg:block w-64 shrink-0 sticky top-28 self-start max-h-[calc(100vh-120px)] overflow-y-auto scrollbar-hide pb-10">
           <FilterSidebar filters={filters} />
         </aside>
 

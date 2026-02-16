@@ -1,7 +1,12 @@
 import { httpClientPublic } from "@/lib/httpClient";
 import { Category } from "@/types/category.types";
 
-class CategoryService {
+interface ICategoryService {
+  getTree(): Promise<Category[]>;
+  getAll(): Promise<Category[]>;
+}
+
+class CategoryService implements ICategoryService {
   async getTree(): Promise<Category[]> {
     try {
       const response = await httpClientPublic.get('/categories/tree');

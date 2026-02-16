@@ -57,7 +57,7 @@ const CategoryItem: React.FC<CategoryItemProps> = ({
           {category.imageUrl ? (
             <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-gray-100 dark:border-gray-700">
               <img
-                src={category.imageUrl}
+                src={category.imageUrl.startsWith('http') ? category.imageUrl : `http://localhost:4444${category.imageUrl}`}
                 alt={category.name}
                 className="h-full w-full object-cover"
               />

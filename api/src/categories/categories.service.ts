@@ -58,7 +58,7 @@ export class CategoriesService {
     }
   }
 
-  async create(createCategoryDto: CreateCategoryDto) {
+  async create(createCategoryDto: CreateCategoryDto, image?: Express.Multer.File) {
     const { parentId, ...rest } = createCategoryDto;
     const formattedName = this.formatName(rest.name);
     const slug = generateSlug(formattedName);
@@ -72,10 +72,13 @@ export class CategoriesService {
       await this.smartReorder(parentId || null, rest.order);
     }
 
+    const imageUrl = image ? `/uploads/${image.filename}` : rest.imageUrl;
+
     const category = this.categoriesRepository.create({
       ...rest,
       name: formattedName,
       slug,
+      imageUrl,
     });
 
     if (parentId) {
@@ -93,12 +96,13 @@ export class CategoriesService {
 
     const categories = await this.categoriesRepository.find({
       where,
-      relations: ['parent'],
+      relations: ['parent', 'products'],
       order: { order: 'ASC', id: 'ASC' },
     });
     return categories.map((cat) => ({
       ...cat,
       name: this.formatName(cat.name),
+      productsCount: cat.products?.length || 0,
     }));
   }
 
@@ -143,7 +147,7 @@ export class CategoriesService {
     return category;
   }
 
-  async update(id: number, updateCategoryDto: UpdateCategoryDto) {
+  async update(id: number, updateCategoryDto: UpdateCategoryDto, image?: Express.Multer.File) {
     const category = await this.findOne(id);
     const { parentId, ...rest } = updateCategoryDto;
 
@@ -157,6 +161,10 @@ export class CategoriesService {
       const formattedName = this.formatName(rest.name);
       category.name = formattedName;
       category.slug = generateSlug(formattedName);
+    }
+
+    if (image) {
+      category.imageUrl = `/uploads/${image.filename}`;
     }
 
     if (parentId !== undefined) {
