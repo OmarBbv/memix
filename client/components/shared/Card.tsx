@@ -3,7 +3,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import { Heart, Info } from 'lucide-react';
+import { Heart, Info, Store } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { useAppDispatch, useAppSelector } from '@/lib/redux/hooks';
 import { toggleWishlist } from '@/lib/redux/features/wishlistSlice';
@@ -22,6 +22,10 @@ export const Card = ({ className, index = 0, category, product: propProduct }: C
   const wishlistItems = useAppSelector((state) => state.wishlist.items);
 
   let productData = propProduct;
+
+  if (productData && !productData.priceHistory) {
+    console.log('Missing priceHistory:', productData);
+  }
 
   if (!productData) {
     let sourceList = PRODUCTS;
@@ -42,7 +46,7 @@ export const Card = ({ className, index = 0, category, product: propProduct }: C
 
   if (!productData) return null;
 
-  const { id, title, image: imageSrc, brand, price: basePrice, discount } = productData;
+  const { id, title, image: imageSrc, brand, price: basePrice, discount, priceHistory } = productData;
 
   let currentPrice = basePrice;
   let originalPrice = productData.oldPrice || basePrice;
@@ -90,14 +94,21 @@ export const Card = ({ className, index = 0, category, product: propProduct }: C
     <Link href={`/product/${id}`} className="block">
       <div className={cn("group relative flex flex-col gap-2 cursor-pointer w-full", className)}>
         <div className="relative aspect-3/4 w-full overflow-hidden rounded-xl bg-gray-100">
-          <Image
-            src={imageSrc}
-            alt={title}
-            fill
-            unoptimized
-            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-110"
-          />
+          {imageSrc ? (
+            <Image
+              src={imageSrc}
+              alt={title}
+              quality={85}
+              fill
+              unoptimized
+              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+              className="object-cover transition-transform duration-500 group-hover:scale-110"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-gray-200 text-gray-400">
+              No Image
+            </div>
+          )}
           <button
             onClick={handleWishlist}
             className={cn(
@@ -129,11 +140,49 @@ export const Card = ({ className, index = 0, category, product: propProduct }: C
                     <HoverCardContent className="w-48 p-3" align="start">
                       <div className="space-y-2">
                         <h4 className="text-xs font-semibold text-gray-900 border-b pb-1">Qiymət Tarixçəsi</h4>
-                        <div className="space-y-1.5">
-                          <div className="flex justify-between items-center text-xs bg-green-50 p-1 rounded">
-                            <span className="text-green-700 font-medium">Bu gün</span>
-                            <span className="font-bold text-green-700">{currentPrice.toFixed(2)} ₼</span>
-                          </div>
+                        <div className="space-y-1">
+                          {(() => {
+                            let historyList = priceHistory ? [...priceHistory] : [];
+
+                            // If no history array, but we have a discount/old price:
+                            if (historyList.length === 0 && originalPrice > currentPrice) {
+                              historyList = [originalPrice];
+                            }
+
+                            // Ensure current price is the last item if it's different/new
+                            if (historyList.length === 0 || Math.abs(historyList[historyList.length - 1] - currentPrice) > 0.01) {
+                              historyList.push(currentPrice);
+                            }
+
+                            return historyList.map((price, idx) => {
+                              const isLast = idx === historyList.length - 1;
+                              const isFirst = idx === 0;
+
+                              return (
+                                <div
+                                  key={idx}
+                                  className={cn(
+                                    "flex justify-between items-center text-xs p-1 rounded",
+                                    isLast ? "bg-green-50" : ""
+                                  )}
+                                >
+                                  <span className={isLast ? "text-green-700 font-medium" : "text-gray-500 font-medium"}>
+                                    {isLast ? "Bu gün" : (isFirst ? "Başlanğıc" : `${idx}. Dəyişim`)}
+                                  </span>
+                                  <span className={isLast ? "font-bold text-green-700" : "text-gray-400 line-through"}>
+                                    {price.toFixed(2)} ₼
+                                  </span>
+                                </div>
+                              );
+                            });
+                          })()}
+
+                          {storePrice > 0 && (
+                            <div className="flex justify-between items-center text-xs text-indigo-500 px-1 pt-1 border-t border-dashed border-gray-100 mt-1">
+                              <span className="font-medium">Mağaza</span>
+                              <span className="line-through opacity-70">{storePrice.toFixed(2)} ₼</span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </HoverCardContent>
@@ -172,6 +221,17 @@ export const Card = ({ className, index = 0, category, product: propProduct }: C
               </>
             )}
             {city && <span className="text-[9px] sm:text-[10px] text-gray-500">{city}</span>}
+            {productObj.stocks && productObj.stocks.length > 0 && (
+              <div className="flex items-center gap-1 text-gray-500">
+                <Store className="h-3 w-3" />
+                <span className="text-[9px] sm:text-[10px] line-clamp-1">
+                  {productObj.stocks
+                    .filter((s) => s.stock > 0 && s.branch)
+                    .map((s) => s.branch.name)
+                    .join(", ")}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>

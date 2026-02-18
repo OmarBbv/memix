@@ -32,7 +32,6 @@ export class CategoriesService {
   ) {
     const qb = this.categoriesRepository.createQueryBuilder('category');
 
-    // Parent şərti
     if (parentId) {
       qb.where('"parentId" = :parentId', { parentId });
     } else {
@@ -60,15 +59,23 @@ export class CategoriesService {
     }
   }
 
+  private async generateUniqueSlug(name: string): Promise<string> {
+    let baseSlug = generateSlug(name);
+    let slug = baseSlug;
+    let counter = 2;
+
+    while (await this.categoriesRepository.findOneBy({ slug })) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+
+    return slug;
+  }
+
   async create(createCategoryDto: CreateCategoryDto, image?: Express.Multer.File) {
     const { parentId, ...rest } = createCategoryDto;
     const formattedName = this.formatName(rest.name);
-    const slug = generateSlug(formattedName);
-
-    const existing = await this.categoriesRepository.findOneBy({ slug });
-    if (existing) {
-      throw new ConflictException('Bu kateqoriya artıq mövcuddur');
-    }
+    const slug = await this.generateUniqueSlug(formattedName);
 
     if (rest.order !== undefined) {
       await this.smartReorder(parentId || null, rest.order);
@@ -157,7 +164,7 @@ export class CategoriesService {
     return category;
   }
 
-  async findBySlug(slug: string): Promise<Category> {
+  async findBySlug(slug: string, filters: Record<string, string> = {}): Promise<Category> {
     const category = await this.categoriesRepository.findOne({
       where: { slug },
       relations: ['parent', 'children', 'children.children', 'children.children.children'],
@@ -167,15 +174,75 @@ export class CategoriesService {
       throw new NotFoundException(`Category with slug ${slug} not found`);
     }
 
-    // Bütün alt kateqoriyaların ID-lərini yığırıq
     const categoryIds = this.getIdsFromTree(category);
 
-    // Bütün alt kateqoriyaların məhsullarını gətiririk
-    const allProducts = await this.categoriesRepository.manager.getRepository(Product).find({
-      where: { category: { id: In(categoryIds) } },
-      relations: ['category'],
-      order: { createdAt: 'DESC' }
+    // Extract special filters
+    const { subcategory, price, ...variantFilters } = filters;
+
+    // Build query with QueryBuilder for flexible filtering
+    const productRepo = this.categoriesRepository.manager.getRepository(Product);
+    let qb = productRepo.createQueryBuilder('product')
+      .leftJoinAndSelect('product.category', 'category')
+      .leftJoinAndSelect('product.discount', 'discount')
+      .where('product.categoryId IN (:...categoryIds)', { categoryIds })
+      .orderBy('product.createdAt', 'DESC');
+
+    // Subcategory filter: comma-separated category names
+    if (subcategory) {
+      const subcategoryNames = subcategory.split(',').map(s => s.trim());
+      qb = qb.andWhere('category.name IN (:...subcategoryNames)', { subcategoryNames });
+    }
+
+    // Price range filter: "0 - 50 ₼" format, comma-separated
+    if (price) {
+      const priceConditions: string[] = [];
+      const priceParams: Record<string, number> = {};
+
+      price.split(',').forEach((range, i) => {
+        const match = range.match(/([\d.]+)\s*-\s*([\d.]+)/);
+        if (match) {
+          priceConditions.push(`(product.price >= :minPrice${i} AND product.price <= :maxPrice${i})`);
+          priceParams[`minPrice${i}`] = Number(match[1]);
+          priceParams[`maxPrice${i}`] = Number(match[2]);
+        }
+      });
+
+      if (priceConditions.length > 0) {
+        qb = qb.andWhere(`(${priceConditions.join(' OR ')})`, priceParams);
+      }
+    }
+
+    // Variant filters: brand, size, color, condition, etc.
+    // Each can be comma-separated: brand=Zara,Nike
+    Object.entries(variantFilters).forEach(([key, value]) => {
+      if (!value) return;
+      const values = value.split(',').map(v => v.trim());
+
+      if (values.length === 1) {
+        // Single value: check if variants->key equals value OR variants->key array contains value
+        qb = qb.andWhere(
+          `(product.variants->>:key_${key} = :val_${key} OR product.variants->:key_${key} @> :valArr_${key}::jsonb)`,
+          {
+            [`key_${key}`]: key,
+            [`val_${key}`]: values[0],
+            [`valArr_${key}`]: JSON.stringify([values[0]]),
+          }
+        );
+      } else {
+        // Multiple values: OR logic — match if any value matches
+        const conditions = values.map((v, i) =>
+          `(product.variants->>:key_${key} = :val_${key}_${i} OR product.variants->:key_${key} @> :valArr_${key}_${i}::jsonb)`
+        );
+        const params: Record<string, any> = { [`key_${key}`]: key };
+        values.forEach((v, i) => {
+          params[`val_${key}_${i}`] = v;
+          params[`valArr_${key}_${i}`] = JSON.stringify([v]);
+        });
+        qb = qb.andWhere(`(${conditions.join(' OR ')})`, params);
+      }
     });
+
+    const allProducts = await qb.getMany();
 
     category.products = allProducts.map(product => ({
       ...product,

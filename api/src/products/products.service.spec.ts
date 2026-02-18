@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProductsService } from './products.service';
 import { Product } from './entities/product.entity';
+import { PriceHistory } from './entities/price-history.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { NotFoundException } from '@nestjs/common';
 import { ErrorMessages } from '../common/constants/error-messages';
@@ -9,6 +10,7 @@ import { SearchService } from '../search/search.service';
 describe('ProductsService', () => {
   let service: ProductsService;
   let mockProductsRepository: any;
+  let mockPriceHistoryRepository: any;
   let mockSearchService: any;
   let mockQueryBuilder: any;
 
@@ -21,7 +23,7 @@ describe('ProductsService', () => {
       getMany: jest.fn().mockResolvedValue([]),
     };
 
-    // Mock Repository
+    // Mock Product Repository
     mockProductsRepository = {
       create: jest.fn(),
       save: jest.fn(),
@@ -30,6 +32,11 @@ describe('ProductsService', () => {
       merge: jest.fn(),
       remove: jest.fn(),
       createQueryBuilder: jest.fn().mockReturnValue(mockQueryBuilder),
+    };
+
+    // Mock Price History Repository
+    mockPriceHistoryRepository = {
+      save: jest.fn(),
     };
 
     // Mock Search Service
@@ -45,6 +52,10 @@ describe('ProductsService', () => {
         {
           provide: getRepositoryToken(Product),
           useValue: mockProductsRepository,
+        },
+        {
+          provide: getRepositoryToken(PriceHistory),
+          useValue: mockPriceHistoryRepository,
         },
         {
           provide: SearchService,
@@ -72,7 +83,13 @@ describe('ProductsService', () => {
       expect(mockProductsRepository.create).toHaveBeenCalled();
       expect(mockProductsRepository.save).toHaveBeenCalled();
       expect(mockSearchService.indexProduct).toHaveBeenCalledWith(expectedProduct);
-      expect(result).toEqual(expectedProduct);
+
+      // Service adds processed banner and images fields
+      expect(result).toEqual({
+        ...expectedProduct,
+        banner: null,
+        images: undefined
+      });
     });
   });
 
@@ -118,7 +135,18 @@ describe('ProductsService', () => {
       mockProductsRepository.findOne.mockResolvedValue(product);
 
       const result = await service.findOne(1);
-      expect(result).toEqual(product);
+
+      // Service adds processed banner and images fields
+      expect(result).toEqual({
+        ...product,
+        banner: null,
+        images: undefined
+      });
+      expect(mockProductsRepository.findOne).toHaveBeenCalledWith({
+        where: { id: 1 },
+        relations: ['category', 'discount', 'priceHistory'],
+        order: { priceHistory: { changedAt: 'DESC' } },
+      });
     });
 
     it('should throw NotFoundException if not found', async () => {
@@ -129,7 +157,7 @@ describe('ProductsService', () => {
 
   describe('update', () => {
     it('should update a product and re-index it', async () => {
-      const existingProduct = { id: 1, name: 'Old' };
+      const existingProduct = { id: 1, name: 'Old', price: 100 };
       const updateDto = { name: 'New' };
       const updatedProduct = { ...existingProduct, ...updateDto };
 
@@ -141,6 +169,64 @@ describe('ProductsService', () => {
       expect(mockProductsRepository.save).toHaveBeenCalled();
       expect(mockSearchService.indexProduct).toHaveBeenCalledWith(updatedProduct);
       expect(result.name).toEqual('New');
+    });
+
+    // POSITIVE TEST: Price History
+    it('should save price history when price changes significantly', async () => {
+      const existingProduct = { id: 1, name: 'Phone', price: 1000 };
+      const updateDto = { price: 900 }; // Price changed from 1000 to 900
+      const updatedProduct = { ...existingProduct, ...updateDto };
+
+      mockProductsRepository.findOne.mockResolvedValue(existingProduct);
+      mockProductsRepository.save.mockResolvedValue(updatedProduct);
+
+      await service.update(1, updateDto as any);
+
+      // Verify price history was saved
+      expect(mockPriceHistoryRepository.save).toHaveBeenCalledWith({
+        price: 1000, // Should save the OLD price
+        product: { id: 1 },
+      });
+      // Verify product update and re-index happened
+      expect(mockProductsRepository.save).toHaveBeenCalled();
+      expect(mockSearchService.indexProduct).toHaveBeenCalledWith(updatedProduct);
+    });
+
+    // NEGATIVE TEST: No Price History on Same Price
+    it('should NOT save price history when price remains the same', async () => {
+      const existingProduct = { id: 1, name: 'Phone', price: 1000 };
+      const updateDto = { price: 1000 }; // Price unchanged
+      const updatedProduct = { ...existingProduct, ...updateDto };
+
+      mockProductsRepository.findOne.mockResolvedValue(existingProduct);
+      mockProductsRepository.save.mockResolvedValue(updatedProduct);
+
+      await service.update(1, updateDto as any);
+
+      expect(mockPriceHistoryRepository.save).not.toHaveBeenCalled();
+      expect(mockProductsRepository.save).toHaveBeenCalled();
+    });
+
+    // NEGATIVE TEST: No Price History on Negligible Change
+    it('should NOT save price history when price change is negligible', async () => {
+      const existingProduct = { id: 1, name: 'Phone', price: 1000 };
+      const updateDto = { price: 1000.005 }; // Tiny change
+      const updatedProduct = { ...existingProduct, ...updateDto };
+
+      mockProductsRepository.findOne.mockResolvedValue(existingProduct);
+      mockProductsRepository.save.mockResolvedValue(updatedProduct);
+
+      await service.update(1, updateDto as any);
+
+      expect(mockPriceHistoryRepository.save).not.toHaveBeenCalled();
+      expect(mockProductsRepository.save).toHaveBeenCalled();
+    });
+
+    // NEGATIVE TEST: Product Not Found
+    it('should throw NotFoundException if product to update is not found', async () => {
+      mockProductsRepository.findOne.mockResolvedValue(null);
+      await expect(service.update(999, { name: 'New' } as any)).rejects.toThrow(new NotFoundException(ErrorMessages.PRODUCT_NOT_FOUND));
+      expect(mockPriceHistoryRepository.save).not.toHaveBeenCalled();
     });
   });
 

@@ -10,6 +10,8 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay, EffectFade } from 'swiper/modules';
 import { useEffect, useState, useMemo } from "react";
 import { useCategories } from "@/hooks/useCategories";
+import { useProducts } from "@/hooks/useProducts";
+import { Product as ApiProduct } from "@/services/product.service";
 
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -18,7 +20,24 @@ import 'swiper/css/effect-fade';
 
 export default function Home() {
   const { data: allCategories = [], isLoading } = useCategories();
-  const newArrivals = Array.from({ length: 8 });
+  const { data: apiProducts = [], isLoading: isProductsLoading } = useProducts();
+
+  const products = useMemo(() => {
+    if (!apiProducts.length) return Array.from({ length: 8 });
+
+    return apiProducts.map((p: ApiProduct) => ({
+      id: p.id,
+      title: p.name,
+      price: Number(p.price),
+      image: p.images?.[0] || p.banner || "",
+      brand: p.tags?.[0] || "Brand", // Fallback logic
+      category: p.category?.name.toLowerCase() || "women",
+      priceHistory: p.priceHistory?.map(h => Number(h.price)) || [],
+      discount: p.discount,
+      variants: p.variants,
+      tags: p.tags
+    }));
+  }, [apiProducts]);
 
   const categories = useMemo(() => {
     return allCategories.filter(cat => cat.showOnHome && cat.isActive);
@@ -75,7 +94,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-white text-zinc-950">
 
-      <section className="relative h-[85vh] min-h-[600px] w-full overflow-hidden">
+      <section className="relative h-[60vh] sm:h-[75vh] lg:h-[85vh] min-h-[450px] sm:min-h-[600px] w-full overflow-hidden">
         <Swiper
           modules={[Pagination, Autoplay, EffectFade]}
           effect={'fade'}
@@ -104,7 +123,7 @@ export default function Home() {
                 {/* Content */}
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full max-w-7xl mx-auto px-4 lg:px-8">
-                    <div className="max-w-2xl space-y-6">
+                    <div className="max-w-2xl space-y-3 sm:space-y-6">
                       {/* Badge */}
                       <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20">
                         <Sparkles className="w-4 h-4 text-amber-400" />
@@ -112,27 +131,27 @@ export default function Home() {
                       </div>
 
                       {/* Title */}
-                      <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white leading-[1.1] tracking-tight">
+                      <h1 className="text-3xl sm:text-5xl lg:text-7xl font-bold text-white leading-[1.1] tracking-tight">
                         {slide.title}
                       </h1>
 
                       {/* Description */}
-                      <p className="text-lg sm:text-xl text-white/80 max-w-lg leading-relaxed">
+                      <p className="text-sm sm:text-lg lg:text-xl text-white/80 max-w-lg leading-relaxed">
                         {slide.description}
                       </p>
 
                       {/* CTA Buttons */}
-                      <div className="flex flex-wrap gap-4 pt-4">
+                      <div className="flex flex-wrap gap-3 sm:gap-4 pt-2 sm:pt-4">
                         <Button
                           size="lg"
-                          className="rounded-full bg-white text-zinc-900 hover:bg-white/90 px-8 h-14 text-base font-semibold shadow-lg shadow-black/20 transition-all duration-300 hover:shadow-xl"
+                          className="rounded-full bg-white text-zinc-900 hover:bg-white/90 px-6 sm:px-8 h-11 sm:h-14 text-sm sm:text-base font-semibold shadow-lg shadow-black/20 transition-all duration-300 hover:shadow-xl"
                         >
                           {slide.buttonText}
                           <ArrowRight className="ml-2 w-5 h-5" />
                         </Button>
                         <Button
                           size="lg"
-                          className="rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/30 px-8 h-14 text-base font-semibold transition-all duration-300"
+                          className="rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/30 px-6 sm:px-8 h-11 sm:h-14 text-sm sm:text-base font-semibold transition-all duration-300"
                         >
                           Daha Çox
                         </Button>
@@ -163,8 +182,23 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Quick Category Links (Mobile-first horizontal scroll) */}
+      <section className="py-4 px-4 lg:hidden">
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+          {displayCategories.map((cat: any, idx: number) => (
+            <Link
+              key={cat.id || idx}
+              href={`/category/${cat.slug}`}
+              className="shrink-0 px-4 py-2.5 rounded-full bg-zinc-100 text-sm font-medium text-zinc-700 hover:bg-black hover:text-white transition-colors active:scale-95"
+            >
+              {cat.name}
+            </Link>
+          ))}
+        </div>
+      </section>
+
       {/* Brands Marquee */}
-      <section className="py-6 border-y border-zinc-100 bg-zinc-50/50 overflow-hidden">
+      <section className="py-4 sm:py-6 border-y border-zinc-100 bg-zinc-50/50 overflow-hidden">
         <div className="flex items-center animate-marquee whitespace-nowrap">
           {[...brands, ...brands, ...brands].map((brand, idx) => (
             <span key={idx} className="mx-8 text-lg font-semibold text-zinc-400 hover:text-zinc-700 transition-colors cursor-pointer">
@@ -175,17 +209,17 @@ export default function Home() {
       </section>
 
       {/* Categories Section */}
-      <section className="py-20 lg:py-28">
+      <section className="py-10 sm:py-20 lg:py-28">
         <div className="max-w-7xl mx-auto px-4 lg:px-8">
           {/* Section Header */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
-            <div className="space-y-3">
-              <span className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-zinc-500">
-                <span className="w-8 h-px bg-zinc-300"></span>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 sm:gap-6 mb-8 sm:mb-12">
+            <div className="space-y-2 sm:space-y-3">
+              <span className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold uppercase tracking-widest text-zinc-500">
+                <span className="w-6 sm:w-8 h-px bg-zinc-300"></span>
                 Kəşf Et
               </span>
-              <h2 className="text-3xl lg:text-5xl font-bold tracking-tight">Kateqoriyalar</h2>
-              <p className="text-zinc-500 text-lg max-w-md">İstədiyiniz kateqoriyanı seçin və minlərlə unikal məhsul arasından seçim edin.</p>
+              <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold tracking-tight">Kateqoriyalar</h2>
+              <p className="text-zinc-500 text-sm sm:text-lg max-w-md">İstədiyiniz kateqoriyanı seçin və minlərlə unikal məhsul arasından seçim edin.</p>
             </div>
             <Link href="/categories">
               <Button variant="outline" className="rounded-full px-6 h-12 text-sm font-medium border-zinc-200 hover:bg-zinc-50 group">
@@ -242,7 +276,7 @@ export default function Home() {
       </section>
 
       {/* Featured Banner */}
-      <section className="py-4 lg:py-8">
+      <section className="py-6 sm:py-4 lg:py-8">
         <div className="max-w-7xl mx-auto px-4 lg:px-8">
           <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-zinc-900 via-zinc-800 to-zinc-900">
             <div className="absolute inset-0 opacity-30">
@@ -305,17 +339,17 @@ export default function Home() {
       </section>
 
       {/* New Arrivals Section */}
-      <section className="py-20 lg:py-28">
+      <section className="py-10 sm:py-20 lg:py-28">
         <div className="max-w-7xl mx-auto">
           {/* Section Header */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12 px-4 lg:px-8">
-            <div className="space-y-3">
-              <span className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-zinc-500">
-                <span className="w-8 h-px bg-zinc-300"></span>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 sm:gap-6 mb-8 sm:mb-12 px-4 lg:px-8">
+            <div className="space-y-2 sm:space-y-3">
+              <span className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold uppercase tracking-widest text-zinc-500">
+                <span className="w-6 sm:w-8 h-px bg-zinc-300"></span>
                 Vitrinimizdə
               </span>
-              <h2 className="text-3xl lg:text-5xl font-bold tracking-tight">Yeni Gələnlər</h2>
-              <p className="text-zinc-500 text-lg max-w-md">Hər gün yenilənən vitrinimizdən ən son parçaları seçin.</p>
+              <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold tracking-tight">Yeni Gələnlər</h2>
+              <p className="text-zinc-500 text-sm sm:text-lg max-w-md">Hər gün yenilənən vitrinimizdən ən son parçaları seçin.</p>
             </div>
             <Link href="/search">
               <Button variant="outline" className="rounded-full px-6 h-12 text-sm font-medium border-zinc-200 hover:bg-zinc-50 group">
@@ -325,7 +359,6 @@ export default function Home() {
             </Link>
           </div>
 
-          {/* Products Grid with Swiper */}
           <div className="px-0">
             <Swiper
               slidesPerView={1.3}
@@ -343,9 +376,9 @@ export default function Home() {
               }}
               className="w-full pb-4 px-4! md:px-0!"
             >
-              {newArrivals.map((_, i) => (
-                <SwiperSlide key={i} className="h-auto">
-                  <Card index={i} className="h-full" />
+              {products.map((product: any, i: number) => (
+                <SwiperSlide key={product?.id || i} className="h-auto">
+                  <Card index={i} className="h-full" product={product} />
                 </SwiperSlide>
               ))}
             </Swiper>
@@ -364,7 +397,7 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 lg:py-28 bg-zinc-50/80">
+      <section className="py-10 sm:py-20 lg:py-28 bg-zinc-50/80">
         <div className="max-w-7xl mx-auto px-4 lg:px-8">
           {/* Section Header */}
           <div className="text-center mb-16">
@@ -418,7 +451,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 lg:py-28">
+      <section className="py-10 sm:py-20 lg:py-28">
         <div className="max-w-7xl mx-auto px-4 lg:px-8">
           <div className="relative overflow-hidden rounded-3xl bg-zinc-950 p-8 lg:p-16">
             {/* Background Pattern */}

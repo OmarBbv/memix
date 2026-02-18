@@ -14,6 +14,7 @@ import { Modal } from "../../components/ui/modal";
 import Label from "../../components/form/Label";
 import Input from "../../components/form/input/InputField";
 import Select from "../../components/form/Select";
+import DatePicker from "../../components/form/date-picker";
 import Button from "../../components/ui/button/Button";
 import { useCreateDiscount, useUpdateDiscount, useDeleteDiscount } from "../../hooks/useDiscounts";
 import { DiscountType } from "../../services/discountService";
@@ -53,13 +54,9 @@ const Products: React.FC = () => {
   const updateDiscount = useUpdateDiscount();
   const deleteDiscount = useDeleteDiscount();
 
-  const handleEdit = (product: Product) => {
-    navigate(`/products/edit/${product.id}`);
-  };
+  const handleEdit = (product: Product) => navigate(`/products/edit/${product.id}`);
 
-  const handleAdd = () => {
-    navigate("/products/create");
-  };
+  const handleAdd = () => navigate("/products/create");
 
   const openDeleteDialog = (id: number) => {
     setProductToDelete(id);
@@ -244,16 +241,32 @@ const Products: React.FC = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Başlama Tarixi</Label>
-                <Input
-                  type="date"
-                  {...register("startDate")}
+                <Controller
+                  name="startDate"
+                  control={control}
+                  render={({ field }) => (
+                    <DatePicker
+                      id="startDate"
+                      placeholder="YYYY-MM-DD"
+                      defaultDate={field.value}
+                      onChange={(_, dateStr) => field.onChange(dateStr)}
+                    />
+                  )}
                 />
               </div>
               <div>
                 <Label>Bitmə Tarixi</Label>
-                <Input
-                  type="date"
-                  {...register("endDate")}
+                <Controller
+                  name="endDate"
+                  control={control}
+                  render={({ field }) => (
+                    <DatePicker
+                      id="endDate"
+                      placeholder="YYYY-MM-DD"
+                      defaultDate={field.value}
+                      onChange={(_, dateStr) => field.onChange(dateStr)}
+                    />
+                  )}
                 />
               </div>
             </div>

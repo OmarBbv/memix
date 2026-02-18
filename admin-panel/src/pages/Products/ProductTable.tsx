@@ -92,15 +92,36 @@ export default function ProductTable({ products, onEdit, onDelete, onDiscount }:
                   </div>
                 </TableCell>
                 <TableCell className="px-5 py-4 text-start text-gray-500 text-theme-sm dark:text-gray-400">
-                  {product.stock} ədəd
+                  {(() => {
+                    const totalStock = product.stocks?.reduce((sum, s) => sum + (s.stock || 0), 0) || 0;
+                    return (
+                      <div className="flex flex-col">
+                        <span className="font-medium text-gray-800 dark:text-white/90">{totalStock} ədəd</span>
+                        {product.stocks && product.stocks.length > 0 && (
+                          <div className="mt-1 space-y-0.5">
+                            {product.stocks.map((s: any) => (
+                              <span key={s.id || s.branchId} className="block text-theme-xs text-gray-400">
+                                {s.branch?.name || 'Filial'}: {s.stock}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </TableCell>
                 <TableCell className="px-5 py-4 text-start">
-                  <Badge
-                    size="sm"
-                    color={product.stock > 0 ? "success" : "error"}
-                  >
-                    {product.stock > 0 ? "Stokda var" : "Bitib"}
-                  </Badge>
+                  {(() => {
+                    const totalStock = product.stocks?.reduce((sum, s) => sum + (s.stock || 0), 0) || 0;
+                    return (
+                      <Badge
+                        size="sm"
+                        color={totalStock > 0 ? "success" : "error"}
+                      >
+                        {totalStock > 0 ? "Stokda var" : "Bitib"}
+                      </Badge>
+                    );
+                  })()}
                 </TableCell>
                 <TableCell className="px-5 py-4 text-end">
                   <div className="flex items-center justify-end gap-2">

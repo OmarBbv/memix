@@ -12,6 +12,7 @@ import { Category } from '../../categories/entities/category.entity';
 import { ProductStock } from '../../branches/entities/product-stock.entity';
 import { Review } from '../../reviews/entities/review.entity';
 import { Discount } from '../../discounts/entities/discount.entity';
+import { PriceHistory } from './price-history.entity';
 
 @Entity('products')
 export class Product {
@@ -29,9 +30,6 @@ export class Product {
 
   @Column({ type: 'simple-array', nullable: true })
   images: string[]; // Əlavə şəkillər (array formasında)
-
-  @Column({ default: 0 })
-  stock: number; // Stok miqdarı
 
   @OneToMany(() => ProductStock, (stock) => stock.product)
   stocks: ProductStock[];
@@ -59,6 +57,9 @@ export class Product {
 
   @OneToOne(() => Discount, (discount) => discount.product, { nullable: true })
   discount: Discount;
+
+  @OneToMany(() => PriceHistory, (priceHistory) => priceHistory.product)
+  priceHistory: PriceHistory[];
 
   @CreateDateColumn()
   createdAt: Date; // Yaradılma tarixi

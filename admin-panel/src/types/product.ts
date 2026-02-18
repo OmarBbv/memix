@@ -6,6 +6,15 @@ export interface Product {
   imageUrl: string;
   images: string[];
   stock: number;
+  stocks?: {
+    id: number;
+    stock: number;
+    branchId: number;
+    branch: {
+      id: number;
+      name: string;
+    };
+  }[];
   category?: {
     id: number;
     name: string;

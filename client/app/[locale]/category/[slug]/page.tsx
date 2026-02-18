@@ -1,22 +1,80 @@
 'use client';
 
-import { use, useEffect } from 'react';
+import { use, useMemo, useCallback } from 'react';
+import Link from 'next/link';
 import { Card } from '@/components/shared/Card';
 import { Button } from '@/components/ui/button';
-import { PRODUCTS } from '@/lib/products';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { FilterSidebar } from '../components/FilterSidebar';
-import { Filter } from 'lucide-react';
+import { Filter, ArrowLeft, ChevronRight } from 'lucide-react';
 import { ContentState } from '@/components/shared/ContentState';
+import { Loading } from '@/components/shared/Loading';
 import { useCategoryBySlug, useCategoryFilters } from '@/hooks/useCategories';
+import { useDebounce } from '@/hooks/useDebounce';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
 export default function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = use(params);
-    const { data: category, isLoading, error } = useCategoryBySlug(slug);
 
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const pathname = usePathname();
 
+    const selectedFilters = useMemo(() => {
+        const filters: Record<string, string[]> = {};
+        searchParams.forEach((value, key) => {
+            if (!filters[key]) filters[key] = [];
+            value.split(',').forEach(v => {
+                const trimmed = v.trim();
+                if (trimmed && !filters[key].includes(trimmed)) {
+                    filters[key].push(trimmed);
+                }
+            });
+        });
+        return filters;
+    }, [searchParams]);
 
+    const apiFilters = useMemo(() => {
+        const result: Record<string, string> = {};
+        Object.entries(selectedFilters).forEach(([key, values]) => {
+            if (values.length > 0) {
+                result[key] = values.join(',');
+            }
+        });
+        return result;
+    }, [selectedFilters]);
+
+    const debouncedFilters = useDebounce(apiFilters, 300);
+
+    const { data: category, isLoading, error, isFetching } = useCategoryBySlug(slug, debouncedFilters);
+    const isFiltering = isFetching && !isLoading;
     const { data: filtersData } = useCategoryFilters(category?.id as number);
+
+    const handleFilterChange = useCallback((filterId: string, value: string, checked: boolean) => {
+        const current = { ...selectedFilters };
+
+        if (checked) {
+            if (!current[filterId]) current[filterId] = [];
+            current[filterId] = [...current[filterId], value];
+        } else {
+            current[filterId] = (current[filterId] || []).filter(v => v !== value);
+            if (current[filterId].length === 0) delete current[filterId];
+        }
+
+        const params = new URLSearchParams();
+        Object.entries(current).forEach(([key, values]) => {
+            if (values.length > 0) {
+                params.set(key, values.join(','));
+            }
+        });
+
+        const qs = params.toString();
+        router.push(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    }, [selectedFilters, router, pathname]);
+
+    const handleClearAll = useCallback(() => {
+        router.push(pathname, { scroll: false });
+    }, [router, pathname]);
 
     const subcategories = category?.children?.map(child => child.name) || [];
 
@@ -38,26 +96,20 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
     })) : [];
 
     const filters = [
-        {
-            id: 'subcategory',
-            name: 'Kateqoriya',
-            options: subcategories
-        },
         ...dynamicFilters,
-        {
+        ...((filtersData?.priceRange?.max || 0) > 0 ? [{
             id: 'price',
             name: 'Qiymət',
             options: [
                 `0 - ${Math.round((filtersData?.priceRange?.max || 0) / 4)} ₼`,
                 `${Math.round((filtersData?.priceRange?.max || 0) / 4)} - ${Math.round((filtersData?.priceRange?.max || 0) / 2)} ₼`,
                 `${Math.round((filtersData?.priceRange?.max || 0) / 2)} - ${filtersData?.priceRange?.max} ₼`,
-            ].filter(() => (filtersData?.priceRange?.max || 0) > 0)
-        }
+            ]
+        }] : [])
     ];
 
-    // useEffect(() => {
-    //     window.scrollTo(0, 0)
-    // }, [slug]);
+    const products: any[] = (category as any)?.products || [];
+    const activeFilterCount = Object.values(selectedFilters).reduce((sum, arr) => sum + arr.length, 0);
 
     return (
         <ContentState
@@ -68,60 +120,187 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
         >
             {category && (
                 <div className="min-h-screen py-8 px-4 max-w-7xl mx-auto pb-24 lg:pb-8">
-                    <div className="flex justify-between items-center mb-6">
-                        <h1 className="text-xl sm:text-2xl font-bold">
-                            {category.name}
-                        </h1>
-
-                        <div className="lg:hidden">
-                            <Sheet>
-                                <SheetTrigger asChild>
-                                    <Button variant="outline" size="sm" className="flex items-center gap-2 rounded-xl border-gray-200">
-                                        <Filter className="w-4 h-4" />
-                                        <span className="text-sm">Filter</span>
-                                    </Button>
-                                </SheetTrigger>
-                                <SheetContent side="bottom" className="h-[90vh] p-0 rounded-t-[32px] overflow-hidden">
-                                    <SheetTitle className="sr-only">Filtrlər</SheetTitle>
-                                    <div className="h-full overflow-y-auto px-6 pt-8 pb-32">
-                                        <FilterSidebar filters={filters} />
-                                    </div>
-                                </SheetContent>
-                            </Sheet>
-                        </div>
-                    </div>
+                    {/* Breadcrumb navigation */}
+                    <nav className="flex items-center gap-1.5 sm:gap-2 mb-4 sm:mb-6 text-xs sm:text-sm overflow-x-auto whitespace-nowrap scrollbar-hide">
+                        <Link
+                            href="/en/category"
+                            className="text-gray-400 hover:text-black transition-colors shrink-0"
+                        >
+                            Kateqoriyalar
+                        </Link>
+                        {category.parent && (
+                            <>
+                                <ChevronRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-gray-300 shrink-0" />
+                                <Link
+                                    href={`/en/category/${category.parent.slug}`}
+                                    className="text-gray-400 hover:text-black transition-colors shrink-0"
+                                >
+                                    {category.parent.name}
+                                </Link>
+                            </>
+                        )}
+                        <ChevronRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-gray-300 shrink-0" />
+                        <span className="text-gray-800 font-medium shrink-0">{category.name}</span>
+                    </nav>
 
                     <div className="flex flex-col lg:flex-row gap-8">
-                        {/* Sidebar Filters (Desktop) */}
                         <aside className="hidden lg:block w-64 shrink-0 sticky top-[130px] z-20 self-start">
                             <div className="max-h-[calc(100vh-160px)] overflow-y-auto scrollbar-hide pb-10">
-                                <FilterSidebar filters={filters} />
+                                <FilterSidebar
+                                    filters={filters}
+                                    selectedFilters={selectedFilters}
+                                    onFilterChange={handleFilterChange}
+                                    onClearAll={handleClearAll}
+                                    subcategories={category.children || []}
+                                />
                             </div>
                         </aside>
 
                         <div className="flex-1 min-w-0">
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 md:gap-x-4 gap-y-6 sm:gap-y-8">
-                                {((category as any).products || []).length > 0 ? (
-                                    (category as any).products.map((product: any) => (
-                                        <Card key={product.id} product={{
-                                            ...product,
-                                            title: product.name,
-                                            image: product.banner || (product.images?.[0]) || "/placeholder-cat.jpg",
-                                            price: Number(product.price)
-                                        }} />
-                                    ))
-                                ) : (
-                                    <div className="col-span-full py-12 text-center text-zinc-500">
-                                        Bu kateqoriyada hələ məhsul yoxdur.
+                            <div className="flex justify-between items-center mb-6">
+                                <div className="flex items-center gap-3">
+                                    {category.parent && (
+                                        <Link
+                                            href={`/en/category/${category.parent.slug}`}
+                                            className="flex items-center justify-center w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+                                        >
+                                            <ArrowLeft className="w-4 h-4 text-gray-600" />
+                                        </Link>
+                                    )}
+                                    <div>
+                                        <h1 className="text-xl sm:text-2xl font-bold">
+                                            {category.name}
+                                        </h1>
+                                        <p className="text-sm text-gray-500 mt-1">
+                                            {products.length} məhsul
+                                            {activeFilterCount > 0 && ` (${activeFilterCount} filtr aktiv)`}
+                                        </p>
                                     </div>
-                                )}
+                                </div>
+
+                                <div className="lg:hidden">
+                                    <Sheet>
+                                        <SheetTrigger asChild>
+                                            <Button variant="outline" size="sm" className="flex items-center gap-2 rounded-xl border-gray-200 relative">
+                                                <Filter className="w-4 h-4" />
+                                                <span className="text-sm">Filter</span>
+                                                {activeFilterCount > 0 && (
+                                                    <span className="absolute -top-1.5 -right-1.5 h-5 min-w-5 flex items-center justify-center rounded-full bg-black text-white text-[10px] font-bold px-1">
+                                                        {activeFilterCount}
+                                                    </span>
+                                                )}
+                                            </Button>
+                                        </SheetTrigger>
+                                        <SheetContent side="bottom" className="h-screen p-0 rounded-none overflow-hidden flex flex-col">
+                                            <SheetTitle className="sr-only">Filtrlər</SheetTitle>
+
+                                            {/* Scrollable filter content */}
+                                            <div className="flex-1 overflow-y-auto px-5 pt-6 pb-28">
+                                                <FilterSidebar
+                                                    filters={filters}
+                                                    selectedFilters={selectedFilters}
+                                                    onFilterChange={handleFilterChange}
+                                                    onClearAll={handleClearAll}
+                                                    subcategories={category.children || []}
+                                                />
+                                            </div>
+
+                                            {/* Fixed bottom bar */}
+                                            <div className="fixed bottom-0 left-0 right-0 bg-white border-t px-5 py-4 safe-area-bottom">
+                                                <SheetTrigger asChild>
+                                                    <Button className="w-full h-12 bg-black text-white hover:bg-zinc-800 rounded-xl font-bold text-base">
+                                                        {products.length} məhsul göstər
+                                                    </Button>
+                                                </SheetTrigger>
+                                            </div>
+                                        </SheetContent>
+                                    </Sheet>
+                                </div>
                             </div>
 
-                            <div className="mt-12 flex justify-center">
-                                <Button variant="outline" className="px-8 border-gray-300">
-                                    Daha çox göstər
-                                </Button>
-                            </div>
+                            {activeFilterCount > 0 && (
+                                <div className="flex flex-wrap gap-2 mb-4">
+                                    {Object.entries(selectedFilters).map(([filterId, values]) =>
+                                        values.map(value => (
+                                            <button
+                                                key={`${filterId}-${value}`}
+                                                onClick={() => handleFilterChange(filterId, value, false)}
+                                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 text-sm text-gray-700 hover:bg-gray-200 transition-colors"
+                                            >
+                                                {value}
+                                                <span className="text-gray-400 hover:text-gray-600">✕</span>
+                                            </button>
+                                        ))
+                                    )}
+                                    <button
+                                        onClick={handleClearAll}
+                                        className="inline-flex items-center px-3 py-1.5 rounded-full text-sm text-red-500 hover:bg-red-50 transition-colors"
+                                    >
+                                        Hamısını təmizlə
+                                    </button>
+                                </div>
+                            )}
+
+                            <div className="relative">
+                                {isFiltering && (
+                                    <div className="absolute inset-0 z-10 flex items-start justify-center pt-20 bg-white/60 backdrop-blur-[1px] rounded-xl">
+                                        <Loading />
+                                    </div>
+                                )}
+
+                                <div className={`grid grid-cols-2 md:grid-cols-3 gap-x-3 md:gap-x-4 gap-y-6 sm:gap-y-8 transition-opacity duration-200 ${isFiltering ? 'opacity-40' : 'opacity-100'}`}>
+                                    {products.length > 0 ? (
+                                        products.map((product: any) => (
+                                            <Card key={product.id} product={{
+                                                ...product,
+                                                title: product.name,
+                                                image: product.banner || (product.images?.[0]) || "",
+                                                price: Number(product.price)
+                                            }} />
+                                        ))
+                                    ) : (
+                                        <div className="col-span-full py-20 text-center">
+                                            <div className="text-6xl mb-4">🔍</div>
+                                            <p className="text-lg font-medium text-gray-700 mb-2">
+                                                {activeFilterCount > 0 ? 'Nəticə tapılmadı' : 'Bu kateqoriyada hələ məhsul yoxdur'}
+                                            </p>
+                                            <p className="text-sm text-gray-500 mb-6">
+                                                {activeFilterCount > 0
+                                                    ? 'Seçilmiş filtrlərə uyğun məhsul yoxdur.'
+                                                    : 'Digər kateqoriyalara baxmağı sınayın.'
+                                                }
+                                            </p>
+                                            <div className="flex items-center justify-center gap-3">
+                                                {activeFilterCount > 0 && (
+                                                    <Button
+                                                        variant="outline"
+                                                        onClick={handleClearAll}
+                                                        className="rounded-xl"
+                                                    >
+                                                        Filtrləri təmizlə
+                                                    </Button>
+                                                )}
+                                                {category.parent && (
+                                                    <Link href={`/en/category/${category.parent.slug}`}>
+                                                        <Button className="rounded-xl bg-black text-white hover:bg-zinc-800">
+                                                            <ArrowLeft className="w-4 h-4 mr-2" />
+                                                            {category.parent.name}
+                                                        </Button>
+                                                    </Link>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {products.length > 0 && (
+                                    <div className="mt-12 flex justify-center">
+                                        <Button variant="outline" className="px-8 border-gray-300">
+                                            Daha çox göstər
+                                        </Button>
+                                    </div>
+                                )}
+                            </div>{/* close relative wrapper */}
                         </div>
                     </div>
                 </div>

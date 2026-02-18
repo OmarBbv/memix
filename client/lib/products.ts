@@ -11,6 +11,7 @@ export interface Product {
   city?: string;
   storePriceFactor?: number;
   category: 'women' | 'men' | 'kids' | 'bags' | 'shoes' | 'accessories';
+  priceHistory?: number[];
   discount?: {
     id: number;
     type: 'percentage' | 'fixed';
@@ -20,6 +21,14 @@ export interface Product {
     isActive: boolean;
   };
   variants?: Record<string, any>;
+  stocks?: {
+    id: number;
+    stock: number;
+    branch: {
+      id: number;
+      name: string;
+    }
+  }[];
 }
 
 export const PRODUCTS: Product[] = [
@@ -31,6 +40,7 @@ export const PRODUCTS: Product[] = [
     brand: 'Zara',
     storePriceFactor: 1.5,
     category: 'women',
+    priceHistory: [45, 40, 32, 25],
     discount: {
       id: 1,
       type: 'percentage',

@@ -47,8 +47,9 @@ export class CategoriesController {
   }
 
   @Get('slug/:slug')
-  findBySlug(@Param('slug') slug: string) {
-    return this.categoriesService.findBySlug(slug);
+  findBySlug(@Param('slug') slug: string, @Query() query: Record<string, string>) {
+    const { all, ...filters } = query;
+    return this.categoriesService.findBySlug(slug, filters);
   }
 
   @Get(':id')

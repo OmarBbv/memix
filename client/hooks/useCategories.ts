@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { categoryService } from "@/services/category.service";
 
 export const useCategoryTree = () => {
@@ -15,11 +15,12 @@ export const useCategories = () => {
   });
 };
 
-export const useCategoryBySlug = (slug: string) => {
+export const useCategoryBySlug = (slug: string, filters?: Record<string, string>) => {
   return useQuery({
-    queryKey: ["category", slug],
-    queryFn: () => categoryService.getBySlug(slug),
+    queryKey: ["category", slug, filters],
+    queryFn: () => categoryService.getBySlug(slug, filters),
     enabled: !!slug,
+    placeholderData: keepPreviousData,
   });
 };
 

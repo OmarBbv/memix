@@ -15,6 +15,8 @@ import Badges from "./pages/UiElements/Badges";
 import Avatars from "./pages/UiElements/Avatars";
 import Buttons from "./pages/UiElements/Buttons";
 import Categories from "./pages/Categories";
+import Branches from "./pages/Branches";
+import CreateBranch from "./pages/Branches/CreateBranch";
 import LineChart from "./pages/Charts/LineChart";
 import BarChart from "./pages/Charts/BarChart";
 import Calendar from "./pages/Calendar";
@@ -43,6 +45,8 @@ export default function App() {
               <Route path="/products/create" element={<AddProduct />} />
               <Route path="/products/edit/:id" element={<EditProduct />} />
               <Route path="/categories" element={<Categories />} />
+              <Route path="/branches" element={<Branches />} />
+              <Route path="/branches/create" element={<CreateBranch />} />
               <Route path="/orders" element={<PlaceholderPage title="Sifarişlər" />} />
               <Route path="/orders/returns" element={<PlaceholderPage title="Geri Qaytarılanlar" />} />
               <Route path="/users" element={<PlaceholderPage title="İstifadəçilər" />} />

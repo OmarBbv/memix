@@ -12,6 +12,10 @@ export const productSchema = z.object({
   isFeatured: z.boolean().optional().default(false),
   tags: z.array(z.string()).optional().default([]),
   variants: z.record(z.string(), z.unknown()).optional().default({}),
+  branchStocks: z.array(z.object({
+    branchId: z.coerce.number(),
+    stock: z.coerce.number().int().nonnegative(),
+  })).optional().default([]),
   banner: z.string().optional().or(z.literal('')),
 });
 

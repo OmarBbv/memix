@@ -8,6 +8,9 @@ export interface Category {
   showOnHome: boolean;
   productsCount?: number;
   children?: Category[];
+  parent?: Category;
+  parentId?: number;
+  products?: any[];
 }
 
 export interface CategoryTreeResponse {

@@ -12,6 +12,7 @@ import {
   PlugInIcon,
   UserCircleIcon,
   ShootingStarIcon,
+  BoxIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 
@@ -35,6 +36,11 @@ const navItems: NavItem[] = [
       { name: "Məhsul Siyahısı", path: "/products", pro: false },
       { name: "Kateqoriyalar", path: "/categories", pro: false },
     ],
+  },
+  {
+    icon: <BoxIcon />,
+    name: "Filiallar",
+    path: "/branches",
   },
   {
     icon: <ListIcon />,
@@ -85,7 +91,6 @@ const AppSidebar: React.FC = () => {
   );
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  // const isActive = (path: string) => location.pathname === path;
   const isActive = useCallback(
     (path: string) => location.pathname === path,
     [location.pathname]

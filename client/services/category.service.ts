@@ -29,9 +29,17 @@ class CategoryService implements ICategoryService {
     }
   }
 
-  async getBySlug(slug: string): Promise<Category> {
+  async getBySlug(slug: string, filters?: Record<string, string>): Promise<Category> {
     try {
-      const response = await httpClientPublic.get(`/categories/slug/${slug}`);
+      const params = new URLSearchParams();
+      if (filters) {
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value) params.set(key, value);
+        });
+      }
+      const qs = params.toString();
+      const url = `/categories/slug/${slug}${qs ? `?${qs}` : ''}`;
+      const response = await httpClientPublic.get(url);
       return response.data;
     } catch (error) {
       console.error(`CategoryService getBySlug error for ${slug}:`, error);

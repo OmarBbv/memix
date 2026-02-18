@@ -6,14 +6,19 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
 import { ErrorMessages } from '../common/constants/error-messages';
 import { SearchService } from '../search/search.service';
-
 import { ensureFullUrl } from '../common/utils/file-url.util';
+import { PriceHistory } from './entities/price-history.entity';
+import { ProductStock } from '../branches/entities/product-stock.entity';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectRepository(Product)
     private productsRepository: Repository<Product>,
+    @InjectRepository(PriceHistory)
+    private priceHistoryRepository: Repository<PriceHistory>,
+    @InjectRepository(ProductStock)
+    private productStockRepository: Repository<ProductStock>,
     private readonly searchService: SearchService,
   ) { }
 
@@ -24,7 +29,7 @@ export class ProductsService {
       images?: Express.Multer.File[];
     },
   ) {
-    const { categoryId, variants, tags, ...productData } = createProductDto;
+    const { categoryId, variants, tags, branchStocks, ...productData } = createProductDto;
 
     const appUrl = process.env.APP_URL || 'http://localhost:4444';
 
@@ -64,10 +69,29 @@ export class ProductsService {
       tags: parsedTags,
       category: categoryId ? { id: Number(categoryId) } : undefined,
       price: Number(productData.price),
-      stock: productData.stock ? Number(productData.stock) : 0,
     } as any) as unknown as Product;
 
     const savedProduct = await this.productsRepository.save(product);
+
+    // Handle Branch Stocks
+    let parsedBranchStocks = branchStocks;
+    if (typeof branchStocks === 'string') {
+      try {
+        parsedBranchStocks = JSON.parse(branchStocks);
+      } catch (e) {
+        parsedBranchStocks = [];
+      }
+    }
+
+    if (Array.isArray(parsedBranchStocks)) {
+      const stockEntities = parsedBranchStocks.map(bs => this.productStockRepository.create({
+        productId: savedProduct.id,
+        branchId: Number(bs.branchId),
+        stock: Number(bs.stock) || 0
+      }));
+      await this.productStockRepository.save(stockEntities);
+    }
+
     await this.searchService.indexProduct(savedProduct);
 
     return {
@@ -91,13 +115,18 @@ export class ProductsService {
         .whereInIds(ids)
         .leftJoinAndSelect('product.category', 'category')
         .leftJoinAndSelect('product.discount', 'discount')
+        .leftJoinAndSelect('product.priceHistory', 'priceHistory')
+        .leftJoinAndSelect('product.stocks', 'stocks')
+        .leftJoinAndSelect('stocks.branch', 'branch')
         .getMany();
     } else {
       const qb = this.productsRepository.createQueryBuilder('product');
 
       qb.leftJoinAndSelect('product.category', 'category');
       qb.leftJoinAndSelect('product.stocks', 'stocks');
+      qb.leftJoinAndSelect('stocks.branch', 'branch');
       qb.leftJoinAndSelect('product.discount', 'discount');
+      qb.leftJoinAndSelect('product.priceHistory', 'priceHistory');
 
       if (query.categoryId) {
         qb.andWhere('category.id = :categoryId', {
@@ -133,7 +162,6 @@ export class ProductsService {
       products = await qb.getMany();
     }
 
-    // URL-ləri tam formata salırıq
     return products.map(product => ({
       ...product,
       banner: ensureFullUrl(product.banner),
@@ -146,7 +174,12 @@ export class ProductsService {
   async findOne(id: number) {
     const product = await this.productsRepository.findOne({
       where: { id },
-      relations: ['category', 'discount'],
+      relations: ['category', 'discount', 'priceHistory', 'stocks', 'stocks.branch'],
+      order: {
+        priceHistory: {
+          changedAt: 'DESC',
+        },
+      } as any,
     });
 
     if (!product) {
@@ -174,6 +207,7 @@ export class ProductsService {
       categoryId,
       variants,
       tags,
+      branchStocks,
       existingBanner,
       existingImages,
       ...productData
@@ -223,6 +257,39 @@ export class ProductsService {
       parsedTags = tags;
     }
 
+    if (productData.price) {
+      const newPrice = Number(productData.price);
+      const oldPrice = Number(product.price);
+
+      if (!isNaN(newPrice) && !isNaN(oldPrice) && Math.abs(newPrice - oldPrice) > 0.01) {
+        await this.priceHistoryRepository.save({
+          price: oldPrice,
+          product: { id: product.id } as Product
+        });
+      }
+    }
+
+    // Handle Branch Stocks
+    let parsedBranchStocks = branchStocks;
+    if (typeof branchStocks === 'string') {
+      try {
+        parsedBranchStocks = JSON.parse(branchStocks);
+      } catch (e) {
+        parsedBranchStocks = [];
+      }
+    }
+
+    if (Array.isArray(parsedBranchStocks)) {
+      // Clear existing stocks or update selectively? Simple way: clear and recreate
+      await this.productStockRepository.delete({ productId: product.id });
+      const stockEntities = parsedBranchStocks.map(bs => this.productStockRepository.create({
+        productId: product.id,
+        branchId: Number(bs.branchId),
+        stock: Number(bs.stock) || 0
+      }));
+      await this.productStockRepository.save(stockEntities);
+    }
+
     this.productsRepository.merge(product, {
       ...productData,
       banner: bannerUrl,
@@ -231,7 +298,6 @@ export class ProductsService {
       tags: parsedTags,
       category: categoryId ? { id: Number(categoryId) } : product.category,
       price: productData.price ? Number(productData.price) : product.price,
-      stock: productData.stock !== undefined ? Number(productData.stock) : product.stock,
     } as any);
 
     const updatedProduct = (await this.productsRepository.save(product)) as Product;
@@ -249,9 +315,7 @@ export class ProductsService {
   async remove(id: number) {
     const product = await this.findOne(id);
     await this.productsRepository.remove(product);
-
     await this.searchService.removeProduct(id);
-
     return product;
   }
 }

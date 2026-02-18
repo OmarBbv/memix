@@ -5,7 +5,7 @@ interface Option {
   label: string;
 }
 
-interface SelectProps {
+interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'onChange'> {
   options: Option[];
   placeholder?: string;
   onChange: (value: string) => void;
@@ -21,6 +21,7 @@ const Select: React.FC<SelectProps> = ({
   className = "",
   defaultValue = "",
   value,
+  ...props
 }) => {
   // Manage the selected value
   const [selectedValue, setSelectedValue] = useState<string>(defaultValue);
@@ -39,6 +40,7 @@ const Select: React.FC<SelectProps> = ({
         } ${className}`}
       value={value !== undefined ? value : selectedValue}
       onChange={handleChange}
+      {...props}
     >
       {/* Placeholder option */}
       <option

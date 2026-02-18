@@ -7,7 +7,6 @@ import Image from "next/image"
 import 'swiper/css'
 import 'swiper/css/pagination'
 
-// Placeholder images - gerçek resimlerle değiştirilecek
 const categoryItems = [
     {
         id: 1,

@@ -43,6 +43,9 @@ export class CreateProductDto {
   isFeatured?: boolean; // Vitrində göstərilsin?
 
   @IsOptional()
+  branchStocks?: any; // { branchId: number, stock: number }[] (JSON format if multipart)
+
+  @IsOptional()
   existingBanner?: string;
 
   @IsOptional()

@@ -154,10 +154,24 @@ async function seed() {
 
   console.log('Seeding categories...');
 
+  const usedSlugs = new Set<string>();
+
+  function getUniqueSlug(name: string): string {
+    const baseSlug = generateSlug(name);
+    let slug = baseSlug;
+    let counter = 2;
+    while (usedSlugs.has(slug)) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+    usedSlugs.add(slug);
+    return slug;
+  }
+
   for (const [parentOrder, parentData] of categoryData.entries()) {
     const parent = categoryRepo.create({
       name: parentData.name,
-      slug: generateSlug(parentData.name),
+      slug: getUniqueSlug(parentData.name),
       order: parentOrder,
       isActive: true,
       showOnHome: true,
@@ -170,7 +184,7 @@ async function seed() {
       for (const [childOrder, childData] of parentData.children.entries()) {
         const child = categoryRepo.create({
           name: childData.name,
-          slug: generateSlug(`${savedParent.name}-${childData.name}`),
+          slug: getUniqueSlug(childData.name),
           order: childOrder,
           isActive: true,
           parent: savedParent
@@ -182,7 +196,7 @@ async function seed() {
           for (const [leafOrder, leafName] of childData.children.entries()) {
             const leaf = categoryRepo.create({
               name: leafName,
-              slug: generateSlug(`${savedParent.name}-${childData.name}-${leafName}`),
+              slug: getUniqueSlug(leafName),
               order: leafOrder,
               isActive: true,
               parent: savedChild
