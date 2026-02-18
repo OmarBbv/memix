@@ -15,6 +15,7 @@ import { useCategories } from "../../hooks/useCategories";
 import { useBranches } from "../../hooks/useBranches";
 import { productSchema, ProductFormValues } from "../../validations/productSchema";
 import { ChevronLeftIcon, TrashBinIcon } from "../../icons";
+import { allowOnlyNumbers } from "../../utils/inputHelpers";
 
 export default function AddProduct() {
   const navigate = useNavigate();
@@ -34,8 +35,8 @@ export default function AddProduct() {
     defaultValues: {
       name: "",
       description: "",
-      price: 0,
-      stock: 0,
+      price: "" as any,
+      stock: "" as any,
       categoryId: undefined,
       isFeatured: false,
       images: [],
@@ -186,11 +187,11 @@ export default function AddProduct() {
                   <div>
                     <Label htmlFor="price">Qiymət</Label>
                     <Input
-                      type="number"
+                      type="text"
                       id="price"
                       placeholder="0.00"
-                      step="0.01"
                       {...register("price")}
+                      onInput={(e: React.FormEvent<HTMLInputElement>) => allowOnlyNumbers(e, true)}
                       error={!!errors.price}
                       hint={errors.price?.message}
                     />
@@ -198,10 +199,11 @@ export default function AddProduct() {
                   <div>
                     <Label htmlFor="stock">Ümumi Stok Sayı (Məcburi deyil)</Label>
                     <Input
-                      type="number"
+                      type="text"
                       id="stock"
                       placeholder="0"
                       {...register("stock")}
+                      onInput={(e: React.FormEvent<HTMLInputElement>) => allowOnlyNumbers(e)}
                       error={!!errors.stock}
                       hint={errors.stock?.message}
                     />
@@ -216,7 +218,7 @@ export default function AddProduct() {
                       type="button"
                       size="sm"
                       variant="outline"
-                      onClick={() => append({ branchId: 0, stock: 0 })}
+                      onClick={() => append({ branchId: 0, stock: "" as any })}
                     >
                       Filial Əlavə Et
                     </Button>
@@ -243,9 +245,10 @@ export default function AddProduct() {
                         <div className="w-32">
                           <Label>Stok</Label>
                           <Input
-                            type="number"
+                            type="text"
                             placeholder="0"
                             {...register(`branchStocks.${index}.stock` as const)}
+                            onInput={(e: React.FormEvent<HTMLInputElement>) => allowOnlyNumbers(e)}
                           />
                         </div>
                         <button

@@ -25,6 +25,6 @@ export class PriceHistory {
   @JoinColumn({ name: 'productId' })
   product: Product;
 
-  @Column()
-  productId: number;
+  // @Column()
+  // productId: number;
 }

@@ -85,7 +85,9 @@ export class ProductsService {
 
     if (Array.isArray(parsedBranchStocks)) {
       const stockEntities = parsedBranchStocks.map(bs => this.productStockRepository.create({
+        product: { id: savedProduct.id } as any,
         productId: savedProduct.id,
+        branch: { id: Number(bs.branchId) } as any,
         branchId: Number(bs.branchId),
         stock: Number(bs.stock) || 0
       }));
@@ -203,113 +205,141 @@ export class ProductsService {
       images?: Express.Multer.File[];
     },
   ) {
-    const {
-      categoryId,
-      variants,
-      tags,
-      branchStocks,
-      existingBanner,
-      existingImages,
-      ...productData
-    } = updateProductDto;
+    try {
+      const {
+        categoryId,
+        variants,
+        tags,
+        branchStocks,
+        existingBanner,
+        existingImages,
+        ...productData
+      } = updateProductDto;
 
-    const product = await this.findOne(id);
-    const appUrl = process.env.APP_URL || 'http://localhost:4444';
-
-    let bannerUrl = product.banner;
-    if (files?.banner && files.banner.length > 0) {
-      bannerUrl = `${appUrl}/uploads/${files.banner[0].filename}`;
-    } else if (existingBanner === undefined) {
-      bannerUrl = null;
-    } else {
-      bannerUrl = existingBanner;
-    }
-
-    let finalImages: string[] = [];
-
-    if (existingImages) {
-      if (Array.isArray(existingImages)) {
-        finalImages = [...existingImages];
-      } else if (typeof existingImages === 'string') {
-        finalImages = [existingImages];
-      }
-    }
-
-    if (files?.images) {
-      files.images.forEach((file) => {
-        finalImages.push(`${appUrl}/uploads/${file.filename}`);
+      // Use specific findOne to avoid loading priceHistory relation which causes cascade delete issues
+      const product = await this.productsRepository.findOne({
+        where: { id },
+        relations: ['category', 'discount', 'stocks', 'stocks.branch'],
+        order: {
+          stocks: { id: 'ASC' }
+        } as any
       });
-    }
 
-    let parsedVariants = variants;
-    if (typeof variants === 'string') {
-      try {
-        parsedVariants = JSON.parse(variants);
-      } catch (e) {
-        parsedVariants = product.variants;
+      if (!product) {
+        throw new NotFoundException(ErrorMessages.PRODUCT_NOT_FOUND);
       }
-    }
 
-    let parsedTags = tags;
-    if (typeof tags === 'string') {
-      parsedTags = (tags as string).split(',').map(t => t.trim()).filter(Boolean);
-    } else if (Array.isArray(tags)) {
-      parsedTags = tags;
-    }
+      const appUrl = process.env.APP_URL || 'http://localhost:4444';
 
-    if (productData.price) {
-      const newPrice = Number(productData.price);
-      const oldPrice = Number(product.price);
+      let bannerUrl = product.banner;
+      if (files?.banner && files.banner.length > 0) {
+        bannerUrl = `${appUrl}/uploads/${files.banner[0].filename}`;
+      } else if (existingBanner === undefined) {
+        bannerUrl = null;
+      } else {
+        bannerUrl = existingBanner;
+      }
 
-      if (!isNaN(newPrice) && !isNaN(oldPrice) && Math.abs(newPrice - oldPrice) > 0.01) {
-        await this.priceHistoryRepository.save({
-          price: oldPrice,
-          product: { id: product.id } as Product
+      let finalImages: string[] = [];
+
+      if (existingImages) {
+        if (Array.isArray(existingImages)) {
+          finalImages = [...existingImages];
+        } else if (typeof existingImages === 'string') {
+          finalImages = [existingImages];
+        }
+      }
+
+      if (files?.images) {
+        files.images.forEach((file) => {
+          finalImages.push(`${appUrl}/uploads/${file.filename}`);
         });
       }
-    }
 
-    // Handle Branch Stocks
-    let parsedBranchStocks = branchStocks;
-    if (typeof branchStocks === 'string') {
-      try {
-        parsedBranchStocks = JSON.parse(branchStocks);
-      } catch (e) {
-        parsedBranchStocks = [];
+      let parsedVariants = variants;
+      if (typeof variants === 'string') {
+        try {
+          parsedVariants = JSON.parse(variants);
+        } catch (e) {
+          parsedVariants = product.variants;
+        }
       }
+
+      let parsedTags = tags;
+      if (typeof tags === 'string') {
+        parsedTags = (tags as string).split(',').map(t => t.trim()).filter(Boolean);
+      } else if (Array.isArray(tags)) {
+        parsedTags = tags;
+      }
+
+      if (productData.price) {
+        const newPrice = Number(productData.price);
+        const oldPrice = Number(product.price);
+
+        if (!isNaN(newPrice) && !isNaN(oldPrice) && Math.abs(newPrice - oldPrice) > 0.01) {
+          // Verify productRef exists before saving history
+          if (product) {
+            await this.priceHistoryRepository.save(
+              this.priceHistoryRepository.create({
+                price: oldPrice,
+                product: { id: product.id } as Product
+              })
+            );
+          }
+        }
+      }
+      // Handle Branch Stocks
+      let parsedBranchStocks = branchStocks;
+      if (typeof branchStocks === 'string') {
+        try {
+          parsedBranchStocks = JSON.parse(branchStocks);
+        } catch (e) {
+          parsedBranchStocks = [];
+        }
+      }
+
+      if (Array.isArray(parsedBranchStocks)) {
+        // Clear existing stocks or update selectively? Simple way: clear and recreate
+        await this.productStockRepository.delete({ productId: product.id });
+        const stockEntities = parsedBranchStocks
+          .filter(bs => Number(bs.branchId) > 0)
+          .map(bs => this.productStockRepository.create({
+            product: { id: product.id } as any,
+            productId: product.id,
+            branch: { id: Number(bs.branchId) } as any,
+            branchId: Number(bs.branchId),
+            stock: Number(bs.stock) || 0
+          }));
+        await this.productStockRepository.save(stockEntities);
+      }
+
+      // Clear stale stocks from the product object to prevent TypeORM from trying to save them
+      product.stocks = [];
+      // product.priceHistory is not loaded, so it remains undefined, which is what we want.
+
+      this.productsRepository.merge(product, {
+        ...productData,
+        banner: bannerUrl,
+        images: finalImages,
+        variants: parsedVariants,
+        tags: parsedTags,
+        category: categoryId ? { id: Number(categoryId) } : product.category,
+        price: productData.price ? Number(productData.price) : product.price,
+      } as any);
+
+      const updatedProduct = (await this.productsRepository.save(product)) as Product;
+      await this.searchService.indexProduct(updatedProduct);
+
+      return {
+        ...updatedProduct,
+        banner: ensureFullUrl(updatedProduct.banner),
+        images: Array.isArray(updatedProduct.images)
+          ? updatedProduct.images.map(img => ensureFullUrl(img)).filter(Boolean)
+          : updatedProduct.images,
+      };
+    } catch (e) {
+      throw new NotFoundException(`UPDATE ERROR: ${e.message}`);
     }
-
-    if (Array.isArray(parsedBranchStocks)) {
-      // Clear existing stocks or update selectively? Simple way: clear and recreate
-      await this.productStockRepository.delete({ productId: product.id });
-      const stockEntities = parsedBranchStocks.map(bs => this.productStockRepository.create({
-        productId: product.id,
-        branchId: Number(bs.branchId),
-        stock: Number(bs.stock) || 0
-      }));
-      await this.productStockRepository.save(stockEntities);
-    }
-
-    this.productsRepository.merge(product, {
-      ...productData,
-      banner: bannerUrl,
-      images: finalImages,
-      variants: parsedVariants,
-      tags: parsedTags,
-      category: categoryId ? { id: Number(categoryId) } : product.category,
-      price: productData.price ? Number(productData.price) : product.price,
-    } as any);
-
-    const updatedProduct = (await this.productsRepository.save(product)) as Product;
-    await this.searchService.indexProduct(updatedProduct);
-
-    return {
-      ...updatedProduct,
-      banner: ensureFullUrl(updatedProduct.banner),
-      images: Array.isArray(updatedProduct.images)
-        ? updatedProduct.images.map(img => ensureFullUrl(img)).filter(Boolean)
-        : updatedProduct.images,
-    };
   }
 
   async remove(id: number) {

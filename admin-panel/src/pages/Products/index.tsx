@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
@@ -19,10 +19,11 @@ import Button from "../../components/ui/button/Button";
 import { useCreateDiscount, useUpdateDiscount, useDeleteDiscount } from "../../hooks/useDiscounts";
 import { DiscountType } from "../../services/discountService";
 import toast from "react-hot-toast";
+import { allowOnlyNumbers } from "../../utils/inputHelpers";
 
 const discountSchema = z.object({
   type: z.nativeEnum(DiscountType),
-  value: z.number().min(0, "Dəyər mənfi ola bilməz"),
+  value: z.coerce.number().min(0, "Dəyər mənfi ola bilməz"),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
 });
@@ -41,10 +42,10 @@ const Products: React.FC = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const { control, register, handleSubmit, reset } = useForm<DiscountFormValues>({
-    resolver: zodResolver(discountSchema),
+    resolver: zodResolver(discountSchema) as Resolver<DiscountFormValues>,
     defaultValues: {
       type: DiscountType.PERCENTAGE,
-      value: 0,
+      value: "" as any,
       startDate: "",
       endDate: "",
     },
@@ -232,8 +233,9 @@ const Products: React.FC = () => {
             <div>
               <Label>Dəyər</Label>
               <Input
-                type="number"
-                {...register("value", { valueAsNumber: true })}
+                type="text"
+                {...register("value")}
+                onInput={(e: React.FormEvent<HTMLInputElement>) => allowOnlyNumbers(e, true)}
                 placeholder="Endirim miqdarı"
               />
             </div>

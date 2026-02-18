@@ -6,6 +6,7 @@ import { categorySchema } from "../../validations/categorySchema";
 import { Category } from "../../types/category";
 import { useCreateCategory, useUpdateCategory, useCategories } from "../../hooks/useCategories";
 import SearchableSelect from "../../components/ui/select/SearchableSelect";
+import { allowOnlyNumbers } from "../../utils/inputHelpers";
 
 interface CategoryModalProps {
   isOpen: boolean;
@@ -213,7 +214,8 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
               <label className={labelClasses}>Sıralama</label>
               <input
                 {...register("order")}
-                type="number"
+                type="text"
+                onInput={(e: React.FormEvent<HTMLInputElement>) => allowOnlyNumbers(e)}
                 className={inputClasses(errors.order)}
               />
             </div>
