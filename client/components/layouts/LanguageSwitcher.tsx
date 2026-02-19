@@ -9,7 +9,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
 
 export default function LanguageSwitcher() {
   const locale = useLocale();
@@ -21,9 +20,9 @@ export default function LanguageSwitcher() {
   };
 
   const languages = [
-    { code: 'az', label: 'AZ' },
-    { code: 'en', label: 'EN' },
-    { code: 'ru', label: 'RU' },
+    { code: 'az', label: 'AZ', flag: '🇦🇿' },
+    { code: 'en', label: 'EN', flag: '🇬🇧' },
+    { code: 'ru', label: 'RU', flag: '🇷🇺' },
   ];
 
   return (
@@ -41,6 +40,7 @@ export default function LanguageSwitcher() {
             onClick={() => handleLocaleChange(lang.code)}
             className={`cursor-pointer ${locale === lang.code ? 'bg-accent font-medium' : ''}`}
           >
+            <span className="mr-2">{lang.flag}</span>
             {lang.label}
           </DropdownMenuItem>
         ))}

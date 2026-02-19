@@ -12,12 +12,14 @@ import { Product } from '../products/entities/product.entity';
 import { generateSlug } from '../common/utils/slug.util';
 import { ErrorMessages } from '../common/constants/error-messages';
 import { ensureFullUrl } from '../common/utils/file-url.util';
+import { SearchService } from '../search/search.service';
 
 @Injectable()
 export class CategoriesService {
   constructor(
     @InjectRepository(Category)
     private categoriesRepository: Repository<Category>,
+    private readonly searchService: SearchService,
   ) { }
 
   private formatName(name: string): string {
@@ -95,6 +97,8 @@ export class CategoriesService {
     }
 
     const savedCategory = await this.categoriesRepository.save(category);
+    await this.searchService.indexCategory(savedCategory);
+
     return {
       ...savedCategory,
       imageUrl: ensureFullUrl(savedCategory.imageUrl),
@@ -175,11 +179,8 @@ export class CategoriesService {
     }
 
     const categoryIds = this.getIdsFromTree(category);
+    const { subcategory, price, minPrice, maxPrice, ...variantFilters } = filters;
 
-    // Extract special filters
-    const { subcategory, price, ...variantFilters } = filters;
-
-    // Build query with QueryBuilder for flexible filtering
     const productRepo = this.categoriesRepository.manager.getRepository(Product);
     let qb = productRepo.createQueryBuilder('product')
       .leftJoinAndSelect('product.category', 'category')
@@ -187,13 +188,18 @@ export class CategoriesService {
       .where('product.categoryId IN (:...categoryIds)', { categoryIds })
       .orderBy('product.createdAt', 'DESC');
 
-    // Subcategory filter: comma-separated category names
     if (subcategory) {
       const subcategoryNames = subcategory.split(',').map(s => s.trim());
       qb = qb.andWhere('category.name IN (:...subcategoryNames)', { subcategoryNames });
     }
 
-    // Price range filter: "0 - 50 ₼" format, comma-separated
+    if (minPrice) {
+      qb = qb.andWhere('CAST(product.price AS NUMERIC) >= :minPriceVal', { minPriceVal: Number(minPrice) });
+    }
+    if (maxPrice) {
+      qb = qb.andWhere('CAST(product.price AS NUMERIC) <= :maxPriceVal', { maxPriceVal: Number(maxPrice) });
+    }
+
     if (price) {
       const priceConditions: string[] = [];
       const priceParams: Record<string, number> = {};
@@ -201,7 +207,7 @@ export class CategoriesService {
       price.split(',').forEach((range, i) => {
         const match = range.match(/([\d.]+)\s*-\s*([\d.]+)/);
         if (match) {
-          priceConditions.push(`(product.price >= :minPrice${i} AND product.price <= :maxPrice${i})`);
+          priceConditions.push(`(CAST(product.price AS NUMERIC) >= :minPrice${i} AND CAST(product.price AS NUMERIC) <= :maxPrice${i})`);
           priceParams[`minPrice${i}`] = Number(match[1]);
           priceParams[`maxPrice${i}`] = Number(match[2]);
         }
@@ -212,14 +218,11 @@ export class CategoriesService {
       }
     }
 
-    // Variant filters: brand, size, color, condition, etc.
-    // Each can be comma-separated: brand=Zara,Nike
     Object.entries(variantFilters).forEach(([key, value]) => {
       if (!value) return;
       const values = value.split(',').map(v => v.trim());
 
       if (values.length === 1) {
-        // Single value: check if variants->key equals value OR variants->key array contains value
         qb = qb.andWhere(
           `(product.variants->>:key_${key} = :val_${key} OR product.variants->:key_${key} @> :valArr_${key}::jsonb)`,
           {
@@ -229,7 +232,6 @@ export class CategoriesService {
           }
         );
       } else {
-        // Multiple values: OR logic — match if any value matches
         const conditions = values.map((v, i) =>
           `(product.variants->>:key_${key} = :val_${key}_${i} OR product.variants->:key_${key} @> :valArr_${key}_${i}::jsonb)`
         );
@@ -294,6 +296,8 @@ export class CategoriesService {
 
     this.categoriesRepository.merge(category, rest);
     const updatedCategory = await this.categoriesRepository.save(category);
+    await this.searchService.indexCategory(updatedCategory);
+
     return {
       ...updatedCategory,
       imageUrl: ensureFullUrl(updatedCategory.imageUrl),
@@ -302,7 +306,9 @@ export class CategoriesService {
 
   async remove(id: number) {
     const category = await this.findOne(id);
-    return this.categoriesRepository.remove(category);
+    await this.categoriesRepository.remove(category);
+    await this.searchService.removeCategory(id);
+    return category;
   }
 
   async getFilters(id: number) {
@@ -369,5 +375,13 @@ export class CategoriesService {
         max: maxPrice,
       },
     };
+  }
+
+  async syncSearchIndex() {
+    const categories = await this.categoriesRepository.find();
+    for (const category of categories) {
+      await this.searchService.indexCategory(category);
+    }
+    return { count: categories.length, message: 'Categories indexed successfully' };
   }
 }

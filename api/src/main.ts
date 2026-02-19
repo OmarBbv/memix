@@ -14,7 +14,15 @@ async function bootstrap() {
   }));
 
   app.useGlobalFilters(new AllExceptionsFilter());
-  app.enableCors();
+  app.enableCors({
+    origin: [
+      'http://localhost:3000',
+      'http://az.localhost:3000',
+      'http://en.localhost:3000',
+      'http://ru.localhost:3000',
+    ],
+    credentials: true,
+  });
   await app.listen(port);
   console.log(`\n🚀 Application is running on: http://localhost:${port}\n`);
 }

@@ -3,16 +3,32 @@ import { httpClientPublic } from "@/lib/httpClient";
 export type Product = {
   id: number;
   name: string;
+  title?: string;
   description?: string;
-  price: number;
+  price: number | string;
+  oldPrice?: number;
+  image?: string;
   images?: string[];
   banner?: string;
-  stock?: number;
+  brand?: string;
+  size?: string | string[];
+  condition?: string;
+  city?: string;
+  storePriceFactor?: number;
   category?: {
     id: number;
     name: string;
+    slug?: string;
+    imageUrl?: string | null;
   };
-  variants?: any;
+  variants?: {
+    size?: string[];
+    brand?: string;
+    color?: string;
+    condition?: string;
+    city?: string;
+    [key: string]: any;
+  };
   tags?: string[];
   isFeatured?: boolean;
   discount?: {
@@ -25,11 +41,21 @@ export type Product = {
   };
   priceHistory?: {
     id: number;
-    price: string | number;
+    oldPrice?: string | number;
+    newPrice?: string | number;
+    price?: string | number;
     changedAt: string;
   }[];
-  createdAt: string;
-  updatedAt: string;
+  stocks?: {
+    id: number;
+    stock: number;
+    branch: {
+      id: number;
+      name: string;
+    };
+  }[];
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export const productService = {

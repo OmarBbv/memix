@@ -25,6 +25,11 @@ import { multerConfig } from '../common/utils/multer.config';
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) { }
 
+  @Get('sync-index')
+  async syncIndex() {
+    return this.categoriesService.syncSearchIndex();
+  }
+
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(UserRole.ADMIN)
   @Post()

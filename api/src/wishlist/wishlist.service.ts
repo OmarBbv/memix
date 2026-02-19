@@ -22,6 +22,10 @@ export class WishlistService {
       throw new NotFoundException('Məhsul tapılmadı');
     }
 
+    if (!userId) {
+      throw new BadRequestException('İstifadəçi ID tapılmadı');
+    }
+
     // Artıq əlavə edilmişmi?
     const existing = await this.wishlistRepository.findOne({
       where: { user: { id: userId }, product: { id: productId } },

@@ -40,7 +40,7 @@ export class AuthController {
   async googleAuthRedirect(@Req() req, @Res() res) {
     const { access_token } = await this.authService.login(req.user);
     res.redirect(
-      `http://localhost:3000/az/auth/callback?token=${access_token}`,
+      `http://az.localhost:3000/auth/callback?token=${access_token}`,
     );
   }
 

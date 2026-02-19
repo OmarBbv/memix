@@ -3,18 +3,22 @@
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import logoIcon from "@/public/memi.svg";
 import searchIcon from "@/public/navbar/search.svg";
-import { Heart, ShoppingBag, User, Menu, ChevronRight, Globe } from "lucide-react";
+import { Heart, ShoppingBag, User, Menu, ChevronRight, Globe, Search, X } from "lucide-react";
 import Image from "next/image";
 import { Link, usePathname, useRouter } from "@/i18n/routing";
 import LanguageSwitcher from "./LanguageSwitcher";
+import { MobileSearch } from "../ui/MobileSearch";
 
 import { useState, useEffect } from "react";
 import { TopBar } from "../home/TopBar";
 import { Input } from "../ui/input";
 import { AuthModal } from "./AuthModal";
 import { useCategoryTree } from "@/hooks/useCategories";
+import { useProducts } from "@/hooks/useProducts";
+import { useDebounce } from "@/hooks/useDebounce";
+import { SearchSuggestions } from "../ui/SearchSuggestions";
 import { Category } from "@/types/category.types";
-import { openCart } from "@/lib/redux/features/cartSlice";
+import { openCart, fetchCart } from "@/lib/redux/features/cartSlice";
 import { logout } from "@/lib/redux/features/authSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
@@ -34,7 +38,27 @@ export default function Navbar() {
     const [showCategories, setShowCategories] = useState(true)
     const [lastScrollY, setLastScrollY] = useState(0)
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+    const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
     const router = useRouter()
+
+    const [searchQuery, setSearchQuery] = useState("")
+    const [isSearchFocused, setIsSearchFocused] = useState(false)
+    const debouncedSearch = useDebounce(searchQuery, 300)
+
+    const { data: searchResults, isLoading: isSearchLoading } = useProducts(
+        debouncedSearch ? { search: debouncedSearch.toLowerCase() } : undefined
+    )
+
+    const { data: popularProducts, isLoading: isPopularLoading } = useProducts({
+        limit: 5,
+        sort: 'popular'
+    })
+
+    const suggestions = searchQuery
+        ? (searchResults?.slice(0, 7) || [])
+        : (popularProducts?.slice(0, 5) || [])
+    const isLoading = searchQuery ? isSearchLoading : isPopularLoading
+
     const pathname = usePathname()
     const locale = useLocale()
 
@@ -45,6 +69,12 @@ export default function Navbar() {
     const profileName = user?.name && user.name !== 'undefined'
         ? user.name
         : (user?.email?.split('@')[0] ?? "İstifadəçi");
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            dispatch(fetchCart());
+        }
+    }, [isAuthenticated, dispatch]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -76,7 +106,8 @@ export default function Navbar() {
 
     return (
         <>
-            <nav className="fixed top-0 w-full overflow-hidden h-auto z-50 bg-white">
+            <MobileSearch isOpen={mobileSearchOpen} onClose={() => setMobileSearchOpen(false)} />
+            <nav className="fixed top-0 w-full h-auto z-50 bg-white">
                 <TopBar />
                 <div className="max-w-7xl mx-auto h-full px-3 py-2 md:px-0 sm:py-2 flex items-center gap-2 w-full">
                     {/* Logo */}
@@ -86,22 +117,50 @@ export default function Navbar() {
                         </Link>
                     </div>
 
-                    {/* Search */}
-                    <div className="flex-1 border-2 h-[38px] md:h-[40px] border-gray-300 rounded-[12px] flex items-center pl-1.5 sm:pl-2">
+                    {/* Mobile Search Trigger */}
+                    <button
+                        className="flex-1 md:hidden h-[38px] border-2 border-gray-300 rounded-[12px] flex items-center pl-3 text-gray-400 text-sm gap-2"
+                        onClick={() => setMobileSearchOpen(true)}
+                    >
+                        <Search className="w-4 h-4" />
+                        <span className="truncate">Axtarış edin...</span>
+                    </button>
+
+                    {/* Desktop Search Bar */}
+                    <div className="hidden md:flex flex-1 border-2 h-[38px] md:h-[40px] border-gray-300 rounded-[12px] items-center pl-1.5 sm:pl-2 relative">
                         <Image src={searchIcon} alt={searchIcon} height={22} width={22} className="md:w-[25px] md:h-[25px]" />
                         <Input
                             placeholder="Pambıq şalvar axtar"
                             className="border-none shadow-none focus-visible:ring-0 text-sm"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onFocus={() => setIsSearchFocused(true)}
+                            onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
-                                    const target = e.target as HTMLInputElement;
-                                    router.push(`/search?q=${target.value}`);
+                                    router.push(`/search?q=${searchQuery}`);
+                                    setIsSearchFocused(false);
                                 }
                             }}
                         />
+                        {searchQuery && (
+                            <button
+                                onClick={() => setSearchQuery("")}
+                                onMouseDown={(e) => e.preventDefault()}
+                                className="mr-2 text-gray-400 hover:text-gray-600 outline-none"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        )}
+                        <SearchSuggestions
+                            open={isSearchFocused}
+                            query={searchQuery}
+                            suggestions={suggestions}
+                            loading={isLoading}
+                            onClose={() => setIsSearchFocused(false)}
+                        />
                     </div>
 
-                    {/* Desktop: user, wishlist, lang, cart */}
                     {isAuthenticated ? (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -132,6 +191,7 @@ export default function Navbar() {
                                     Profil
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => {
+                                    localStorage.removeItem('token');
                                     dispatch(logout());
                                     router.push('/');
                                 }} className="cursor-pointer text-red-600 focus:text-red-600">
@@ -275,11 +335,10 @@ export default function Navbar() {
                                 </div>
                             </div>
 
-                            {/* Bottom actions */}
                             {isAuthenticated && (
                                 <div className="border-t px-5 py-4">
                                     <button
-                                        onClick={() => { dispatch(logout()); setMobileMenuOpen(false); router.push('/'); }}
+                                        onClick={() => { localStorage.removeItem('token'); dispatch(logout()); setMobileMenuOpen(false); router.push('/'); }}
                                         className="w-full text-center text-sm font-medium text-red-500 py-2"
                                     >
                                         Çıxış et

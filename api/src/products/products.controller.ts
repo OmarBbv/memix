@@ -53,6 +53,17 @@ export class ProductsController {
     return this.productsService.findAll(query);
   }
 
+  @Get('sync-index')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async syncIndex() {
+    try {
+      return await this.productsService.syncSearchIndex();
+    } catch (e) {
+      return { error: e.message, stack: e.stack };
+    }
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.productsService.findOne(+id);
@@ -88,4 +99,5 @@ export class ProductsController {
   remove(@Param('id') id: string) {
     return this.productsService.remove(+id);
   }
+
 }

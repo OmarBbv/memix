@@ -1,7 +1,10 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
+import { cartService } from '@/services/cart.service';
+import { toast } from 'sonner';
 
 export interface CartItem {
   id: string | number;
+  productId?: number;
   title: string;
   price: number;
   image: string;
@@ -15,42 +18,87 @@ export interface CartItem {
 interface CartState {
   items: CartItem[];
   isOpen: boolean;
+  status: 'idle' | 'loading' | 'succeeded' | 'failed';
 }
 
 const initialState: CartState = {
   items: [],
   isOpen: false,
+  status: 'idle',
 };
+
+export const fetchCart = createAsyncThunk(
+  'cart/fetchCart',
+  async (_, { getState, rejectWithValue }) => {
+    const { auth } = getState() as any;
+    if (!auth.isAuthenticated) return [];
+
+    try {
+      const cart = await cartService.getCart();
+      return cart.items.map((item) => ({
+        id: item.id, // Line Item ID
+        productId: item.productId,
+        title: item.product.name,
+        price: item.product.price,
+        image: item.product.images[0],
+        size: item.variants?.size || '',
+        quantity: item.quantity,
+        seller: { name: 'Memix' }
+      }));
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
+
+export const addToCartAsync = createAsyncThunk(
+  'cart/addToCartAsync',
+  async (item: Omit<CartItem, 'quantity'> & { id: number | string }, { getState, rejectWithValue }) => {
+    const { auth } = getState() as any;
+
+    if (!auth.isAuthenticated) {
+      return { ...item, quantity: 1, isGuest: true };
+    }
+
+    try {
+      await cartService.addToCart(
+        Number(item.id),
+        1,
+        { size: item.size }
+      );
+      return { ...item, quantity: 1, isGuest: false };
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
+
+export const removeFromCartAsync = createAsyncThunk(
+  'cart/removeFromCartAsync',
+  async ({ id, size }: { id: string | number; size: string }, { getState, rejectWithValue }) => {
+    const { auth } = getState() as any;
+    if (!auth.isAuthenticated) {
+      return { id, size, isGuest: true };
+    }
+
+    try {
+      // For auth users, we need the Line Item ID.
+      // If we are fully synced, 'id' coming from UI (from state.items) IS the Line Item ID.
+      // So we just pass it.
+      await cartService.removeFromCart(Number(id));
+      return { id, size, isGuest: false };
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
 
 export const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
-    addToCart: (state, action: PayloadAction<Omit<CartItem, 'quantity'>>) => {
-      const existingItem = state.items.find(
-        (item) => item.id === action.payload.id && item.size === action.payload.size
-      );
+    // Synchronous actions (mostly for internal use or guest fallback if needed, but we try to use Thunks)
 
-      if (existingItem) {
-        existingItem.quantity += 1;
-      } else {
-        state.items.push({ ...action.payload, quantity: 1 });
-      }
-      state.isOpen = true; // Open cart when adding item
-    },
-    removeFromCart: (state, action: PayloadAction<{ id: string | number; size: string }>) => {
-      state.items = state.items.filter(
-        (item) => !(item.id === action.payload.id && item.size === action.payload.size)
-      );
-    },
-    updateQuantity: (state, action: PayloadAction<{ id: string | number; size: string; quantity: number }>) => {
-      const item = state.items.find(
-        (i) => i.id === action.payload.id && i.size === action.payload.size
-      );
-      if (item) {
-        item.quantity = Math.max(1, action.payload.quantity);
-      }
-    },
     toggleCart: (state) => {
       state.isOpen = !state.isOpen;
     },
@@ -63,9 +111,99 @@ export const cartSlice = createSlice({
     clearCart: (state) => {
       state.items = [];
     },
+    updateQuantity: (state, action: PayloadAction<{ id: string | number; size: string; quantity: number }>) => {
+      const item = state.items.find(
+        (i) => i.id === action.payload.id && i.size === action.payload.size
+      );
+      if (item) {
+        item.quantity = Math.max(1, action.payload.quantity);
+      }
+    },
+    // We keep a simple addToCart but effectively we want to use addToCartAsync
+    addToCart: (state, action: PayloadAction<Omit<CartItem, 'quantity'>>) => {
+      // This legacy reducer can be kept if needed, but we are moving to async thunk
+      const existingItem = state.items.find(
+        (item) => item.id === action.payload.id && item.size === action.payload.size
+      );
+
+      if (existingItem) {
+        existingItem.quantity += 1;
+      } else {
+        state.items.push({ ...action.payload, quantity: 1 });
+      }
+      state.isOpen = true;
+    },
+    removeFromCart: (state, action: PayloadAction<{ id: string | number; size: string }>) => {
+      state.items = state.items.filter(
+        (item) => !(item.id === action.payload.id && item.size === action.payload.size)
+      );
+    }
+  },
+  extraReducers: (builder) => {
+    // Fetch Cart
+    builder.addCase(fetchCart.fulfilled, (state, action) => {
+      if (action.payload) {
+        // Replace items with server cart
+        // We might want to merge if we had local items? For now separate carts.
+        state.items = action.payload;
+      }
+    });
+
+    // Add To Cart
+    builder.addCase(addToCartAsync.pending, (state, action) => {
+      // Optimistic Update
+      const newItem = action.meta.arg;
+      const existingItem = state.items.find(
+        (item) => item.id === newItem.id && item.size === newItem.size
+      );
+
+      if (existingItem) {
+        existingItem.quantity += 1;
+      } else {
+        // For guest, ID is product ID. For auth, we hope it matches or we fix it on fullfill
+        state.items.push({ ...newItem, quantity: 1 });
+      }
+      state.isOpen = true;
+      state.status = 'loading';
+    });
+
+    builder.addCase(addToCartAsync.fulfilled, (state, action) => {
+      state.status = 'succeeded';
+      // If authenticatd, we might want to refresh the ID from server if it was a new item
+      // But for now simple optimistic is fine.
+    });
+
+    builder.addCase(addToCartAsync.rejected, (state, action) => {
+      state.status = 'failed';
+      // Rollback
+      const newItem = action.meta.arg;
+      const existingItem = state.items.find(
+        (item) => item.id === newItem.id && item.size === newItem.size
+      );
+      if (existingItem) {
+        if (existingItem.quantity > 1) existingItem.quantity -= 1;
+        else state.items = state.items.filter(i => i !== existingItem);
+      }
+      toast.error('Səbətə əlavə edilərkən xəta baş verdi');
+    });
+
+    // Remove From Cart
+    builder.addCase(removeFromCartAsync.pending, (state, action) => {
+      // Optimistic Remove
+      const { id, size } = action.meta.arg;
+      // We keep the removed item in a temp store if we wanted to rollback perfectly
+      state.items = state.items.filter(
+        (item) => !(item.id === id && item.size === size)
+      );
+    });
+
+    builder.addCase(removeFromCartAsync.rejected, (state, action) => {
+      // Rollback (Refetch cart is safer)
+      toast.error('Məhsul silinərkən xəta baş verdi');
+    });
   },
 });
 
-export const { addToCart, removeFromCart, updateQuantity, toggleCart, openCart, closeCart, clearCart } = cartSlice.actions;
+export const { toggleCart, openCart, closeCart, clearCart, updateQuantity, addToCart, removeFromCart } = cartSlice.actions;
 
 export default cartSlice.reducer;

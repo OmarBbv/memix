@@ -10,26 +10,26 @@ export class WishlistController {
 
   @Get()
   findAll(@Request() req: any) {
-    return this.wishlistService.findByUser(req.user.id);
+    return this.wishlistService.findByUser(req.user.userId);
   }
 
   @Post()
   add(@Request() req: any, @Body() createWishlistDto: CreateWishlistDto) {
-    return this.wishlistService.add(req.user.id, createWishlistDto.productId);
+    return this.wishlistService.add(req.user.userId, createWishlistDto.productId);
   }
 
   @Delete(':productId')
   remove(@Request() req: any, @Param('productId') productId: string) {
-    return this.wishlistService.remove(req.user.id, +productId);
+    return this.wishlistService.remove(req.user.userId, +productId);
   }
 
   @Post(':productId/move-to-cart')
   moveToCart(@Request() req: any, @Param('productId') productId: string) {
-    return this.wishlistService.moveToCart(req.user.id, +productId);
+    return this.wishlistService.moveToCart(req.user.userId, +productId);
   }
 
   @Delete()
   clear(@Request() req: any) {
-    return this.wishlistService.clear(req.user.id);
+    return this.wishlistService.clear(req.user.userId);
   }
 }

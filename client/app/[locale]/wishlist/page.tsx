@@ -1,18 +1,24 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Heart, Trash2, ShoppingBag } from "lucide-react";
-import { useAppSelector, useAppDispatch } from "@/lib/redux/hooks";
-import { toggleWishlist } from "@/lib/redux/features/wishlistSlice";
+import { Heart, Loader2 } from "lucide-react"; // Import Loader2
 import { Link } from "@/i18n/routing";
-import { addToCart } from "@/lib/redux/features/cartSlice";
 import { Card } from "@/components/shared/Card";
+import { useWishlist } from "@/hooks/useWishlist";
+import { Loading } from "@/components/shared/Loading";
 
 export default function WishlistPage() {
-    const { items } = useAppSelector((state) => state.wishlist);
-    const dispatch = useAppDispatch();
+    const { wishlistItems, isLoading } = useWishlist();
 
-    if (items.length === 0) {
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <Loading />
+            </div>
+        );
+    }
+
+    if (wishlistItems.length === 0) {
         return (
             <div className="min-h-[dvh] flex items-center justify-center px-4 max-w-7xl mx-auto ">
                 <div className="max-w-2xl mx-auto text-center space-y-8">
@@ -49,11 +55,11 @@ export default function WishlistPage() {
 
     return (
         <div className="min-h-screen py-8 px-4 max-w-7xl mx-auto">
-            <h1 className="text-3xl font-bold mb-8">Sevimlilər ({items.length})</h1>
+            <h1 className="text-3xl font-bold mb-8">Sevimlilər ({wishlistItems.length})</h1>
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {items.map((item) => (
-                    <Card key={item.id} product={item} />
+                {wishlistItems.map((item) => (
+                    <Card key={item.id} product={item.product} />
                 ))}
             </div>
         </div>

@@ -7,13 +7,25 @@ import { authService } from "@/services/auth.service";
 
 const useLogin = () => {
   const dispatch = useAppDispatch();
+  const router = useRouter();
+
   return useMutation({
     mutationFn: (data: any) => authService.login(data),
-    onSuccess: (response: any, variables: any) => {
-      dispatch(setCredentials({
-        user: { id: 1, email: variables.email, role: 'user', name: 'User' },
-        token: response.access_token
-      }))
+    onSuccess: async (response: any) => {
+      const token = response.access_token;
+      if (token) {
+        localStorage.setItem('token', token);
+        try {
+          const user = await authService.getProfile();
+          dispatch(setCredentials({
+            user,
+            token
+          }));
+          router.push('/');
+        } catch (error) {
+          console.error("Profile fetch error after login", error);
+        }
+      }
     }
   });
 };

@@ -1,47 +1,54 @@
 'use client';
 
 import React, { useState, use } from 'react';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { notFound } from 'next/navigation';
+import { ImageGallery } from './components/ImageGallery';
+import { ContentState } from '@/components/shared/ContentState';
 
 import {
-  Heart,
-  Share2,
   ShieldCheck,
-  ChevronRight,
   Star,
   MessageCircle,
-  Truck,
-  RotateCcw
+  RotateCcw,
+  Loader2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Link } from '@/i18n/routing';
 import { Breadcrumb } from '@/components/shared/Breadcrumb';
 import { addToCart } from '@/lib/redux/features/cartSlice';
 import { useAppDispatch } from '@/lib/redux/hooks';
-import { PRODUCTS } from '@/lib/products';
+import { useProduct } from '@/hooks/useProducts';
+import { baseUrl } from '@/lib/httpClient';
+import { useWishlist } from '@/hooks/useWishlist';
 
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const dispatch = useAppDispatch();
 
-  // Find product by ID
-  const foundProduct = PRODUCTS.find((p) => p.id === Number(id));
+  const { data: product, isLoading, isError } = useProduct(Number(id));
+  const { isInWishlist, toggleWishlist } = useWishlist();
 
-  if (!foundProduct) {
-    // In a real app we might use notFound() here, but for client component simple return is safer
+  const [selectedSize, setSelectedSize] = useState<string>('');
+  const isLiked = isInWishlist(Number(id));
+
+  if (isLoading || isError || !product) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-        <h1 className="text-2xl font-bold">Məhsul tapılmadı</h1>
-        <Link href="/" className="text-blue-600 hover:underline">Ana səhifəyə qayıt</Link>
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <ContentState
+          isLoading={isLoading}
+          isError={isError || !product}
+          errorMessage="Məhsul tapılmadı"
+        >
+          <></>
+        </ContentState>
       </div>
     );
   }
 
-  const basePrice = foundProduct.price;
-  const discount = foundProduct.discount;
+  const basePrice = typeof product.price === 'string' ? parseFloat(product.price) : product.price;
+  const discount = product.discount;
   let currentPrice = basePrice;
-  let originalPrice = foundProduct.oldPrice || Math.floor(basePrice * 1.3);
+  let originalPrice = basePrice;
   let discountPercentage = 0;
 
   if (discount && discount.isActive) {
@@ -53,114 +60,84 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
       currentPrice = basePrice - discount.value;
       discountPercentage = Math.round((discount.value / basePrice) * 100);
     }
-  } else if (originalPrice > basePrice) {
-    discountPercentage = Math.round(((originalPrice - basePrice) / originalPrice) * 100);
   }
 
-  const product = {
-    title: foundProduct.title,
-    price: currentPrice,
-    originalPrice: originalPrice,
-    discountPercentage,
-    currency: "₼",
-    brand: foundProduct.brand,
-    condition: foundProduct.condition || "Yeni",
-    size: foundProduct.size || "S",
-    description: "Az istifadə olunub, heç bir defekti yoxdur. Bu unikal parça qarderobunuzun əvəzolunmaz hissəsi olacaq. Həm gündəlik, həm də özəl günlər üçün uyğundur.",
-    images: [
-      foundProduct.image,
-      foundProduct.image,
-      foundProduct.image,
-    ],
-    seller: {
-      name: "Satıcı",
-      rating: 4.8,
-      reviews: 124,
-      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80",
-      lastActive: "10 dəqiqə əvvəl"
-    },
-    tags: [foundProduct.category, foundProduct.brand, "Yeni", "Dəb"],
-    sizes: ["XS", "S", "M", "L", "XL"]
+  const getImageUrl = (img: string) => {
+    if (!img) return '';
+    if (img.startsWith('http')) return img;
+    return `${baseUrl}${img}`;
   };
 
-  const dispatch = useAppDispatch();
-  const [mainImage, setMainImage] = useState(product.images[0]);
-  const [selectedSize, setSelectedSize] = useState<string>("");
-  const [isLiked, setIsLiked] = useState(false);
+  const allImages: string[] = [];
+  if (product.banner) allImages.push(getImageUrl(product.banner));
+  if (product.images) {
+    product.images.forEach(img => {
+      const url = getImageUrl(img);
+      if (!allImages.includes(url)) allImages.push(url);
+    });
+  }
+  if (allImages.length === 0) {
+    allImages.push('https://via.placeholder.com/800x800?text=No+Image');
+  }
+  const baseImages = [...allImages];
+  while (allImages.length < 8 && baseImages.length > 0) {
+    for (const img of baseImages) {
+      if (allImages.length >= 8) break;
+      allImages.push(img);
+    }
+  }
+
+  const sizes = product.variants?.size || ['S', 'M', 'L', 'XL'];
+  const brand = product.variants?.brand || product.brand || '';
+  const condition = product.variants?.condition || product.condition || 'Yeni';
+  const color = product.variants?.color || '';
+  const categoryName = product.category?.name || '';
+  const categorySlug = product.category?.slug || '';
+  const productName = product.name || product.title || '';
+  const tags = product.tags || [categoryName, brand].filter(Boolean);
 
   const handleAddToCart = () => {
     if (!selectedSize) return;
 
     dispatch(addToCart({
       id: id,
-      title: product.title,
-      price: product.price,
-      image: product.images[0],
+      title: productName,
+      price: currentPrice,
+      image: allImages[0],
       size: selectedSize,
       seller: {
-        name: product.seller.name
+        name: brand || 'Satıcı'
       }
     }));
+  };
+
+  const getTimeAgo = (dateStr: string) => {
+    const now = new Date();
+    const date = new Date(dateStr);
+    const diffMs = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    if (diffDays === 0) return 'Bu gün yüklənib';
+    if (diffDays === 1) return '1 gün əvvəl yüklənib';
+    return `${diffDays} gün əvvəl yüklənib`;
   };
 
   return (
     <div className="bg-white min-h-screen pb-20">
       <Breadcrumb
         items={[
-          { label: "Ana Səhifə", href: "/" },
-          { label: foundProduct.category.charAt(0).toUpperCase() + foundProduct.category.slice(1), href: `/category/${foundProduct.category}` },
-          { label: product.title }
+          { label: categoryName, href: `/category/${categorySlug}` },
+          { label: productName }
         ]}
       />
 
       <div className="max-w-7xl mx-auto py-8 px-4 md:px-0">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
-          <div className="lg:col-span-6 flex flex-col gap-4">
-            <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-white border border-gray-100 shadow-sm">
-              <div className="absolute inset-4 lg:inset-8">
-                <Image
-                  src={mainImage}
-                  alt={product.title}
-                  fill
-                  className="object-contain"
-                  priority
-                />
-              </div>
-              <div className="absolute top-4 right-4 flex flex-col gap-3">
-                <button
-                  onClick={() => setIsLiked(!isLiked)}
-                  className="p-3 bg-white/80 backdrop-blur-sm rounded-full shadow-lg hover:scale-110 transition-transform active:scale-95"
-                >
-                  <Heart
-                    className={cn("w-6 h-6", isLiked ? "fill-red-500 text-red-500" : "text-gray-700")}
-                  />
-                </button>
-                <button className="p-3 bg-white/80 backdrop-blur-sm rounded-full shadow-lg hover:scale-110 transition-transform active:scale-95 text-gray-700">
-                  <Share2 className="w-6 h-6" />
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-5 gap-3 sm:gap-4 overflow-x-auto pb-2 scrollbar-hide">
-              {product.images.map((img, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setMainImage(img)}
-                  className={cn(
-                    "relative aspect-square rounded-xl overflow-hidden cursor-pointer border-2 transition-all min-w-[60px]",
-                    mainImage === img ? "border-black ring-2 ring-black/10" : "border-transparent hover:border-gray-200"
-                  )}
-                >
-                  <Image
-                    src={img}
-                    alt={`View ${idx}`}
-                    fill
-                    className="object-cover"
-                  />
-                </button>
-              ))}
-            </div>
-          </div>
+          <ImageGallery
+            allImages={allImages}
+            productName={productName}
+            isLiked={isLiked}
+            onToggleWishlist={() => toggleWishlist(Number(id))}
+          />
 
           {/* Right Column - Product Info */}
           <div className="lg:col-span-6 flex flex-col gap-6 lg:gap-8">
@@ -168,31 +145,39 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             <div className="space-y-4">
               <div className="flex flex-col gap-2">
                 <div className="flex flex-wrap items-center gap-3">
-                  <div className="text-3xl font-bold text-gray-900">{product.price.toFixed(2)} {product.currency}</div>
-                  {product.discountPercentage > 0 && (
+                  <div className="text-3xl font-bold text-gray-900">{currentPrice.toFixed(2)} ₼</div>
+                  {discountPercentage > 0 && (
                     <>
-                      <div className="text-xl text-gray-400 line-through">{product.originalPrice.toFixed(2)} {product.currency}</div>
+                      <div className="text-xl text-gray-400 line-through">{originalPrice.toFixed(2)} ₼</div>
                       <div className="px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-lg leading-none">
-                        -{product.discountPercentage}%
+                        -{discountPercentage}%
                       </div>
                     </>
                   )}
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="px-3 py-1 bg-green-50 rounded-full text-xs font-semibold text-green-700">
-                    {product.condition}
+                    {condition}
                   </span>
+                  {color && (
+                    <span className="px-3 py-1 bg-gray-50 rounded-full text-xs font-semibold text-gray-600">
+                      {color}
+                    </span>
+                  )}
+                  {brand && (
+                    <span className="px-3 py-1 bg-blue-50 rounded-full text-xs font-semibold text-blue-700">
+                      {brand}
+                    </span>
+                  )}
                 </div>
               </div>
               <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">
-                {product.title}
+                {productName}
               </h1>
               <div className="flex items-center gap-4 text-sm text-gray-500 overflow-x-auto scrollbar-hide whitespace-nowrap">
                 <span>Bakı, Azərbaycan</span>
                 <span>•</span>
-                <span>2 gün əvvəl yüklənib</span>
-                <span>•</span>
-                <span>142 baxış</span>
+                <span>{product.createdAt ? getTimeAgo(product.createdAt) : ''}</span>
               </div>
             </div>
 
@@ -205,7 +190,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 <button className="text-sm underline text-gray-500 hover:text-black">Ölçü cədvəli</button>
               </div>
               <div className="flex flex-wrap gap-3">
-                {product.sizes.map((size) => (
+                {sizes.map((size) => (
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
@@ -220,39 +205,29 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   </button>
                 ))}
               </div>
-              {/* {!selectedSize && (
-                <p className="text-sm text-red-500 mt-1 animate-pulse">
-                  Zəhmət olmasa ölçü seçin
-                </p>
-              )} */}
             </div>
 
-            {/* Seller Info Card */}
-            {/* <div className="bg-gray-50 p-4 rounded-2xl flex items-center justify-between group cursor-pointer hover:bg-gray-100 transition-colors">
-              <div className="flex items-center gap-4">
-                <div className="relative flex-shrink-0">
-                  <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-sm">
-                    <Image
-                      src={product.seller.image}
-                      alt={product.seller.name}
-                      width={56}
-                      height={56}
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></div>
-                </div>
-                <div className="min-w-0">
-                  <h3 className="font-bold text-gray-900 group-hover:underline truncate">{product.seller.name}</h3>
-                  <div className="flex items-center gap-1 text-sm text-gray-600">
-                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                    <span className="font-semibold">{product.seller.rating}</span>
-                    <span className="text-gray-400">({product.seller.reviews} rəy)</span>
-                  </div>
+            {/* Stock Info */}
+            {product.stocks && product.stocks.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="font-bold text-gray-900 text-sm">Stok məlumatı</h3>
+                <div className="flex flex-wrap gap-2">
+                  {product.stocks.map((s) => (
+                    <span
+                      key={s.id}
+                      className={cn(
+                        "px-3 py-1 rounded-full text-xs font-medium",
+                        s.stock > 0
+                          ? "bg-green-50 text-green-700"
+                          : "bg-red-50 text-red-600"
+                      )}
+                    >
+                      {s.branch.name}: {s.stock > 0 ? `${s.stock} ədəd` : 'Bitib'}
+                    </span>
+                  ))}
                 </div>
               </div>
-              <ChevronRight className="text-gray-400 group-hover:translate-x-1 transition-transform flex-shrink-0" />
-            </div> */}
+            )}
 
             {/* Action Buttons */}
             <div className="grid grid-cols-2 gap-4">
@@ -278,16 +253,40 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             <div className="space-y-4">
               <h3 className="text-lg font-bold text-gray-900">Məhsul haqqında</h3>
               <p className="text-gray-600 leading-relaxed text-sm lg:text-base">
-                {product.description}
+                {product.description || 'Bu unikal parça qarderobunuzun əvəzolunmaz hissəsi olacaq. Həm gündəlik, həm də özəl günlər üçün uyğundur.'}
               </p>
               <div className="flex flex-wrap gap-2 pt-2">
-                {product.tags.map(tag => (
-                  <span key={tag} className="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-200 cursor-pointer">
+                {tags.map((tag, idx) => (
+                  <span key={`${tag}-${idx}`} className="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-200 cursor-pointer">
                     #{tag}
                   </span>
                 ))}
               </div>
             </div>
+
+            {/* Price History */}
+            {product.priceHistory && product.priceHistory.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-lg font-bold text-gray-900">Qiymət tarixçəsi</h3>
+                <div className="space-y-2">
+                  {product.priceHistory.map((ph) => (
+                    <div key={ph.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl text-sm">
+                      <span className="text-gray-500">
+                        {new Date(ph.changedAt).toLocaleDateString('az-AZ', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        {ph.oldPrice && (
+                          <span className="text-gray-400 line-through">{parseFloat(String(ph.oldPrice)).toFixed(2)} ₼</span>
+                        )}
+                        {ph.newPrice && (
+                          <span className="text-gray-900 font-semibold">{parseFloat(String(ph.newPrice)).toFixed(2)} ₼</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Protection Badges */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
@@ -312,7 +311,6 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         {/* Similar Products Section */}
         <div className="mt-24 mb-12">
           <h2 className="text-2xl font-bold mb-8">Bənzər məhsullar</h2>
-          {/* Placeholder for similar products slider/grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="aspect-3/4 bg-gray-100 rounded-xl animate-pulse"></div>

@@ -4,9 +4,11 @@ import { CategoriesService } from './categories.service';
 import { CategoriesController } from './categories.controller';
 import { Category } from './entities/category.entity';
 
+import { SearchModule } from '../search/search.module';
+
 @Module({
-  imports: [TypeOrmModule.forFeature([Category])],
+  imports: [TypeOrmModule.forFeature([Category]), SearchModule],
   controllers: [CategoriesController],
   providers: [CategoriesService],
 })
-export class CategoriesModule {}
+export class CategoriesModule { }

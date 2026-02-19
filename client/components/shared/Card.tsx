@@ -6,9 +6,10 @@ import Image from 'next/image';
 import { Heart, Info, Store } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { useAppDispatch, useAppSelector } from '@/lib/redux/hooks';
-import { toggleWishlist } from '@/lib/redux/features/wishlistSlice';
+// import { toggleWishlist } from '@/lib/redux/features/wishlistSlice';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
-import { PRODUCTS, Product } from '@/lib/products';
+import { Product } from '@/services/product.service';
+import { useWishlist } from '@/hooks/useWishlist';
 
 interface CardProps {
   className?: string;
@@ -18,35 +19,20 @@ interface CardProps {
 }
 
 export const Card = ({ className, index = 0, category, product: propProduct }: CardProps) => {
-  const dispatch = useAppDispatch();
-  const wishlistItems = useAppSelector((state) => state.wishlist.items);
+  /* const dispatch = useAppDispatch();
+  const wishlistItems = useAppSelector((state) => state.wishlist.items); */
+  const { isInWishlist, toggleWishlist } = useWishlist();
 
-  let productData = propProduct;
-
-  if (productData && !productData.priceHistory) {
-    console.log('Missing priceHistory:', productData);
-  }
-
-  if (!productData) {
-    let sourceList = PRODUCTS;
-    if (category) {
-      const lowerCat = category.toLowerCase();
-      if (lowerCat.includes('accessor')) sourceList = PRODUCTS.filter(p => p.category === 'accessories');
-      else if (lowerCat.includes('kid') || lowerCat.includes('child')) sourceList = PRODUCTS.filter(p => p.category === 'kids');
-      else if (lowerCat.includes('bag')) sourceList = PRODUCTS.filter(p => p.category === 'bags');
-      else if (lowerCat.includes('shoe')) sourceList = PRODUCTS.filter(p => p.category === 'shoes');
-      else if (lowerCat.includes('men') && !lowerCat.includes('women')) sourceList = PRODUCTS.filter(p => p.category === 'men');
-      else if (lowerCat.includes('women')) sourceList = PRODUCTS.filter(p => p.category === 'women');
-    }
-
-    if (sourceList.length > 0) {
-      productData = sourceList[index % sourceList.length];
-    }
-  }
+  const productData = propProduct;
 
   if (!productData) return null;
 
-  const { id, title, image: imageSrc, brand, price: basePrice, discount, priceHistory } = productData;
+  const { id, discount, priceHistory } = productData;
+  const title = productData.title || productData.name || '';
+  const imageSrc = productData.image || productData.banner || '';
+  const brand = productData.variants?.brand || productData.brand || '';
+
+  const basePrice = typeof productData.price === 'string' ? parseFloat(productData.price) : productData.price;
 
   let currentPrice = basePrice;
   let originalPrice = productData.oldPrice || basePrice;
@@ -82,13 +68,21 @@ export const Card = ({ className, index = 0, category, product: propProduct }: C
     city
   };
 
-  const isWishlisted = wishlistItems.some((item) => item.id === id);
+  const isWishlisted = isInWishlist(id);
 
   const handleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    dispatch(toggleWishlist(productObj));
+    toggleWishlist(id);
   };
+
+  const numericHistory: number[] = [];
+  if (priceHistory && priceHistory.length > 0) {
+    priceHistory.forEach((ph) => {
+      const val = ph.price ?? ph.newPrice ?? ph.oldPrice;
+      if (val != null) numericHistory.push(typeof val === 'string' ? parseFloat(val) : val);
+    });
+  }
 
   return (
     <Link href={`/product/${id}`} className="block">
@@ -142,7 +136,7 @@ export const Card = ({ className, index = 0, category, product: propProduct }: C
                         <h4 className="text-xs font-semibold text-gray-900 border-b pb-1">Qiymət Tarixçəsi</h4>
                         <div className="space-y-1">
                           {(() => {
-                            let historyList = priceHistory ? [...priceHistory] : [];
+                            let historyList = numericHistory.length > 0 ? [...numericHistory] : [];
 
                             // If no history array, but we have a discount/old price:
                             if (historyList.length === 0 && originalPrice > currentPrice) {

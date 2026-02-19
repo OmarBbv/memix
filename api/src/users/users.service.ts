@@ -54,21 +54,19 @@ export class UsersService {
     if (updateUserDto.gender !== undefined) user.gender = updateUserDto.gender;
 
     if (updateUserDto.newPassword) {
-      if (!updateUserDto.currentPassword) {
-        throw new BadRequestException('Mevcut şifre gerekli');
-      }
+      if (user.password) {
+        if (!updateUserDto.currentPassword) {
+          throw new BadRequestException('Mevcut şifre gerekli');
+        }
 
-      if (!user.password) {
-        throw new BadRequestException('Bu istifadəçi şifrə ilə qeydiyyatdan keçməyib (Google hesabı). Şifrəni dəyişmək üçün əvvəlcə şifrə təyin etməlisiniz.');
-      }
+        const isPasswordValid = await bcrypt.compare(
+          updateUserDto.currentPassword,
+          user.password,
+        );
 
-      const isPasswordValid = await bcrypt.compare(
-        updateUserDto.currentPassword,
-        user.password,
-      );
-
-      if (!isPasswordValid) {
-        throw new BadRequestException('Mevcut şifre yanlış');
+        if (!isPasswordValid) {
+          throw new BadRequestException('Mevcut şifre yanlış');
+        }
       }
 
       const salt = await bcrypt.genSalt();

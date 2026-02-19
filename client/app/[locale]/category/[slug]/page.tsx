@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useMemo, useCallback } from 'react';
+import { use, useMemo, useCallback, useState } from 'react';
 import Link from 'next/link';
 import { Card } from '@/components/shared/Card';
 import { Button } from '@/components/ui/button';
@@ -22,7 +22,9 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
 
     const selectedFilters = useMemo(() => {
         const filters: Record<string, string[]> = {};
+        const priceKeys = ['minPrice', 'maxPrice'];
         searchParams.forEach((value, key) => {
+            if (priceKeys.includes(key)) return;
             if (!filters[key]) filters[key] = [];
             value.split(',').forEach(v => {
                 const trimmed = v.trim();
@@ -34,6 +36,9 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
         return filters;
     }, [searchParams]);
 
+    const selectedPriceMin = searchParams.get('minPrice') ? Number(searchParams.get('minPrice')) : undefined;
+    const selectedPriceMax = searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : undefined;
+
     const apiFilters = useMemo(() => {
         const result: Record<string, string> = {};
         Object.entries(selectedFilters).forEach(([key, values]) => {
@@ -41,14 +46,28 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                 result[key] = values.join(',');
             }
         });
+        if (selectedPriceMin != null) result.minPrice = String(selectedPriceMin);
+        if (selectedPriceMax != null) result.maxPrice = String(selectedPriceMax);
         return result;
-    }, [selectedFilters]);
+    }, [selectedFilters, selectedPriceMin, selectedPriceMax]);
 
     const debouncedFilters = useDebounce(apiFilters, 300);
 
     const { data: category, isLoading, error, isFetching } = useCategoryBySlug(slug, debouncedFilters);
     const isFiltering = isFetching && !isLoading;
     const { data: filtersData } = useCategoryFilters(category?.id as number);
+
+    const buildUrlParams = useCallback((filters: Record<string, string[]>, priceMin?: number, priceMax?: number) => {
+        const params = new URLSearchParams();
+        Object.entries(filters).forEach(([key, values]) => {
+            if (values.length > 0) {
+                params.set(key, values.join(','));
+            }
+        });
+        if (priceMin != null) params.set('minPrice', String(priceMin));
+        if (priceMax != null) params.set('maxPrice', String(priceMax));
+        return params;
+    }, []);
 
     const handleFilterChange = useCallback((filterId: string, value: string, checked: boolean) => {
         const current = { ...selectedFilters };
@@ -61,16 +80,19 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
             if (current[filterId].length === 0) delete current[filterId];
         }
 
-        const params = new URLSearchParams();
-        Object.entries(current).forEach(([key, values]) => {
-            if (values.length > 0) {
-                params.set(key, values.join(','));
-            }
-        });
-
+        const params = buildUrlParams(current, selectedPriceMin, selectedPriceMax);
         const qs = params.toString();
         router.push(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-    }, [selectedFilters, router, pathname]);
+    }, [selectedFilters, selectedPriceMin, selectedPriceMax, router, pathname, buildUrlParams]);
+
+    const handlePriceChange = useCallback((min: number, max: number) => {
+        const priceRange = filtersData?.priceRange;
+        const newMin = (priceRange && min <= priceRange.min) ? undefined : min;
+        const newMax = (priceRange && max >= priceRange.max) ? undefined : max;
+        const params = buildUrlParams(selectedFilters, newMin, newMax);
+        const qs = params.toString();
+        router.push(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    }, [selectedFilters, filtersData, router, pathname, buildUrlParams]);
 
     const handleClearAll = useCallback(() => {
         router.push(pathname, { scroll: false });
@@ -95,21 +117,15 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
         options: options as string[]
     })) : [];
 
-    const filters = [
-        ...dynamicFilters,
-        ...((filtersData?.priceRange?.max || 0) > 0 ? [{
-            id: 'price',
-            name: 'Qiymət',
-            options: [
-                `0 - ${Math.round((filtersData?.priceRange?.max || 0) / 4)} ₼`,
-                `${Math.round((filtersData?.priceRange?.max || 0) / 4)} - ${Math.round((filtersData?.priceRange?.max || 0) / 2)} ₼`,
-                `${Math.round((filtersData?.priceRange?.max || 0) / 2)} - ${filtersData?.priceRange?.max} ₼`,
-            ]
-        }] : [])
-    ];
+    const filters = dynamicFilters;
+
+    const priceRange = filtersData?.priceRange && filtersData.priceRange.max > 0
+        ? { min: Math.floor(filtersData.priceRange.min || 0), max: Math.ceil(filtersData.priceRange.max) }
+        : undefined;
 
     const products: any[] = (category as any)?.products || [];
-    const activeFilterCount = Object.values(selectedFilters).reduce((sum, arr) => sum + arr.length, 0);
+    const priceFilterCount = (selectedPriceMin != null ? 1 : 0) + (selectedPriceMax != null ? 1 : 0);
+    const activeFilterCount = Object.values(selectedFilters).reduce((sum, arr) => sum + arr.length, 0) + priceFilterCount;
 
     return (
         <ContentState
@@ -120,7 +136,6 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
         >
             {category && (
                 <div className="min-h-screen py-8 px-4 max-w-7xl mx-auto pb-24 lg:pb-8">
-                    {/* Breadcrumb navigation */}
                     <nav className="flex items-center gap-1.5 sm:gap-2 mb-4 sm:mb-6 text-xs sm:text-sm overflow-x-auto whitespace-nowrap scrollbar-hide">
                         <Link
                             href="/en/category"
@@ -152,6 +167,10 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                                     onFilterChange={handleFilterChange}
                                     onClearAll={handleClearAll}
                                     subcategories={category.children || []}
+                                    priceRange={priceRange}
+                                    selectedPriceMin={selectedPriceMin}
+                                    selectedPriceMax={selectedPriceMax}
+                                    onPriceChange={handlePriceChange}
                                 />
                             </div>
                         </aside>
@@ -194,7 +213,6 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                                         <SheetContent side="bottom" className="h-screen p-0 rounded-none overflow-hidden flex flex-col">
                                             <SheetTitle className="sr-only">Filtrlər</SheetTitle>
 
-                                            {/* Scrollable filter content */}
                                             <div className="flex-1 overflow-y-auto px-5 pt-6 pb-28">
                                                 <FilterSidebar
                                                     filters={filters}
@@ -202,10 +220,13 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                                                     onFilterChange={handleFilterChange}
                                                     onClearAll={handleClearAll}
                                                     subcategories={category.children || []}
+                                                    priceRange={priceRange}
+                                                    selectedPriceMin={selectedPriceMin}
+                                                    selectedPriceMax={selectedPriceMax}
+                                                    onPriceChange={handlePriceChange}
                                                 />
                                             </div>
 
-                                            {/* Fixed bottom bar */}
                                             <div className="fixed bottom-0 left-0 right-0 bg-white border-t px-5 py-4 safe-area-bottom">
                                                 <SheetTrigger asChild>
                                                     <Button className="w-full h-12 bg-black text-white hover:bg-zinc-800 rounded-xl font-bold text-base">
@@ -220,6 +241,25 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
 
                             {activeFilterCount > 0 && (
                                 <div className="flex flex-wrap gap-2 mb-4">
+                                    {selectedPriceMin != null && (
+                                        <button
+                                            onClick={() => handlePriceChange(priceRange?.min ?? 0, selectedPriceMax ?? priceRange?.max ?? 0)}
+                                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 text-sm text-gray-700 hover:bg-gray-200 transition-colors"
+                                        >
+                                            Min: {selectedPriceMin} ₼
+                                            <span className="text-gray-400 hover:text-gray-600">✕</span>
+                                        </button>
+                                    )}
+                                    {selectedPriceMax != null && (
+                                        <button
+                                            onClick={() => handlePriceChange(selectedPriceMin ?? priceRange?.min ?? 0, priceRange?.max ?? 0)}
+                                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 text-sm text-gray-700 hover:bg-gray-200 transition-colors"
+                                        >
+                                            Max: {selectedPriceMax} ₼
+                                            <span className="text-gray-400 hover:text-gray-600">✕</span>
+                                        </button>
+                                    )}
+                                    {/* Other filter badges */}
                                     {Object.entries(selectedFilters).map(([filterId, values]) =>
                                         values.map(value => (
                                             <button
@@ -300,7 +340,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                                         </Button>
                                     </div>
                                 )}
-                            </div>{/* close relative wrapper */}
+                            </div>
                         </div>
                     </div>
                 </div>

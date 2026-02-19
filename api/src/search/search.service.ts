@@ -6,10 +6,12 @@ import { Product } from '../products/entities/product.entity';
 export class SearchService {
   private readonly logger = new Logger(SearchService.name);
   private readonly index = 'products';
+  private readonly categoryIndex = 'categories';
 
   constructor(private readonly elasticsearchService: ElasticsearchService) { }
 
   async onModuleInit() {
+    // Products Index
     const indexExists = await this.elasticsearchService.indices.exists({
       index: this.index,
     });
@@ -31,6 +33,25 @@ export class SearchService {
       });
       this.logger.log(`Created index: ${this.index}`);
     }
+
+    const categoryIndexExists = await this.elasticsearchService.indices.exists({
+      index: this.categoryIndex,
+    });
+
+    if (!categoryIndexExists) {
+      await this.elasticsearchService.indices.create({
+        index: this.categoryIndex,
+        mappings: {
+          properties: {
+            id: { type: 'integer' },
+            name: { type: 'text', analyzer: 'standard' },
+            slug: { type: 'keyword' },
+            imageUrl: { type: 'keyword' },
+          },
+        },
+      });
+      this.logger.log(`Created index: ${this.categoryIndex}`);
+    }
   }
 
   async indexProduct(product: Product) {
@@ -50,7 +71,73 @@ export class SearchService {
       });
     } catch (error) {
       this.logger.error(`Failed to index product ${product.id}`, error.stack);
-      // Don't throw - allow DB save to proceed even if search indexing fails temporarily
+    }
+  }
+
+  async indexProducts(products: Product[]) {
+    if (!products.length) return;
+
+    const operations = products.flatMap((product) => [
+      { index: { _index: this.index, _id: product.id.toString() } },
+      {
+        id: product.id,
+        name: product.name,
+        description: product.description,
+        price: Number(product.price) || 0,
+        category: product.category?.name || 'Uncategorized',
+        tags: product.tags || [],
+        createdAt: product.createdAt,
+      },
+    ]);
+
+    try {
+      const response = await this.elasticsearchService.bulk({
+        operations,
+        refresh: true,
+      });
+
+      if (response.errors) {
+        this.logger.error('Bulk indexing encountered errors');
+        response.items.forEach((item) => {
+          if (item.index && item.index.error) {
+            this.logger.error(`Error indexing product ${item.index._id}: ${JSON.stringify(item.index.error)}`);
+          }
+        });
+      } else {
+        this.logger.log(`Successfully indexed ${products.length} products`);
+      }
+    } catch (error) {
+      this.logger.error('Failed to bulk index products', error);
+      console.error('Full ES Bulk Error:', JSON.stringify(error, null, 2));
+      throw error; // Re-throw to see 500 in response
+    }
+  }
+
+  async indexCategory(category: any) {
+    try {
+      return await this.elasticsearchService.index({
+        index: this.categoryIndex,
+        id: category.id.toString(),
+        document: {
+          id: category.id,
+          name: category.name,
+          slug: category.slug,
+          imageUrl: category.imageUrl,
+        },
+      });
+    } catch (error) {
+      this.logger.error(`Failed to index category ${category.id}`, error.stack);
+    }
+  }
+
+  async removeCategory(categoryId: number) {
+    try {
+      await this.elasticsearchService.delete({
+        index: this.categoryIndex,
+        id: categoryId.toString(),
+      });
+    } catch (error) {
+      this.logger.error(`Failed to delete category ${categoryId} from index`, error.stack);
     }
   }
 
@@ -66,17 +153,48 @@ export class SearchService {
   }
 
   async search(text: string) {
-    const response = await this.elasticsearchService.search({
+    const lowerText = text.toLowerCase();
+
+    // Search Products
+    const productResponse = await this.elasticsearchService.search({
       index: this.index,
       query: {
-        multi_match: {
-          query: text,
-          fields: ['name^3', 'description', 'tags^2', 'category'], // Name is boosted 3x, tags 2x
-          fuzziness: 'AUTO', // Handles typos
-        },
+        bool: {
+          should: [
+            {
+              multi_match: {
+                query: text,
+                fields: ['name^3', 'description', 'tags^2', 'category'],
+                fuzziness: 'AUTO',
+                operator: 'and'
+              }
+            },
+            { wildcard: { name: `*${lowerText}*` } },
+            { wildcard: { description: `*${lowerText}*` } },
+            { match_phrase_prefix: { name: text } }
+          ],
+          minimum_should_match: 1
+        }
       },
     });
 
-    return response.hits.hits.map((hit) => hit._source);
+    // Search Categories
+    const categoryResponse = await this.elasticsearchService.search({
+      index: this.categoryIndex,
+      query: {
+        bool: {
+          should: [
+            { match: { name: { query: text, fuzziness: 'AUTO' } } },
+            { wildcard: { name: `*${lowerText}*` } },
+          ],
+          minimum_should_match: 1
+        }
+      },
+    });
+
+    const products = productResponse.hits.hits.map((hit) => ({ ...hit._source as any, type: 'product' }));
+    const categories = categoryResponse.hits.hits.map((hit) => ({ ...hit._source as any, type: 'category' }));
+
+    return [...categories, ...products];
   }
 }

@@ -110,17 +110,41 @@ export class ProductsService {
 
     if (query.search) {
       const searchResults = await this.searchService.search(query.search);
-      const ids = (searchResults as any[]).map(p => p.id);
-      if (ids.length === 0) return [];
+      const productIds = searchResults.filter(r => r.type === 'product').map(p => p.id);
+      const categoryIds = searchResults.filter(r => r.type === 'category').map(c => c.id);
 
-      products = await this.productsRepository.createQueryBuilder('product')
-        .whereInIds(ids)
-        .leftJoinAndSelect('product.category', 'category')
-        .leftJoinAndSelect('product.discount', 'discount')
-        .leftJoinAndSelect('product.priceHistory', 'priceHistory')
-        .leftJoinAndSelect('product.stocks', 'stocks')
-        .leftJoinAndSelect('stocks.branch', 'branch')
-        .getMany();
+      let fetchedProducts: Product[] = [];
+      if (productIds.length > 0) {
+        fetchedProducts = await this.productsRepository.createQueryBuilder('product')
+          .whereInIds(productIds)
+          .leftJoinAndSelect('product.category', 'category')
+          .leftJoinAndSelect('product.discount', 'discount')
+          .leftJoinAndSelect('product.priceHistory', 'priceHistory')
+          .leftJoinAndSelect('product.stocks', 'stocks')
+          .leftJoinAndSelect('stocks.branch', 'branch')
+          .getMany();
+      }
+
+      // We can also fetch categories from DB if we want full data, or just use ES data. 
+      // For simplicity/speed, let's use the ES data for categories since it has name/slug/image/id
+      const categories = searchResults.filter(r => r.type === 'category');
+
+      // Sort or merge? preserve ES order?
+      // ES returns sorted by relevance. We should try to respect that.
+      // Create a map for quick lookup
+      const productMap = new Map(fetchedProducts.map(p => [p.id, p]));
+
+      const finalResults: (Product | any)[] = [];
+      for (const result of searchResults) {
+        if (result.type === 'product') {
+          const p = productMap.get(result.id);
+          if (p) finalResults.push(p);
+        } else if (result.type === 'category') {
+          finalResults.push(result);
+        }
+      }
+
+      products = finalResults as any;
     } else {
       const qb = this.productsRepository.createQueryBuilder('product');
 
@@ -348,4 +372,19 @@ export class ProductsService {
     await this.searchService.removeProduct(id);
     return product;
   }
+
+  async syncSearchIndex() {
+    const products = await this.productsRepository.find({
+      relations: ['category', 'discount', 'stocks', 'stocks.branch'],
+    });
+
+    const chunkSize = 100;
+    for (let i = 0; i < products.length; i += chunkSize) {
+      const chunk = products.slice(i, i + chunkSize);
+      await this.searchService.indexProducts(chunk as any);
+    }
+
+    return { count: products.length, message: 'Products indexed successfully' };
+  }
+
 }
