@@ -24,6 +24,7 @@ import { BannersModule } from './banners/banners.module';
 import { SearchModule } from './search/search.module';
 import { CardsModule } from './cards/cards.module';
 import { DiscountsModule } from './discounts/discounts.module';
+import { BrandsModule } from './brands/brands.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { DiscountsModule } from './discounts/discounts.module';
     SearchModule,
     CardsModule,
     DiscountsModule,
+    BrandsModule,
   ],
   controllers: [UploadsController],
   providers: [],

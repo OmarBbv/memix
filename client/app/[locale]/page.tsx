@@ -12,6 +12,9 @@ import { useEffect, useState, useMemo } from "react";
 import { useCategories } from "@/hooks/useCategories";
 import { useProducts } from "@/hooks/useProducts";
 import { Product as ApiProduct } from "@/services/product.service";
+import { useBanners } from "@/hooks/useBanners";
+import { useBrands } from "@/hooks/useBrands";
+import { BannerLocation } from "@/services/banner.service";
 
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -54,14 +57,19 @@ export default function Home() {
 
   const displayCategories = categories.length > 0 ? categories : staticCategories;
 
-  const heroSlides = [
+  const { data: banners = [] } = useBanners(BannerLocation.HOME_MAIN_SLIDER);
+
+  const staticHeroSlides = [
     {
       id: 1,
       image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2070&auto=format&fit=crop",
       title: "Yeni Mövsüm",
       subtitle: "2026 Kolleksiyası",
       description: "Ən son trendlərlə qarderobunuzu yeniləyin.",
-      buttonText: "Kəşf Et"
+      buttonText: "Kəşf Et",
+      link: "/category",
+      secondaryButtonText: "Daha Çox",
+      secondaryLink: "/category"
     },
     {
       id: 2,
@@ -69,7 +77,10 @@ export default function Home() {
       title: "Qış Stili",
       subtitle: "Premium Seçimlər",
       description: "Soyuq havalarda isti və şıq qalın.",
-      buttonText: "Alış-verişə Başla"
+      buttonText: "Alış-verişə Başla",
+      link: "/category",
+      secondaryButtonText: "Daha Çox",
+      secondaryLink: "/category"
     },
     {
       id: 3,
@@ -77,9 +88,32 @@ export default function Home() {
       title: "Davamlı Moda",
       subtitle: "Eko-Dostu Geyim",
       description: "Gələcəyi düşünərək geyinin.",
-      buttonText: "Kolleksiyanı Gör"
+      buttonText: "Kolleksiyanı Gör",
+      link: "/category",
+      secondaryButtonText: "Daha Çox",
+      secondaryLink: "/category"
     }
   ];
+
+  const heroSlides = banners.length > 0 ? banners.map(b => ({
+    id: b.id,
+    image: b.imageUrl,
+    title: b.title,
+    subtitle: b.tag || "Xüsusi",
+    description: b.description,
+    buttonText: b.buttonText || "İncələ",
+    link: b.link || "/category",
+    secondaryButtonText: b.secondaryButtonText || "Daha Çox",
+    secondaryLink: b.secondaryLink || "/category"
+  })) : staticHeroSlides;
+
+  const { data: apiBrands = [] } = useBrands({ showOnHome: true });
+
+  const staticBrands = [
+    "Zara", "H&M", "Mango", "Nike", "Adidas", "Tommy Hilfiger", "Calvin Klein", "Gucci"
+  ];
+
+  const brandItems = apiBrands.length > 0 ? apiBrands : staticBrands.map((name, id) => ({ id, name, logoUrl: null }));
 
   const stats = [
     { number: "500K+", label: "Aktiv Üzv", icon: Heart },
@@ -87,9 +121,10 @@ export default function Home() {
     { number: "4.9", label: "Orta Reytinq", icon: Star },
   ];
 
-  const brands = [
-    "Zara", "H&M", "Mango", "Nike", "Adidas", "Tommy Hilfiger", "Calvin Klein", "Gucci"
-  ];
+  const brands = useMemo(() => {
+    if (apiBrands.length > 0) return apiBrands.map(b => b.name);
+    return staticBrands;
+  }, [apiBrands]);
 
   return (
     <main className="min-h-screen bg-white text-zinc-950">
@@ -142,19 +177,25 @@ export default function Home() {
 
                       {/* CTA Buttons */}
                       <div className="flex flex-wrap gap-3 sm:gap-4 pt-2 sm:pt-4">
-                        <Button
-                          size="lg"
-                          className="rounded-full bg-white text-zinc-900 hover:bg-white/90 px-6 sm:px-8 h-11 sm:h-14 text-sm sm:text-base font-semibold shadow-lg shadow-black/20 transition-all duration-300 hover:shadow-xl"
-                        >
-                          {slide.buttonText}
-                          <ArrowRight className="ml-2 w-5 h-5" />
-                        </Button>
-                        <Button
-                          size="lg"
-                          className="rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/30 px-6 sm:px-8 h-11 sm:h-14 text-sm sm:text-base font-semibold transition-all duration-300"
-                        >
-                          Daha Çox
-                        </Button>
+                        <Link href={slide.link || '/category'}>
+                          <Button
+                            size="lg"
+                            className="rounded-full bg-white text-zinc-900 hover:bg-white/90 px-6 sm:px-8 h-11 sm:h-14 text-sm sm:text-base font-semibold shadow-lg shadow-black/20 transition-all duration-300 hover:shadow-xl"
+                          >
+                            {slide.buttonText}
+                            <ArrowRight className="ml-2 w-5 h-5" />
+                          </Button>
+                        </Link>
+                        {slide.secondaryButtonText && (
+                          <Link href={slide.secondaryLink || '/category'}>
+                            <Button
+                              size="lg"
+                              className="rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/30 px-6 sm:px-8 h-11 sm:h-14 text-sm sm:text-base font-semibold transition-all duration-300"
+                            >
+                              {slide.secondaryButtonText}
+                            </Button>
+                          </Link>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -197,13 +238,25 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Brands Marquee */}
       <section className="py-4 sm:py-6 border-y border-zinc-100 bg-zinc-50/50 overflow-hidden">
         <div className="flex items-center animate-marquee whitespace-nowrap">
-          {[...brands, ...brands, ...brands].map((brand, idx) => (
-            <span key={idx} className="mx-8 text-lg font-semibold text-zinc-400 hover:text-zinc-700 transition-colors cursor-pointer">
-              {brand}
-            </span>
+          {[...brandItems, ...brandItems, ...brandItems].map((brand, idx) => (
+            <div key={idx} className="mx-8 flex items-center justify-center grayscale hover:grayscale-0 transition-all cursor-pointer opacity-60 hover:opacity-100">
+              {brand.logoUrl ? (
+                <div className="relative w-24 h-12">
+                  <Image
+                    src={brand.logoUrl}
+                    alt={brand.name}
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              ) : (
+                <span className="text-lg font-semibold text-zinc-400 hover:text-zinc-700">
+                  {brand.name}
+                </span>
+              )}
+            </div>
           ))}
         </div>
       </section>

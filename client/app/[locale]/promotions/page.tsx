@@ -33,7 +33,7 @@ export default function PromotionsPage() {
             <Button size="lg" className="h-14 px-8 rounded-full bg-white text-black hover:bg-zinc-200 text-lg font-semibold">
               Kampaniyaya qoşul
             </Button>
-            <Button size="lg" variant="outline" className="h-14 px-8 rounded-full border-white/20 text-white hover:bg-white/10 text-lg font-medium backdrop-blur-sm">
+            <Button size="lg" variant="outline" className="h-14 px-8 rounded-full border-white/20 text-black hover:bg-white/10 hover:text-white/50 text-lg font-medium backdrop-blur-sm">
               Kataloqu yüklə
             </Button>
           </div>

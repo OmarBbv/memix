@@ -1,14 +1,24 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
+import { MailService } from '../mail/mail.service';
 import { User } from '../users/entities/user.entity';
 import * as bcrypt from 'bcrypt';
 
+interface OtpEntry {
+  code: string;
+  data: any;
+  expiresAt: number;
+}
+
 @Injectable()
 export class AuthService {
+  private otpStore = new Map<string, OtpEntry>();
+
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private mailService: MailService,
   ) { }
 
   async validateUser(email: string, pass: string): Promise<any> {
@@ -25,6 +35,51 @@ export class AuthService {
     return {
       access_token: this.jwtService.sign(payload),
     };
+  }
+
+  async sendRegistrationOtp(registerData: {
+    email: string;
+    password: string;
+    name: string;
+    surname: string;
+  }) {
+    // Check if email already exists
+    const existing = await this.usersService.findByEmail(registerData.email);
+    if (existing) {
+      throw new BadRequestException('Bu email artıq istifadə olunur.');
+    }
+
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
+
+    this.otpStore.set(registerData.email, { code, data: registerData, expiresAt });
+
+    await this.mailService.sendOtpEmail(registerData.email, code, registerData.name);
+
+    return { message: 'OTP kodu emailinizə göndərildi.' };
+  }
+
+  async verifyOtpAndRegister(email: string, code: string) {
+    const entry = this.otpStore.get(email);
+
+    if (!entry) {
+      throw new BadRequestException('OTP kodu tapılmadı. Yenidən cəhd edin.');
+    }
+
+    if (Date.now() > entry.expiresAt) {
+      this.otpStore.delete(email);
+      throw new BadRequestException('OTP kodunun vaxtı bitib. Yenidən cəhd edin.');
+    }
+
+    if (entry.code !== code) {
+      throw new BadRequestException('OTP kodu yanlışdır.');
+    }
+
+    this.otpStore.delete(email);
+
+    // Complete registration
+    const user = await this.usersService.create(entry.data);
+    return user;
   }
 
   async validateGoogleUser(details: {

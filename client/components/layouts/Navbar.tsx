@@ -363,7 +363,7 @@ export default function Navbar() {
                                 closeDelay={100}
                             >
                                 <HoverCardTrigger asChild>
-                                    <Link href={`/category/${item.slug}`} className="text-sm font-medium text-zinc-700 hover:text-black flex items-center gap-2 transition-colors">
+                                    <Link href={`/category/${item.slug}`} className="text-sm font-medium text-zinc-700 hover:text-black flex items-center gap-2 transition-colors hover:underline hover:decoration-1 hover:underline-offset-4">
                                         {item.name}
                                     </Link>
                                 </HoverCardTrigger>
@@ -381,9 +381,9 @@ export default function Navbar() {
                                                                 <Link
                                                                     key={leaf.id}
                                                                     href={`/category/${leaf.slug}`}
-                                                                    className={`block text-sm hover:text-gray-900 transition-colors ${leaf.name.includes('🔥') ? 'text-red-500 hover:text-red-600' :
+                                                                    className={`block text-sm hover:text-gray-900 transition-colors hover:underline hover:decoration-1 hover:underline-offset-4 ${leaf.name.includes('🔥') ? 'text-red-500 hover:text-red-600' :
                                                                         leaf.name.includes('🇹🇭') ? 'text-blue-600 hover:text-blue-700' :
-                                                                            leaf.name === 'FRESH' ? 'bg-black text-white px-2 py-1 rounded text-xs font-medium inline-block' :
+                                                                            leaf.name === 'FRESH' ? 'bg-black text-white px-2 py-1 rounded text-xs font-medium inline-block hover:no-underline' :
                                                                                 leaf.name === 'Bütün brendləri gör' ? 'text-gray-600 underline hover:no-underline' :
                                                                                     'text-gray-600'
                                                                         }`}

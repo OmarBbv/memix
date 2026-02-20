@@ -4,7 +4,7 @@ import { ContentState } from "@/components/shared/ContentState";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 import { useMyProfile, useUpdateProfile } from "@/hooks/useUser";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
@@ -94,6 +94,15 @@ export default function ProfilePage() {
     updateProfile.mutate(payload);
   }
 
+  // useEffect(() => {
+  //   console.log('day:', day)
+  //   console.log('month:', month)
+  //   console.log('year:', year)
+  //   console.log('profile: ', profile)
+  // }, [day, month, year])
+
+  console.log('profile: ', profile?.birthday)
+
   return (
     <ContentState
       isLoading={isLoading}
@@ -169,59 +178,46 @@ export default function ProfilePage() {
               <Label className="text-zinc-600">Doğum Tarixi</Label>
               <div className="flex items-center gap-2">
                 {/* Gün */}
-                <Select value={day} onValueChange={setDay}>
-                  <SelectTrigger className="h-12 bg-zinc-50 border-zinc-200">
-                    <SelectValue placeholder="Gün" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => {
-                      const value = String(d).padStart(2, '0');
-                      return (
-                        <SelectItem key={value} value={value}>
-                          {d}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-
+                <Input
+                  id="birthday-day"
+                  placeholder="GG"
+                  value={day}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, '').slice(0, 2);
+                    setDay(val);
+                  }}
+                  maxLength={2}
+                  inputMode="numeric"
+                  className="h-12 bg-zinc-50 border-zinc-200 focus:bg-white transition-all text-center w-20"
+                />
+                <span className="text-zinc-400 font-medium">/</span>
                 {/* Ay */}
-                <Select value={month} onValueChange={setMonth}>
-                  <SelectTrigger className="h-12 bg-zinc-50 border-zinc-200">
-                    <SelectValue placeholder="Ay" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[
-                      'Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'İyun',
-                      'İyul', 'Avqust', 'Sentyabr', 'Oktyabr', 'Noyabr', 'Dekabr'
-                    ].map((monthName, index) => {
-                      const value = String(index + 1).padStart(2, '0');
-                      return (
-                        <SelectItem key={value} value={value}>
-                          {monthName}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-
+                <Input
+                  id="birthday-month"
+                  placeholder="AA"
+                  value={month}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, '').slice(0, 2);
+                    setMonth(val);
+                  }}
+                  maxLength={2}
+                  inputMode="numeric"
+                  className="h-12 bg-zinc-50 border-zinc-200 focus:bg-white transition-all text-center w-20"
+                />
+                <span className="text-zinc-400 font-medium">/</span>
                 {/* İl */}
-                <Select value={year} onValueChange={setYear}>
-                  <SelectTrigger className="h-12 bg-zinc-50 border-zinc-200">
-                    <SelectValue placeholder="İl" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.from({ length: 100 }, (_, i) => {
-                      const currentYear = new Date().getFullYear();
-                      const yearValue = currentYear - 10 - i;
-                      return (
-                        <SelectItem key={yearValue} value={String(yearValue)}>
-                          {yearValue}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
+                <Input
+                  id="birthday-year"
+                  placeholder="İİİİ"
+                  value={year}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, '').slice(0, 4);
+                    setYear(val);
+                  }}
+                  maxLength={4}
+                  inputMode="numeric"
+                  className="h-12 bg-zinc-50 border-zinc-200 focus:bg-white transition-all text-center w-28"
+                />
               </div>
             </div>
 

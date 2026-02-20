@@ -195,7 +195,6 @@
   background: #cbd5e1;
 }
 
-/* Hide Scrollbar Utility */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }

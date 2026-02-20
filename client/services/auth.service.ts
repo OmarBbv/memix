@@ -42,6 +42,26 @@ class AuthService implements AuthServiceTypes {
       throw error;
     }
   }
+
+  async sendOtp(data: { email: string; password: string; name: string; surname: string }) {
+    try {
+      const response = await httpClientPublic.post('/auth/send-otp', data);
+      return response.data;
+    } catch (error) {
+      console.error("AuthService sendOtp error:", error);
+      throw error;
+    }
+  }
+
+  async verifyOtp(data: { email: string; code: string }) {
+    try {
+      const response = await httpClientPublic.post('/auth/verify-otp', data);
+      return response.data;
+    } catch (error) {
+      console.error("AuthService verifyOtp error:", error);
+      throw error;
+    }
+  }
 }
 
 export const authService = new AuthService();

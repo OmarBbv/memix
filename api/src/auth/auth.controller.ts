@@ -25,6 +25,16 @@ export class AuthController {
     return this.usersService.create(createUserDto);
   }
 
+  @Post('send-otp')
+  async sendOtp(@Body() body: { email: string; password: string; name: string; surname: string }) {
+    return this.authService.sendRegistrationOtp(body);
+  }
+
+  @Post('verify-otp')
+  async verifyOtp(@Body() body: { email: string; code: string }) {
+    return this.authService.verifyOtpAndRegister(body.email, body.code);
+  }
+
   @UseGuards(AuthGuard('local'))
   @Post('login')
   async login(@Request() req) {

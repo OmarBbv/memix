@@ -68,4 +68,18 @@ const useAuthCallback = () => {
   return { isLoading: isLoading && !!token };
 };
 
-export { useLogin, useRegister, useAuthCallback };
+const useSendOtp = () => {
+  return useMutation({
+    mutationFn: (data: { email: string; password: string; name: string; surname: string }) =>
+      authService.sendOtp(data),
+  });
+};
+
+const useVerifyOtp = () => {
+  return useMutation({
+    mutationFn: (data: { email: string; code: string }) =>
+      authService.verifyOtp(data),
+  });
+};
+
+export { useLogin, useRegister, useAuthCallback, useSendOtp, useVerifyOtp };

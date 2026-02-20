@@ -7,7 +7,7 @@ export class CreateBannerDto {
 
   @IsString()
   @IsOptional()
-  subtitle?: string;
+  description?: string;
 
   @IsString()
   @IsOptional()

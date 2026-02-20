@@ -22,7 +22,7 @@ export class Banner {
   title: string;
 
   @Column({ type: 'text', nullable: true })
-  subtitle: string;
+  description: string;
 
   @Column({ nullable: true })
   tag: string; // Məsələn: "Xüsusi Təklif", "2026 Kolleksiyası"
