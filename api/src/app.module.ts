@@ -25,6 +25,8 @@ import { SearchModule } from './search/search.module';
 import { CardsModule } from './cards/cards.module';
 import { DiscountsModule } from './discounts/discounts.module';
 import { BrandsModule } from './brands/brands.module';
+import { CampaignsModule } from './campaigns/campaigns.module';
+import { PromotionsModule } from './promotions/promotions.module';
 
 @Module({
   imports: [
@@ -55,6 +57,8 @@ import { BrandsModule } from './brands/brands.module';
     CardsModule,
     DiscountsModule,
     BrandsModule,
+    CampaignsModule,
+    PromotionsModule,
   ],
   controllers: [UploadsController],
   providers: [],

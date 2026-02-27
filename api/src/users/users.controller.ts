@@ -8,6 +8,7 @@ import {
   Request,
   Patch,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -76,6 +77,23 @@ export class UsersController {
   @Delete('addresses/:id')
   removeAddress(@Request() req: AuthenticatedRequest, @Param('id') id: string): Promise<void> {
     return this.addressesService.remove(+id, req.user.userId);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @Get()
+  async findAll(
+    @Request() req: AuthenticatedRequest,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('search') search?: string,
+  ) {
+    return this.usersService.findAll(
+      req.user.userId,
+      page ? parseInt(page, 10) : 1,
+      limit ? parseInt(limit, 10) : 10,
+      search,
+    );
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)

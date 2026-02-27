@@ -8,6 +8,7 @@ import SignIn from "./pages/AuthPages/SignIn";
 import SignUp from "./pages/AuthPages/SignUp";
 import NotFound from "./pages/OtherPage/NotFound";
 import UserProfiles from "./pages/UserProfiles";
+import Users from "./pages/Users";
 import Videos from "./pages/UiElements/Videos";
 import Images from "./pages/UiElements/Images";
 import Alerts from "./pages/UiElements/Alerts";
@@ -17,6 +18,14 @@ import Buttons from "./pages/UiElements/Buttons";
 import Categories from "./pages/Categories";
 import Branches from "./pages/Branches";
 import CreateBranch from "./pages/Branches/CreateBranch";
+import Banners from "./pages/Marketing/Banners";
+import CreateBanner from "./pages/Marketing/Banners/CreateBanner";
+import Coupons from "./pages/Marketing/Coupons";
+import CreateCoupon from "./pages/Marketing/Coupons/CreateCoupon";
+import Brands from "./pages/Marketing/Brands";
+import CreateBrand from "./pages/Marketing/Brands/CreateBrand";
+import Campaigns from "./pages/Marketing/Campaigns";
+import CreateCampaign from "./pages/Marketing/Campaigns/CreateCampaign";
 import LineChart from "./pages/Charts/LineChart";
 import BarChart from "./pages/Charts/BarChart";
 import Calendar from "./pages/Calendar";
@@ -49,11 +58,21 @@ export default function App() {
               <Route path="/branches/create" element={<CreateBranch />} />
               <Route path="/orders" element={<PlaceholderPage title="Sifarişlər" />} />
               <Route path="/orders/returns" element={<PlaceholderPage title="Geri Qaytarılanlar" />} />
-              <Route path="/users" element={<PlaceholderPage title="İstifadəçilər" />} />
+              <Route path="/users" element={<Users />} />
 
               {/* Marketing Routes */}
-              <Route path="/marketing/banners" element={<PlaceholderPage title="Bannerlər" />} />
-              <Route path="/marketing/coupons" element={<PlaceholderPage title="Kuponlar" />} />
+              <Route path="/marketing/banners" element={<Banners />} />
+              <Route path="/marketing/banners/create" element={<CreateBanner />} />
+              <Route path="/marketing/banners/edit/:id" element={<CreateBanner />} />
+              <Route path="/marketing/coupons" element={<Coupons />} />
+              <Route path="/marketing/coupons/create" element={<CreateCoupon />} />
+              <Route path="/marketing/coupons/edit/:id" element={<CreateCoupon />} />
+              <Route path="/marketing/brands" element={<Brands />} />
+              <Route path="/marketing/brands/create" element={<CreateBrand />} />
+              <Route path="/marketing/brands/edit/:id" element={<CreateBrand />} />
+              <Route path="/marketing/campaigns" element={<Campaigns />} />
+              <Route path="/marketing/campaigns/create" element={<CreateCampaign />} />
+              <Route path="/marketing/campaigns/edit/:id" element={<CreateCampaign />} />
 
               {/* Other Routes */}
               <Route path="/analytics" element={<PlaceholderPage title="Statistika" />} />

@@ -20,9 +20,12 @@ async function bootstrap() {
       'http://az.localhost:3000',
       'http://en.localhost:3000',
       'http://ru.localhost:3000',
+      'http://localhost:5173',
+      'http://localhost:4000',
     ],
     credentials: true,
   });
+
   await app.listen(port);
   console.log(`\n🚀 Application is running on: http://localhost:${port}\n`);
 }

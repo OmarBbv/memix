@@ -36,10 +36,7 @@ const Categories: React.FC = () => {
       <PageBreadcrumb pageTitle="Kateqoriyalar" />
 
       <div className="flex flex-col gap-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-gray-800 dark:text-white/90">
-            Kateqoriya Ağacı
-          </h2>
+        <div className="flex items-center justify-end">
           <button
             onClick={handleAdd}
             className="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-brand-600 active:scale-95"

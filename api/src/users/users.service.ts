@@ -37,6 +37,39 @@ export class UsersService {
     return user;
   }
 
+  async findAll(
+    currentUserId: number,
+    page: number = 1,
+    limit: number = 10,
+    search?: string,
+  ): Promise<{ data: User[]; total: number; page: number; limit: number; totalPages: number }> {
+    const queryBuilder = this.usersRepository.createQueryBuilder('user');
+
+    queryBuilder.where('user.id != :currentUserId', { currentUserId });
+
+    if (search) {
+      queryBuilder.andWhere(
+        '(CAST(user.id AS TEXT) LIKE :search OR LOWER(user.name) LIKE LOWER(:search) OR LOWER(user.email) LIKE LOWER(:search) OR LOWER(user.surname) LIKE LOWER(:search))',
+        { search: `%${search}%` },
+      );
+    }
+
+    queryBuilder.orderBy('user.id', 'DESC');
+
+    queryBuilder.skip((page - 1) * limit);
+    queryBuilder.take(limit);
+
+    const [data, total] = await queryBuilder.getManyAndCount();
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
     const user = await this.findOne(id);
 
