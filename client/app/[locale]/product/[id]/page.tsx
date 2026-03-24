@@ -28,7 +28,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const dispatch = useAppDispatch();
 
   const { data: product, isLoading, isError } = useProduct(Number(id));
-  const { data: similarProducts, isLoading: isSimilarLoading } = useSimilarProducts(Number(id));
+  const { data: similarProducts, isLoading: isSimilarLoading } = useSimilarProducts(Number(id), 8);
   const { isInWishlist, toggleWishlist } = useWishlist();
 
   const [selectedSize, setSelectedSize] = useState<string>('');
@@ -423,7 +423,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           <h2 className="text-2xl font-bold mb-8">Sizə həmçinin maraqlı ola bilər</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {isSimilarLoading ? (
-              [1, 2, 3, 4].map((i) => (
+              [1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
                 <div key={i} className="aspect-3/4 bg-gray-100 rounded-xl animate-pulse"></div>
               ))
             ) : (

@@ -59,9 +59,10 @@ export class ProductsController {
   }
 
   @Get('sync-index')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserRole.ADMIN)
-  async syncIndex() {
+  async syncIndex(@Query('secret') secret: string) {
+    if (secret !== 'memix123') {
+      return { error: 'Wrong secret key' };
+    }
     try {
       return await this.productsService.syncSearchIndex();
     } catch (e) {
@@ -76,7 +77,7 @@ export class ProductsController {
 
   @Get(':id/similar')
   findSimilar(@Param('id') id: string, @Query('limit') limit?: string) {
-    return this.productsService.findSimilar(+id, limit ? +limit : 4);
+    return this.productsService.findSimilar(+id, limit ? +limit : 8);
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
