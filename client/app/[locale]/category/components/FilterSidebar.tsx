@@ -409,25 +409,28 @@ export const FilterSidebar = ({
                   {filter.options.map((option) => {
                     const isChecked = selectedFilters[filter.id]?.includes(option) || false;
                     return (
-                      <div key={option} className="flex items-center space-x-3">
+                      <label
+                        key={option}
+                        htmlFor={`${filter.id}-${option}`}
+                        className="flex items-center space-x-3 cursor-pointer group w-fit"
+                      >
                         <Checkbox
                           id={`${filter.id}-${option}`}
                           checked={isChecked}
                           onCheckedChange={(checked) => {
                             onFilterChange?.(filter.id, option, !!checked);
                           }}
-                          className="h-5 w-5 rounded-md border-gray-300 transition-colors data-[state=checked]:bg-black data-[state=checked]:border-black"
+                          className="h-5 w-5 rounded-md border-gray-300 transition-colors data-[state=checked]:bg-black data-[state=checked]:border-black shrink-0"
                         />
-                        <label
-                          htmlFor={`${filter.id}-${option}`}
+                        <span
                           className={cn(
-                            "text-sm w-full font-medium leading-none cursor-pointer select-none transition-colors",
-                            isChecked ? "text-black" : "text-gray-600 hover:text-black"
+                            "text-sm w-full font-medium leading-none select-none transition-colors",
+                            isChecked ? "text-black" : "text-gray-600 group-hover:text-black"
                           )}
                         >
                           {option}
-                        </label>
-                      </div>
+                        </span>
+                      </label>
                     );
                   })}
                 </div>
