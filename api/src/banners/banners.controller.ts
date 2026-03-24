@@ -20,7 +20,7 @@ import { UserRole } from '../users/entities/user.entity';
 
 @Controller('banners')
 export class BannersController {
-  constructor(private readonly bannersService: BannersService) { }
+  constructor(private readonly bannersService: BannersService) {}
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(UserRole.ADMIN)

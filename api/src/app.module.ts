@@ -63,11 +63,10 @@ import { PromotionsModule } from './promotions/promotions.module';
   controllers: [UploadsController],
   providers: [],
 })
-
 export class AppModule implements OnModuleInit {
   private readonly logger = new Logger(AppModule.name);
 
-  constructor(private dataSource: DataSource) { }
+  constructor(private dataSource: DataSource) {}
 
   onModuleInit() {
     if (this.dataSource.isInitialized) {

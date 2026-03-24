@@ -68,7 +68,9 @@ describe('BranchesService', () => {
       mockBranchRepository.find.mockResolvedValue(branches);
 
       const result = await service.findAll();
-      expect(mockBranchRepository.find).toHaveBeenCalledWith({ relations: ['stocks'] });
+      expect(mockBranchRepository.find).toHaveBeenCalledWith({
+        relations: ['stocks'],
+      });
       expect(result).toEqual(branches);
     });
   });
@@ -79,13 +81,19 @@ describe('BranchesService', () => {
       const newStockQuantity = 20;
 
       mockProductStockRepository.findOne.mockResolvedValue(existingStock);
-      mockProductStockRepository.save.mockImplementation((stock) => Promise.resolve(stock));
+      mockProductStockRepository.save.mockImplementation((stock) =>
+        Promise.resolve(stock),
+      );
 
       const result = await service.updateStock(1, 1, newStockQuantity);
 
-      expect(mockProductStockRepository.findOne).toHaveBeenCalledWith({ where: { branchId: 1, productId: 1 } });
+      expect(mockProductStockRepository.findOne).toHaveBeenCalledWith({
+        where: { branchId: 1, productId: 1 },
+      });
       expect(existingStock.stock).toBe(newStockQuantity);
-      expect(mockProductStockRepository.save).toHaveBeenCalledWith(expect.objectContaining({ stock: 20 }));
+      expect(mockProductStockRepository.save).toHaveBeenCalledWith(
+        expect.objectContaining({ stock: 20 }),
+      );
     });
 
     it('should create new stock if not exists', async () => {

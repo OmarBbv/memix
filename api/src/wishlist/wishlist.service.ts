@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Wishlist } from './entities/wishlist.entity';
@@ -13,11 +17,13 @@ export class WishlistService {
     @InjectRepository(Product)
     private productRepository: Repository<Product>,
     private cartsService: CartsService,
-  ) { }
+  ) {}
 
   async add(userId: number, productId: number) {
     // Məhsulun mövcudluğunu yoxlayırıq
-    const product = await this.productRepository.findOne({ where: { id: productId } });
+    const product = await this.productRepository.findOne({
+      where: { id: productId },
+    });
     if (!product) {
       throw new NotFoundException('Məhsul tapılmadı');
     }

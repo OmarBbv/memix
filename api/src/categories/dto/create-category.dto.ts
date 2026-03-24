@@ -7,7 +7,11 @@ export class CreateCategoryDto {
   name: string;
 
   @IsOptional()
-  @Transform(({ value }) => (value === 'null' || value === '' || value === 'undefined') ? null : Number(value))
+  @Transform(({ value }) =>
+    value === 'null' || value === '' || value === 'undefined'
+      ? null
+      : Number(value),
+  )
   @IsNumber()
   parentId?: number;
 
@@ -31,6 +35,8 @@ export class CreateCategoryDto {
   showOnHome?: boolean;
 
   @IsOptional()
-  @Transform(({ value }) => (value === '' || value === 'null') ? null : value as SizeType)
+  @Transform(({ value }) =>
+    value === '' || value === 'null' ? null : (value as SizeType),
+  )
   sizeType?: SizeType | null;
 }

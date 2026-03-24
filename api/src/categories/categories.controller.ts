@@ -23,7 +23,7 @@ import { multerConfig } from '../common/utils/multer.config';
 
 @Controller('categories')
 export class CategoriesController {
-  constructor(private readonly categoriesService: CategoriesService) { }
+  constructor(private readonly categoriesService: CategoriesService) {}
 
   @Get('sync-index')
   async syncIndex() {
@@ -52,7 +52,10 @@ export class CategoriesController {
   }
 
   @Get('slug/:slug')
-  findBySlug(@Param('slug') slug: string, @Query() query: Record<string, string>) {
+  findBySlug(
+    @Param('slug') slug: string,
+    @Query() query: Record<string, string>,
+  ) {
     const { all, ...filters } = query;
     return this.categoriesService.findBySlug(slug, filters);
   }

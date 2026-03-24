@@ -19,7 +19,7 @@ import { UserRole } from '../users/entities/user.entity';
 
 @Controller('brands')
 export class BrandsController {
-  constructor(private readonly brandsService: BrandsService) { }
+  constructor(private readonly brandsService: BrandsService) {}
 
   @Post()
   @UseGuards(AuthGuard('jwt'), RolesGuard)

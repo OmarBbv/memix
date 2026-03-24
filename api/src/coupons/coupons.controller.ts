@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
 import { CouponsService } from './coupons.service';
 import { CreateCouponDto } from './dto/create-coupon.dto';
 import { UpdateCouponDto } from './dto/update-coupon.dto';
@@ -9,7 +19,7 @@ import { UserRole } from '../users/entities/user.entity';
 
 @Controller('coupons')
 export class CouponsController {
-  constructor(private readonly couponsService: CouponsService) { }
+  constructor(private readonly couponsService: CouponsService) {}
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(UserRole.ADMIN)
@@ -25,7 +35,10 @@ export class CouponsController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post('validate')
-  validate(@Body('code') code: string, @Body('orderAmount') orderAmount: number) {
+  validate(
+    @Body('code') code: string,
+    @Body('orderAmount') orderAmount: number,
+  ) {
     return this.couponsService.validate(code, orderAmount);
   }
 

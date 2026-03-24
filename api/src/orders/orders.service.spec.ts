@@ -57,9 +57,15 @@ describe('OrdersService', () => {
       providers: [
         OrdersService,
         { provide: getRepositoryToken(Order), useValue: mockOrderRepository },
-        { provide: getRepositoryToken(OrderItem), useValue: mockOrderItemRepository },
+        {
+          provide: getRepositoryToken(OrderItem),
+          useValue: mockOrderItemRepository,
+        },
         { provide: getRepositoryToken(Cart), useValue: mockCartRepository },
-        { provide: getRepositoryToken(ProductStock), useValue: mockProductStockRepository },
+        {
+          provide: getRepositoryToken(ProductStock),
+          useValue: mockProductStockRepository,
+        },
         { provide: DataSource, useValue: mockDataSource },
       ],
     }).compile();
@@ -74,19 +80,34 @@ describe('OrdersService', () => {
   describe('create', () => {
     it('should throw BadRequestException if cart is empty', async () => {
       mockCartRepository.findOne.mockResolvedValue(null);
-      await expect(service.create(1, 'addr', '123', 1)).rejects.toThrow(BadRequestException);
+      await expect(service.create(1, 'addr', '123', 1)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should throw BadRequestException if stock is insufficient', async () => {
-      const cart = { items: [{ product: { id: 101, name: 'P1' }, quantity: 5 }] };
+      const cart = {
+        items: [{ product: { id: 101, name: 'P1' }, quantity: 5 }],
+      };
       mockCartRepository.findOne.mockResolvedValue(cart);
       mockProductStockRepository.findOne.mockResolvedValue({ stock: 2 }); // Kifayət deyil
 
-      await expect(service.create(1, 'addr', '123', 1)).rejects.toThrow(BadRequestException);
+      await expect(service.create(1, 'addr', '123', 1)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should create order successfully', async () => {
-      const cart = { id: 10, items: [{ product: { id: 101, price: 10, name: 'P1' }, quantity: 2, variants: {} }] };
+      const cart = {
+        id: 10,
+        items: [
+          {
+            product: { id: 101, price: 10, name: 'P1' },
+            quantity: 2,
+            variants: {},
+          },
+        ],
+      };
       mockCartRepository.findOne.mockResolvedValue(cart);
       mockProductStockRepository.findOne.mockResolvedValue({ stock: 10 });
       mockOrderItemRepository.create.mockReturnValue({});

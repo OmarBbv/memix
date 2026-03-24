@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Review } from './entities/review.entity';
@@ -12,13 +16,15 @@ export class ReviewsService {
     private reviewRepository: Repository<Review>,
     @InjectRepository(Product)
     private productRepository: Repository<Product>,
-  ) { }
+  ) {}
 
   async create(userId: number, createReviewDto: CreateReviewDto) {
     const { productId, rating, comment } = createReviewDto;
 
     // Məhsulun mövcudluğunu yoxlayırıq
-    const product = await this.productRepository.findOne({ where: { id: productId } });
+    const product = await this.productRepository.findOne({
+      where: { id: productId },
+    });
     if (!product) {
       throw new NotFoundException('Məhsul tapılmadı');
     }

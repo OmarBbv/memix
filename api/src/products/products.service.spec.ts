@@ -73,7 +73,11 @@ describe('ProductsService', () => {
 
   describe('create', () => {
     it('should create a product and index it in search', async () => {
-      const createProductDto = { name: 'Test Product', price: 100, categoryId: 1 } as any;
+      const createProductDto = {
+        name: 'Test Product',
+        price: 100,
+        categoryId: 1,
+      } as any;
       const expectedProduct = { id: 1, ...createProductDto };
       mockProductsRepository.create.mockReturnValue(expectedProduct);
       mockProductsRepository.save.mockResolvedValue(expectedProduct);
@@ -82,13 +86,15 @@ describe('ProductsService', () => {
 
       expect(mockProductsRepository.create).toHaveBeenCalled();
       expect(mockProductsRepository.save).toHaveBeenCalled();
-      expect(mockSearchService.indexProduct).toHaveBeenCalledWith(expectedProduct);
+      expect(mockSearchService.indexProduct).toHaveBeenCalledWith(
+        expectedProduct,
+      );
 
       // Service adds processed banner and images fields
       expect(result).toEqual({
         ...expectedProduct,
         banner: null,
-        images: undefined
+        images: undefined,
       });
     });
   });
@@ -114,18 +120,30 @@ describe('ProductsService', () => {
 
     it('should apply category filter', async () => {
       await service.findAll({ categoryId: 1 });
-      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('category.id = :categoryId', { categoryId: 1 });
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        'category.id = :categoryId',
+        { categoryId: 1 },
+      );
     });
 
     it('should apply price filter', async () => {
       await service.findAll({ minPrice: 10, maxPrice: 100 });
-      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('product.price >= :minPrice', { minPrice: 10 });
-      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('product.price <= :maxPrice', { maxPrice: 100 });
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        'product.price >= :minPrice',
+        { minPrice: 10 },
+      );
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        'product.price <= :maxPrice',
+        { maxPrice: 100 },
+      );
     });
 
     it('should apply brand filter', async () => {
       await service.findAll({ brand: 'Nike' });
-      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(`product.variants ->> 'brand' = :brand`, { brand: 'Nike' });
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        `product.variants ->> 'brand' = :brand`,
+        { brand: 'Nike' },
+      );
     });
   });
 
@@ -140,7 +158,7 @@ describe('ProductsService', () => {
       expect(result).toEqual({
         ...product,
         banner: null,
-        images: undefined
+        images: undefined,
       });
       expect(mockProductsRepository.findOne).toHaveBeenCalledWith({
         where: { id: 1 },
@@ -151,7 +169,9 @@ describe('ProductsService', () => {
 
     it('should throw NotFoundException if not found', async () => {
       mockProductsRepository.findOne.mockResolvedValue(null);
-      await expect(service.findOne(999)).rejects.toThrow(new NotFoundException(ErrorMessages.PRODUCT_NOT_FOUND));
+      await expect(service.findOne(999)).rejects.toThrow(
+        new NotFoundException(ErrorMessages.PRODUCT_NOT_FOUND),
+      );
     });
   });
 
@@ -167,7 +187,9 @@ describe('ProductsService', () => {
       const result = await service.update(1, updateDto as any);
       expect(mockProductsRepository.merge).toHaveBeenCalled();
       expect(mockProductsRepository.save).toHaveBeenCalled();
-      expect(mockSearchService.indexProduct).toHaveBeenCalledWith(updatedProduct);
+      expect(mockSearchService.indexProduct).toHaveBeenCalledWith(
+        updatedProduct,
+      );
       expect(result.name).toEqual('New');
     });
 
@@ -189,7 +211,9 @@ describe('ProductsService', () => {
       });
       // Verify product update and re-index happened
       expect(mockProductsRepository.save).toHaveBeenCalled();
-      expect(mockSearchService.indexProduct).toHaveBeenCalledWith(updatedProduct);
+      expect(mockSearchService.indexProduct).toHaveBeenCalledWith(
+        updatedProduct,
+      );
     });
 
     // NEGATIVE TEST: No Price History on Same Price
@@ -225,7 +249,9 @@ describe('ProductsService', () => {
     // NEGATIVE TEST: Product Not Found
     it('should throw NotFoundException if product to update is not found', async () => {
       mockProductsRepository.findOne.mockResolvedValue(null);
-      await expect(service.update(999, { name: 'New' } as any)).rejects.toThrow(new NotFoundException(ErrorMessages.PRODUCT_NOT_FOUND));
+      await expect(service.update(999, { name: 'New' } as any)).rejects.toThrow(
+        new NotFoundException(ErrorMessages.PRODUCT_NOT_FOUND),
+      );
       expect(mockPriceHistoryRepository.save).not.toHaveBeenCalled();
     });
   });

@@ -1,4 +1,9 @@
-import { Injectable, ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -13,7 +18,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-  ) { }
+  ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const existingUser = await this.findByEmail(createUserDto.email);
@@ -42,7 +47,13 @@ export class UsersService {
     page: number = 1,
     limit: number = 10,
     search?: string,
-  ): Promise<{ data: User[]; total: number; page: number; limit: number; totalPages: number }> {
+  ): Promise<{
+    data: User[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
     const queryBuilder = this.usersRepository.createQueryBuilder('user');
 
     queryBuilder.where('user.id != :currentUserId', { currentUserId });
@@ -74,7 +85,8 @@ export class UsersService {
     const user = await this.findOne(id);
 
     if (updateUserDto.name !== undefined) user.name = updateUserDto.name;
-    if (updateUserDto.surname !== undefined) user.surname = updateUserDto.surname;
+    if (updateUserDto.surname !== undefined)
+      user.surname = updateUserDto.surname;
     if (updateUserDto.email !== undefined) {
       const existingUser = await this.findByEmail(updateUserDto.email);
       if (existingUser && existingUser.id !== id) {
@@ -83,7 +95,8 @@ export class UsersService {
       user.email = updateUserDto.email;
     }
     if (updateUserDto.phone !== undefined) user.phone = updateUserDto.phone;
-    if (updateUserDto.birthday !== undefined) user.birthday = updateUserDto.birthday;
+    if (updateUserDto.birthday !== undefined)
+      user.birthday = updateUserDto.birthday;
     if (updateUserDto.gender !== undefined) user.gender = updateUserDto.gender;
 
     if (updateUserDto.newPassword) {

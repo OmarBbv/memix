@@ -1,4 +1,13 @@
-import { IsString, IsEnum, IsOptional, IsDateString, IsBoolean, IsNumber, IsInt, Min } from 'class-validator';
+import {
+  IsString,
+  IsEnum,
+  IsOptional,
+  IsDateString,
+  IsBoolean,
+  IsNumber,
+  IsInt,
+  Min,
+} from 'class-validator';
 import { CampaignType } from '../entities/campaign.entity';
 
 export class CreateCampaignDto {

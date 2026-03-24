@@ -9,7 +9,7 @@ export class PromotionsService {
     private readonly campaignsService: CampaignsService,
     private readonly couponsService: CouponsService,
     private readonly discountsService: DiscountsService,
-  ) { }
+  ) {}
 
   async getPromotionsPage() {
     const [campaigns, coupons, discounts] = await Promise.all([

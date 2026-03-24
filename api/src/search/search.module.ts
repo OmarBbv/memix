@@ -9,7 +9,9 @@ import { SearchService } from './search.service';
     ElasticsearchModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        node: configService.get<string>('ELASTICSEARCH_NODE') || 'http://localhost:9200',
+        node:
+          configService.get<string>('ELASTICSEARCH_NODE') ||
+          'http://localhost:9200',
         auth: {
           username: configService.get<string>('ELASTICSEARCH_USERNAME') || '',
           password: configService.get<string>('ELASTICSEARCH_PASSWORD') || '',
@@ -21,4 +23,4 @@ import { SearchService } from './search.service';
   providers: [SearchService],
   exports: [SearchService],
 })
-export class SearchModule { }
+export class SearchModule {}

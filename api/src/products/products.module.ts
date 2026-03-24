@@ -9,8 +9,11 @@ import { ProductStock } from '../branches/entities/product-stock.entity';
 import { Branch } from '../branches/entities/branch.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Product, PriceHistory, ProductStock, Branch]), SearchModule],
+  imports: [
+    TypeOrmModule.forFeature([Product, PriceHistory, ProductStock, Branch]),
+    SearchModule,
+  ],
   controllers: [ProductsController],
   providers: [ProductsService],
 })
-export class ProductsModule { }
+export class ProductsModule {}

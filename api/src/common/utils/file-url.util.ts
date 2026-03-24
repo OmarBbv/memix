@@ -1,4 +1,6 @@
-export const ensureFullUrl = (path: string | null | undefined): string | null => {
+export const ensureFullUrl = (
+  path: string | null | undefined,
+): string | null => {
   if (!path || path === '{}' || typeof path !== 'string') return null;
   if (path.startsWith('http')) return path;
 

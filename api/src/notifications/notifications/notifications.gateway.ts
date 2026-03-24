@@ -16,11 +16,16 @@ import { UseGuards } from '@nestjs/common';
     credentials: true,
   },
 })
-export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class NotificationsGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   server: Server;
 
-  private onlineUsers: Map<string, { userId: number; role: string; socketId: string }> = new Map();
+  private onlineUsers: Map<
+    string,
+    { userId: number; role: string; socketId: string }
+  > = new Map();
 
   handleConnection(client: Socket) {
     console.log(`Client connected: ${client.id}`);
@@ -92,7 +97,9 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
   // Online istifadəçi sayını yayımla
   private broadcastOnlineCount() {
     const count = this.onlineUsers.size;
-    const adminCount = Array.from(this.onlineUsers.values()).filter(u => u.role === 'admin').length;
+    const adminCount = Array.from(this.onlineUsers.values()).filter(
+      (u) => u.role === 'admin',
+    ).length;
     const userCount = count - adminCount;
 
     this.server.emit('users:online', {

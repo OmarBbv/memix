@@ -7,10 +7,10 @@ import {
 } from 'typeorm';
 
 export enum BannerLocation {
-  HOME_MAIN_SLIDER = 'HOME_MAIN_SLIDER',     // Ana səhifə üst slider
-  HOME_MIDDLE = 'HOME_MIDDLE',               // Ana səhifə orta hissə
-  SIDEBAR = 'SIDEBAR',                       // Yan panel
-  CATEGORY_HEADER = 'CATEGORY_HEADER',       // Kateqoriya başlığı
+  HOME_MAIN_SLIDER = 'HOME_MAIN_SLIDER', // Ana səhifə üst slider
+  HOME_MIDDLE = 'HOME_MIDDLE', // Ana səhifə orta hissə
+  SIDEBAR = 'SIDEBAR', // Yan panel
+  CATEGORY_HEADER = 'CATEGORY_HEADER', // Kateqoriya başlığı
 }
 
 @Entity('banners')

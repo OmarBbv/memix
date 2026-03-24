@@ -13,7 +13,7 @@ export class CampaignsService {
     private readonly campaignRepository: Repository<Campaign>,
     @InjectRepository(Coupon)
     private readonly couponRepository: Repository<Coupon>,
-  ) { }
+  ) {}
 
   async create(createCampaignDto: CreateCampaignDto) {
     const { couponId, ...campaignData } = createCampaignDto;
@@ -21,7 +21,9 @@ export class CampaignsService {
     const campaign = this.campaignRepository.create(campaignData);
 
     if (couponId) {
-      const coupon = await this.couponRepository.findOne({ where: { id: couponId } });
+      const coupon = await this.couponRepository.findOne({
+        where: { id: couponId },
+      });
       if (!coupon) {
         throw new NotFoundException(`Kupon tapılmadı (ID: ${couponId})`);
       }
@@ -77,7 +79,9 @@ export class CampaignsService {
       if (couponId === null) {
         campaign.coupon = null as any;
       } else {
-        const coupon = await this.couponRepository.findOne({ where: { id: couponId } });
+        const coupon = await this.couponRepository.findOne({
+          where: { id: couponId },
+        });
         if (!coupon) {
           throw new NotFoundException(`Kupon tapılmadı (ID: ${couponId})`);
         }

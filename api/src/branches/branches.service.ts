@@ -11,7 +11,7 @@ export class BranchesService {
     private branchRepository: Repository<Branch>,
     @InjectRepository(ProductStock)
     private productStockRepository: Repository<ProductStock>,
-  ) { }
+  ) {}
 
   create(createBranchDto: any) {
     const branch = this.branchRepository.create(createBranchDto);
@@ -37,7 +37,13 @@ export class BranchesService {
     return this.branchRepository.delete(id);
   }
 
-  async updateStock(branchId: number, productId: number, quantity: number, size?: string, color?: string) {
+  async updateStock(
+    branchId: number,
+    productId: number,
+    quantity: number,
+    size?: string,
+    color?: string,
+  ) {
     const whereClause: any = { branchId, productId };
     if (size) whereClause.size = size;
     if (color) whereClause.color = color;

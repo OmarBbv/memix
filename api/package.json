@@ -21,6 +21,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "seed:categories": "ts-node src/database/seeds/category-seed.ts",
     "seed:products": "ts-node src/database/seeds/product-seed.ts",
+    "seed:mock": "ts-node src/database/seeds/seed-mock.ts",
     "seed:search": "curl http://localhost:4444/products/sync-index"
   },
   "dependencies": {

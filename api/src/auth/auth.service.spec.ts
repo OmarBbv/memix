@@ -43,28 +43,47 @@ describe('AuthService', () => {
 
   describe('validateUser', () => {
     it('should return user data (without password) if validation is successful', async () => {
-      const user = { id: 1, email: 'test@example.com', password: 'hashedPassword', name: 'Test' };
+      const user = {
+        id: 1,
+        email: 'test@example.com',
+        password: 'hashedPassword',
+        name: 'Test',
+      };
       usersService.findByEmail.mockResolvedValue(user);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
       const result = await service.validateUser('test@example.com', 'password');
-      expect(result).toEqual({ id: 1, email: 'test@example.com', name: 'Test' });
+      expect(result).toEqual({
+        id: 1,
+        email: 'test@example.com',
+        name: 'Test',
+      });
       expect(result).not.toHaveProperty('password');
     });
 
     it('should return null if password does not match', async () => {
-      const user = { id: 1, email: 'test@example.com', password: 'hashedPassword' };
+      const user = {
+        id: 1,
+        email: 'test@example.com',
+        password: 'hashedPassword',
+      };
       usersService.findByEmail.mockResolvedValue(user);
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
-      const result = await service.validateUser('test@example.com', 'wrongPassword');
+      const result = await service.validateUser(
+        'test@example.com',
+        'wrongPassword',
+      );
       expect(result).toBeNull();
     });
 
     it('should return null if user not found', async () => {
       usersService.findByEmail.mockResolvedValue(null);
 
-      const result = await service.validateUser('notfound@example.com', 'password');
+      const result = await service.validateUser(
+        'notfound@example.com',
+        'password',
+      );
       expect(result).toBeNull();
     });
   });
@@ -76,7 +95,10 @@ describe('AuthService', () => {
 
       const result = await service.login(user);
 
-      expect(jwtService.sign).toHaveBeenCalledWith({ email: user.email, sub: user.id });
+      expect(jwtService.sign).toHaveBeenCalledWith({
+        email: user.email,
+        sub: user.id,
+      });
       expect(result).toEqual({ access_token: 'signed-jwt-token' });
     });
   });

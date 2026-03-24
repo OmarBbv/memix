@@ -1,4 +1,11 @@
-import { IsBoolean, IsEnum, IsNumber, IsOptional, IsString, IsArray } from 'class-validator';
+import {
+  IsBoolean,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsArray,
+} from 'class-validator';
 import { BannerLocation } from '../entities/banner.entity';
 
 export class CreateBannerDto {

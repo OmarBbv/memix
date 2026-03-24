@@ -26,7 +26,10 @@ describe('CampaignsService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CampaignsService,
-        { provide: getRepositoryToken(Campaign), useValue: mockCampaignRepository },
+        {
+          provide: getRepositoryToken(Campaign),
+          useValue: mockCampaignRepository,
+        },
         { provide: getRepositoryToken(Coupon), useValue: mockCouponRepository },
       ],
     }).compile();
@@ -52,14 +55,25 @@ describe('CampaignsService', () => {
 
     it('2. create - should successfully create a campaign with a valid coupon', async () => {
       const dto = { title: 'Test 2', type: CampaignType.DISCOUNT, couponId: 5 };
-      mockCouponRepository.findOne.mockResolvedValue({ id: 5, code: 'TESTCOUPON' });
-      mockCampaignRepository.create.mockReturnValue({ title: 'Test 2', type: CampaignType.DISCOUNT });
-      mockCampaignRepository.save.mockImplementation(async (entity) => ({ id: 2, ...entity }));
+      mockCouponRepository.findOne.mockResolvedValue({
+        id: 5,
+        code: 'TESTCOUPON',
+      });
+      mockCampaignRepository.create.mockReturnValue({
+        title: 'Test 2',
+        type: CampaignType.DISCOUNT,
+      });
+      mockCampaignRepository.save.mockImplementation(async (entity) => ({
+        id: 2,
+        ...entity,
+      }));
 
       const result = await service.create(dto as any);
       expect(result.coupon).toBeDefined();
       expect(result.coupon.id).toBe(5);
-      expect(mockCouponRepository.findOne).toHaveBeenCalledWith({ where: { id: 5 } });
+      expect(mockCouponRepository.findOne).toHaveBeenCalledWith({
+        where: { id: 5 },
+      });
     });
 
     it('3. findAll - should return all campaigns ordered', async () => {
@@ -84,12 +98,14 @@ describe('CampaignsService', () => {
 
     it('5. findActive - should return active campaigns where current date is between startDate and endDate', async () => {
       const now = new Date();
-      const campaigns = [{
-        id: 1,
-        isActive: true,
-        startDate: new Date(now.getTime() - 100000),
-        endDate: new Date(now.getTime() + 100000)
-      }];
+      const campaigns = [
+        {
+          id: 1,
+          isActive: true,
+          startDate: new Date(now.getTime() - 100000),
+          endDate: new Date(now.getTime() + 100000),
+        },
+      ];
       mockCampaignRepository.find.mockResolvedValue(campaigns);
 
       const result = await service.findActive();
@@ -98,12 +114,14 @@ describe('CampaignsService', () => {
 
     it('6. findActive - should return active campaigns where startDate is in past, endDate is null', async () => {
       const now = new Date();
-      const campaigns = [{
-        id: 1,
-        isActive: true,
-        startDate: new Date(now.getTime() - 100000),
-        endDate: null
-      }];
+      const campaigns = [
+        {
+          id: 1,
+          isActive: true,
+          startDate: new Date(now.getTime() - 100000),
+          endDate: null,
+        },
+      ];
       mockCampaignRepository.find.mockResolvedValue(campaigns);
 
       const result = await service.findActive();
@@ -112,12 +130,14 @@ describe('CampaignsService', () => {
 
     it('7. findActive - should return active campaigns where startDate is null, endDate is in future', async () => {
       const now = new Date();
-      const campaigns = [{
-        id: 1,
-        isActive: true,
-        startDate: null,
-        endDate: new Date(now.getTime() + 100000)
-      }];
+      const campaigns = [
+        {
+          id: 1,
+          isActive: true,
+          startDate: null,
+          endDate: new Date(now.getTime() + 100000),
+        },
+      ];
       mockCampaignRepository.find.mockResolvedValue(campaigns);
 
       const result = await service.findActive();
@@ -175,11 +195,17 @@ describe('CampaignsService', () => {
   describe('Negative Tests', () => {
     it('1. create - should throw NotFoundException if couponId is provided but coupon doesnt exist', async () => {
       mockCouponRepository.findOne.mockResolvedValue(null);
-      await expect(service.create({ title: 'Test', type: CampaignType.DISCOUNT, couponId: 999 } as any)).rejects.toThrow(NotFoundException);
+      await expect(
+        service.create({
+          title: 'Test',
+          type: CampaignType.DISCOUNT,
+          couponId: 999,
+        } as any),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('2. findActive - should not return campaigns with isActive: false (though repo filters them out, test filter logic)', async () => {
-      // FindActive mock finds active ones from repo, but if a bug exists and repo returns inactive, filter should ignore? 
+      // FindActive mock finds active ones from repo, but if a bug exists and repo returns inactive, filter should ignore?
       // Actually repo filters WHERE isActive: true.
       mockCampaignRepository.find.mockImplementation((params) => {
         if (params.where?.isActive) return [{ id: 1, isActive: true }];
@@ -187,16 +213,20 @@ describe('CampaignsService', () => {
       });
       const result = await service.findActive();
       // Test ensures the repo call uses { isActive: true }
-      expect(mockCampaignRepository.find).toHaveBeenCalledWith(expect.objectContaining({ where: { isActive: true } }));
+      expect(mockCampaignRepository.find).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { isActive: true } }),
+      );
     });
 
     it('3. findActive - should not return campaigns where endDate is in the past', async () => {
       const now = new Date();
-      const campaigns = [{
-        id: 1,
-        isActive: true,
-        endDate: new Date(now.getTime() - 100000)
-      }];
+      const campaigns = [
+        {
+          id: 1,
+          isActive: true,
+          endDate: new Date(now.getTime() - 100000),
+        },
+      ];
       mockCampaignRepository.find.mockResolvedValue(campaigns);
 
       const result = await service.findActive();
@@ -205,11 +235,13 @@ describe('CampaignsService', () => {
 
     it('4. findActive - should not return campaigns where startDate is in the future', async () => {
       const now = new Date();
-      const campaigns = [{
-        id: 1,
-        isActive: true,
-        startDate: new Date(now.getTime() + 100000)
-      }];
+      const campaigns = [
+        {
+          id: 1,
+          isActive: true,
+          startDate: new Date(now.getTime() + 100000),
+        },
+      ];
       mockCampaignRepository.find.mockResolvedValue(campaigns);
 
       const result = await service.findActive();
@@ -223,13 +255,17 @@ describe('CampaignsService', () => {
 
     it('6. update - should throw NotFoundException if campaign to update doesnt exist', async () => {
       mockCampaignRepository.findOne.mockResolvedValue(null);
-      await expect(service.update(999, { title: 'New' } as any)).rejects.toThrow(NotFoundException);
+      await expect(
+        service.update(999, { title: 'New' } as any),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('7. update - should throw NotFoundException if new couponId doesnt exist', async () => {
       mockCampaignRepository.findOne.mockResolvedValue({ id: 1 });
       mockCouponRepository.findOne.mockResolvedValue(null);
-      await expect(service.update(1, { couponId: 999 } as any)).rejects.toThrow(NotFoundException);
+      await expect(service.update(1, { couponId: 999 } as any)).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('8. remove - should throw NotFoundException if campaign to remove doesnt exist', async () => {

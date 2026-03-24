@@ -12,7 +12,7 @@ export class CartsService {
     private cartRepository: Repository<Cart>,
     @InjectRepository(CartItem)
     private cartItemRepository: Repository<CartItem>,
-  ) { }
+  ) {}
 
   async findOrCreateCart(userId: number): Promise<Cart> {
     let cart = await this.cartRepository.findOne({
@@ -32,13 +32,19 @@ export class CartsService {
     return this.findOrCreateCart(userId);
   }
 
-  async addToCart(userId: number, productId: number, quantity: number, variants?: Record<string, any>) {
+  async addToCart(
+    userId: number,
+    productId: number,
+    quantity: number,
+    variants?: Record<string, any>,
+  ) {
     const cart = await this.findOrCreateCart(userId);
 
     // Eyni məhsul və eyni variant varmı?
-    let cartItem = cart.items.find(item =>
-      item.product.id === productId &&
-      JSON.stringify(item.variants) === JSON.stringify(variants)
+    let cartItem = cart.items.find(
+      (item) =>
+        item.product.id === productId &&
+        JSON.stringify(item.variants) === JSON.stringify(variants),
     );
 
     if (cartItem) {
@@ -60,7 +66,7 @@ export class CartsService {
   async removeItem(userId: number, itemId: number) {
     const cart = await this.findOrCreateCart(userId);
     const item = await this.cartItemRepository.findOne({
-      where: { id: itemId, cart: { id: cart.id } }
+      where: { id: itemId, cart: { id: cart.id } },
     });
 
     if (!item) {

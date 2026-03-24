@@ -10,9 +10,12 @@ export class AddressesService {
   constructor(
     @InjectRepository(Address)
     private addressRepository: Repository<Address>,
-  ) { }
+  ) {}
 
-  async create(userId: number, createAddressDto: CreateAddressDto): Promise<Address> {
+  async create(
+    userId: number,
+    createAddressDto: CreateAddressDto,
+  ): Promise<Address> {
     const address = this.addressRepository.create({
       ...createAddressDto,
       userId,
@@ -25,14 +28,20 @@ export class AddressesService {
   }
 
   async findOne(id: number, userId: number): Promise<Address> {
-    const address = await this.addressRepository.findOne({ where: { id, userId } });
+    const address = await this.addressRepository.findOne({
+      where: { id, userId },
+    });
     if (!address) {
       throw new NotFoundException(`Address with ID ${id} not found`);
     }
     return address;
   }
 
-  async update(id: number, userId: number, updateAddressDto: UpdateAddressDto): Promise<Address> {
+  async update(
+    id: number,
+    userId: number,
+    updateAddressDto: UpdateAddressDto,
+  ): Promise<Address> {
     const address = await this.findOne(id, userId); // Ensure ownership
 
     // If setting as default, unset others first if needed

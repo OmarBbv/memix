@@ -8,7 +8,7 @@ export class SearchService {
   private readonly index = 'products';
   private readonly categoryIndex = 'categories';
 
-  constructor(private readonly elasticsearchService: ElasticsearchService) { }
+  constructor(private readonly elasticsearchService: ElasticsearchService) {}
 
   async onModuleInit() {
     // Products Index
@@ -100,7 +100,9 @@ export class SearchService {
         this.logger.error('Bulk indexing encountered errors');
         response.items.forEach((item) => {
           if (item.index && item.index.error) {
-            this.logger.error(`Error indexing product ${item.index._id}: ${JSON.stringify(item.index.error)}`);
+            this.logger.error(
+              `Error indexing product ${item.index._id}: ${JSON.stringify(item.index.error)}`,
+            );
           }
         });
       } else {
@@ -137,7 +139,10 @@ export class SearchService {
         id: categoryId.toString(),
       });
     } catch (error) {
-      this.logger.error(`Failed to delete category ${categoryId} from index`, error.stack);
+      this.logger.error(
+        `Failed to delete category ${categoryId} from index`,
+        error.stack,
+      );
     }
   }
 
@@ -148,7 +153,10 @@ export class SearchService {
         id: productId.toString(),
       });
     } catch (error) {
-      this.logger.error(`Failed to delete product ${productId} from index`, error.stack);
+      this.logger.error(
+        `Failed to delete product ${productId} from index`,
+        error.stack,
+      );
     }
   }
 
@@ -166,15 +174,15 @@ export class SearchService {
                 query: text,
                 fields: ['name^3', 'description', 'tags^2', 'category'],
                 fuzziness: 'AUTO',
-                operator: 'and'
-              }
+                operator: 'and',
+              },
             },
             { wildcard: { name: `*${lowerText}*` } },
             { wildcard: { description: `*${lowerText}*` } },
-            { match_phrase_prefix: { name: text } }
+            { match_phrase_prefix: { name: text } },
           ],
-          minimum_should_match: 1
-        }
+          minimum_should_match: 1,
+        },
       },
     });
 
@@ -187,13 +195,19 @@ export class SearchService {
             { match: { name: { query: text, fuzziness: 'AUTO' } } },
             { wildcard: { name: `*${lowerText}*` } },
           ],
-          minimum_should_match: 1
-        }
+          minimum_should_match: 1,
+        },
       },
     });
 
-    const products = productResponse.hits.hits.map((hit) => ({ ...hit._source as any, type: 'product' }));
-    const categories = categoryResponse.hits.hits.map((hit) => ({ ...hit._source as any, type: 'category' }));
+    const products = productResponse.hits.hits.map((hit) => ({
+      ...(hit._source as any),
+      type: 'product',
+    }));
+    const categories = categoryResponse.hits.hits.map((hit) => ({
+      ...(hit._source as any),
+      type: 'category',
+    }));
 
     return [...categories, ...products];
   }

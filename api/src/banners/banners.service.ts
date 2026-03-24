@@ -10,7 +10,7 @@ export class BannersService {
   constructor(
     @InjectRepository(Banner)
     private bannersRepository: Repository<Banner>,
-  ) { }
+  ) {}
 
   create(createBannerDto: CreateBannerDto) {
     const banner = this.bannersRepository.create(createBannerDto);

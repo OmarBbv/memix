@@ -10,4 +10,4 @@ import { DiscountsModule } from '../discounts/discounts.module';
   controllers: [PromotionsController],
   providers: [PromotionsService],
 })
-export class PromotionsModule { }
+export class PromotionsModule {}

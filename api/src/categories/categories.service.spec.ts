@@ -41,7 +41,11 @@ describe('CategoriesService', () => {
   describe('create', () => {
     it('should create a category', async () => {
       const createCategoryDto = { name: 'Test Category' };
-      const expectedCategory = { id: 1, name: 'Test Category', slug: 'test-category' };
+      const expectedCategory = {
+        id: 1,
+        name: 'Test Category',
+        slug: 'test-category',
+      };
       mockCategoriesRepository.findOneBy.mockResolvedValue(null);
       mockCategoriesRepository.create.mockReturnValue(expectedCategory);
       mockCategoriesRepository.save.mockResolvedValue(expectedCategory);
@@ -56,7 +60,9 @@ describe('CategoriesService', () => {
       const createCategoryDto = { name: 'Test Category' };
       mockCategoriesRepository.findOneBy.mockResolvedValue({ id: 1 }); // Artıq mövcuddur
 
-      await expect(service.create(createCategoryDto)).rejects.toThrow(ConflictException);
+      await expect(service.create(createCategoryDto)).rejects.toThrow(
+        ConflictException,
+      );
     });
   });
 
@@ -70,15 +76,25 @@ describe('CategoriesService', () => {
 
     it('should throw NotFoundException if not found', async () => {
       mockCategoriesRepository.findOneBy.mockResolvedValue(null);
-      await expect(service.findOne(999)).rejects.toThrow(new NotFoundException(ErrorMessages.CATEGORY_NOT_FOUND));
+      await expect(service.findOne(999)).rejects.toThrow(
+        new NotFoundException(ErrorMessages.CATEGORY_NOT_FOUND),
+      );
     });
   });
 
   describe('getFilters', () => {
     it('should return filters for a category', async () => {
       const products = [
-        { id: 1, price: 100, variants: { brand: 'Nike', color: 'Black', size: '42' } },
-        { id: 2, price: 200, variants: { brand: 'Adidas', color: 'White', size: '43' } },
+        {
+          id: 1,
+          price: 100,
+          variants: { brand: 'Nike', color: 'Black', size: '42' },
+        },
+        {
+          id: 2,
+          price: 200,
+          variants: { brand: 'Adidas', color: 'White', size: '43' },
+        },
       ];
       const category = { id: 1, products };
 
@@ -103,7 +119,9 @@ describe('CategoriesService', () => {
 
     it('should throw NotFoundException if category not found for filters', async () => {
       mockCategoriesRepository.findOne.mockResolvedValue(null);
-      await expect(service.getFilters(999)).rejects.toThrow(new NotFoundException(ErrorMessages.CATEGORY_NOT_FOUND));
+      await expect(service.getFilters(999)).rejects.toThrow(
+        new NotFoundException(ErrorMessages.CATEGORY_NOT_FOUND),
+      );
     });
   });
 });

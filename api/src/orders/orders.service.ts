@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { Order, OrderStatus } from './entities/order.entity';
@@ -20,9 +24,14 @@ export class OrdersService {
     private productStockRepository: Repository<ProductStock>,
     private dataSource: DataSource,
     private notificationsService: NotificationsService,
-  ) { }
+  ) {}
 
-  async create(userId: number, address: string, phone: string, branchId: number) {
+  async create(
+    userId: number,
+    address: string,
+    phone: string,
+    branchId: number,
+  ) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -51,7 +60,12 @@ export class OrdersService {
         // 1. Əvvəl rəng+ölçüyə görə axtarırıq
         if (itemColor && itemSize) {
           stock = await this.productStockRepository.findOne({
-            where: { branchId, productId: item.product.id, size: itemSize, color: itemColor },
+            where: {
+              branchId,
+              productId: item.product.id,
+              size: itemSize,
+              color: itemColor,
+            },
           });
         }
 
@@ -77,7 +91,9 @@ export class OrdersService {
         }
 
         if (!stock || stock.stock < item.quantity) {
-          throw new BadRequestException(`${item.product.name} üçün kifayət qədər stok yoxdur`);
+          throw new BadRequestException(
+            `${item.product.name} üçün kifayət qədər stok yoxdur`,
+          );
         }
 
         // Stokdan azaldırıq
@@ -131,7 +147,9 @@ export class OrdersService {
   }
 
   async findAll() {
-    return this.orderRepository.find({ relations: ['items', 'items.product', 'user'] });
+    return this.orderRepository.find({
+      relations: ['items', 'items.product', 'user'],
+    });
   }
 
   async findByUserId(userId: number) {

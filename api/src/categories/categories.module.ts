@@ -11,4 +11,4 @@ import { SearchModule } from '../search/search.module';
   controllers: [CategoriesController],
   providers: [CategoriesService],
 })
-export class CategoriesModule { }
+export class CategoriesModule {}

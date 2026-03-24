@@ -20,7 +20,7 @@ export class CategoriesService {
     @InjectRepository(Category)
     private categoriesRepository: Repository<Category>,
     private readonly searchService: SearchService,
-  ) { }
+  ) {}
 
   private formatName(name: string): string {
     if (!name) return name;
@@ -48,13 +48,19 @@ export class CategoriesService {
         .execute();
     } else if (newOrder < oldOrder) {
       await qb
-        .andWhere('"order" >= :newOrder AND "order" < :oldOrder', { newOrder, oldOrder })
+        .andWhere('"order" >= :newOrder AND "order" < :oldOrder', {
+          newOrder,
+          oldOrder,
+        })
         .update()
         .set({ order: () => '"order" + 1' })
         .execute();
     } else if (newOrder > oldOrder) {
       await qb
-        .andWhere('"order" > :oldOrder AND "order" <= :newOrder', { oldOrder, newOrder })
+        .andWhere('"order" > :oldOrder AND "order" <= :newOrder', {
+          oldOrder,
+          newOrder,
+        })
         .update()
         .set({ order: () => '"order" - 1' })
         .execute();
@@ -62,7 +68,7 @@ export class CategoriesService {
   }
 
   private async generateUniqueSlug(name: string): Promise<string> {
-    let baseSlug = generateSlug(name);
+    const baseSlug = generateSlug(name);
     let slug = baseSlug;
     let counter = 2;
 
@@ -74,7 +80,10 @@ export class CategoriesService {
     return slug;
   }
 
-  async create(createCategoryDto: CreateCategoryDto, image?: Express.Multer.File) {
+  async create(
+    createCategoryDto: CreateCategoryDto,
+    image?: Express.Multer.File,
+  ) {
     const { parentId, ...rest } = createCategoryDto;
     const formattedName = this.formatName(rest.name);
     const slug = await this.generateUniqueSlug(formattedName);
@@ -124,7 +133,10 @@ export class CategoriesService {
     }));
   }
 
-  private formatCategoryTree(category: Category, all: boolean = false): Category | null {
+  private formatCategoryTree(
+    category: Category,
+    all: boolean = false,
+  ): Category | null {
     if (!all && !category.isActive) return null;
     category.name = this.formatName(category.name);
     category.imageUrl = ensureFullUrl(category.imageUrl);
@@ -168,10 +180,18 @@ export class CategoriesService {
     return category;
   }
 
-  async findBySlug(slug: string, filters: Record<string, string> = {}): Promise<Category> {
+  async findBySlug(
+    slug: string,
+    filters: Record<string, string> = {},
+  ): Promise<Category> {
     const category = await this.categoriesRepository.findOne({
       where: { slug },
-      relations: ['parent', 'children', 'children.children', 'children.children.children'],
+      relations: [
+        'parent',
+        'children',
+        'children.children',
+        'children.children.children',
+      ],
     });
 
     if (!category) {
@@ -179,25 +199,34 @@ export class CategoriesService {
     }
 
     const categoryIds = this.getIdsFromTree(category);
-    const { subcategory, price, minPrice, maxPrice, ...variantFilters } = filters;
+    const { subcategory, price, minPrice, maxPrice, ...variantFilters } =
+      filters;
 
-    const productRepo = this.categoriesRepository.manager.getRepository(Product);
-    let qb = productRepo.createQueryBuilder('product')
+    const productRepo =
+      this.categoriesRepository.manager.getRepository(Product);
+    let qb = productRepo
+      .createQueryBuilder('product')
       .leftJoinAndSelect('product.category', 'category')
       .leftJoinAndSelect('product.discount', 'discount')
       .where('product.categoryId IN (:...categoryIds)', { categoryIds })
       .orderBy('product.createdAt', 'DESC');
 
     if (subcategory) {
-      const subcategoryNames = subcategory.split(',').map(s => s.trim());
-      qb = qb.andWhere('category.name IN (:...subcategoryNames)', { subcategoryNames });
+      const subcategoryNames = subcategory.split(',').map((s) => s.trim());
+      qb = qb.andWhere('category.name IN (:...subcategoryNames)', {
+        subcategoryNames,
+      });
     }
 
     if (minPrice) {
-      qb = qb.andWhere('CAST(product.price AS NUMERIC) >= :minPriceVal', { minPriceVal: Number(minPrice) });
+      qb = qb.andWhere('CAST(product.price AS NUMERIC) >= :minPriceVal', {
+        minPriceVal: Number(minPrice),
+      });
     }
     if (maxPrice) {
-      qb = qb.andWhere('CAST(product.price AS NUMERIC) <= :maxPriceVal', { maxPriceVal: Number(maxPrice) });
+      qb = qb.andWhere('CAST(product.price AS NUMERIC) <= :maxPriceVal', {
+        maxPriceVal: Number(maxPrice),
+      });
     }
 
     if (price) {
@@ -207,7 +236,9 @@ export class CategoriesService {
       price.split(',').forEach((range, i) => {
         const match = range.match(/([\d.]+)\s*-\s*([\d.]+)/);
         if (match) {
-          priceConditions.push(`(CAST(product.price AS NUMERIC) >= :minPrice${i} AND CAST(product.price AS NUMERIC) <= :maxPrice${i})`);
+          priceConditions.push(
+            `(CAST(product.price AS NUMERIC) >= :minPrice${i} AND CAST(product.price AS NUMERIC) <= :maxPrice${i})`,
+          );
           priceParams[`minPrice${i}`] = Number(match[1]);
           priceParams[`maxPrice${i}`] = Number(match[2]);
         }
@@ -220,7 +251,7 @@ export class CategoriesService {
 
     Object.entries(variantFilters).forEach(([key, value]) => {
       if (!value) return;
-      const values = value.split(',').map(v => v.trim());
+      const values = value.split(',').map((v) => v.trim());
 
       if (values.length === 1) {
         qb = qb.andWhere(
@@ -229,11 +260,12 @@ export class CategoriesService {
             [`key_${key}`]: key,
             [`val_${key}`]: values[0],
             [`valArr_${key}`]: JSON.stringify([values[0]]),
-          }
+          },
         );
       } else {
-        const conditions = values.map((v, i) =>
-          `(product.variants->>:key_${key} = :val_${key}_${i} OR product.variants->:key_${key} @> :valArr_${key}_${i}::jsonb)`
+        const conditions = values.map(
+          (v, i) =>
+            `(product.variants->>:key_${key} = :val_${key}_${i} OR product.variants->:key_${key} @> :valArr_${key}_${i}::jsonb)`,
         );
         const params: Record<string, any> = { [`key_${key}`]: key };
         values.forEach((v, i) => {
@@ -246,13 +278,18 @@ export class CategoriesService {
 
     const allProducts = await qb.getMany();
 
-    category.products = allProducts.map(product => ({
-      ...product,
-      banner: ensureFullUrl(product.banner),
-      images: Array.isArray(product.images)
-        ? (product.images.map(img => ensureFullUrl(img)).filter(Boolean) as string[])
-        : product.images,
-    } as any));
+    category.products = allProducts.map(
+      (product) =>
+        ({
+          ...product,
+          banner: ensureFullUrl(product.banner),
+          images: Array.isArray(product.images)
+            ? (product.images
+                .map((img) => ensureFullUrl(img))
+                .filter(Boolean) as string[])
+            : product.images,
+        }) as any,
+    );
     category.imageUrl = ensureFullUrl(category.imageUrl);
     category.name = this.formatName(category.name);
     return category;
@@ -261,14 +298,18 @@ export class CategoriesService {
   private getIdsFromTree(category: Category): number[] {
     let ids = [category.id];
     if (category.children) {
-      category.children.forEach(child => {
+      category.children.forEach((child) => {
         ids = [...ids, ...this.getIdsFromTree(child)];
       });
     }
     return ids;
   }
 
-  async update(id: number, updateCategoryDto: UpdateCategoryDto, image?: Express.Multer.File) {
+  async update(
+    id: number,
+    updateCategoryDto: UpdateCategoryDto,
+    image?: Express.Multer.File,
+  ) {
     const category = await this.findOne(id);
     const { parentId, ...rest } = updateCategoryDto;
 
@@ -314,7 +355,11 @@ export class CategoriesService {
   async getFilters(id: number) {
     const category = await this.categoriesRepository.findOne({
       where: { id },
-      relations: ['children', 'children.children', 'children.children.children'],
+      relations: [
+        'children',
+        'children.children',
+        'children.children.children',
+      ],
     });
 
     if (!category) {
@@ -323,10 +368,12 @@ export class CategoriesService {
 
     const categoryIds = this.getIdsFromTree(category);
 
-    const products = await this.categoriesRepository.manager.getRepository(Product).find({
-      where: { category: { id: In(categoryIds) } },
-      relations: ['stocks'],
-    });
+    const products = await this.categoriesRepository.manager
+      .getRepository(Product)
+      .find({
+        where: { category: { id: In(categoryIds) } },
+        relations: ['stocks'],
+      });
 
     if (!products || products.length === 0) {
       return {
@@ -337,7 +384,7 @@ export class CategoriesService {
 
     const dynamicFilters: Record<string, any[]> = {};
 
-    products.forEach(product => {
+    products.forEach((product) => {
       // Extract from variants JSON
       if (product.variants && typeof product.variants === 'object') {
         Object.entries(product.variants).forEach(([key, value]) => {
@@ -359,7 +406,7 @@ export class CategoriesService {
 
       // Extract from ProductStock (Trendyol model)
       if (product.stocks && Array.isArray(product.stocks)) {
-        product.stocks.forEach(stock => {
+        product.stocks.forEach((stock) => {
           if (stock.color) {
             if (!dynamicFilters['color']) dynamicFilters['color'] = [];
             dynamicFilters['color'].push(stock.color);
@@ -372,13 +419,18 @@ export class CategoriesService {
       }
     });
 
-    const filters = Object.entries(dynamicFilters).reduce((acc, [key, values]) => {
-      const uniqueValues = [...new Set(values)].filter(v => v !== null && v !== '');
-      if (uniqueValues.length > 0) {
-        acc[key] = uniqueValues;
-      }
-      return acc;
-    }, {} as Record<string, any[]>);
+    const filters = Object.entries(dynamicFilters).reduce(
+      (acc, [key, values]) => {
+        const uniqueValues = [...new Set(values)].filter(
+          (v) => v !== null && v !== '',
+        );
+        if (uniqueValues.length > 0) {
+          acc[key] = uniqueValues;
+        }
+        return acc;
+      },
+      {} as Record<string, any[]>,
+    );
 
     const prices = products.map((p) => Number(p.price));
     const minPrice = prices.length ? Math.min(...prices) : 0;
@@ -398,6 +450,9 @@ export class CategoriesService {
     for (const category of categories) {
       await this.searchService.indexCategory(category);
     }
-    return { count: categories.length, message: 'Categories indexed successfully' };
+    return {
+      count: categories.length,
+      message: 'Categories indexed successfully',
+    };
   }
 }

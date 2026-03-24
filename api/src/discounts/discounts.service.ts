@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateDiscountDto } from './dto/create-discount.dto';
@@ -13,7 +17,7 @@ export class DiscountsService {
     private readonly discountsRepository: Repository<Discount>,
     @InjectRepository(Product)
     private readonly productsRepository: Repository<Product>,
-  ) { }
+  ) {}
 
   async create(createDiscountDto: CreateDiscountDto) {
     const { productId, ...discountData } = createDiscountDto;
@@ -28,7 +32,9 @@ export class DiscountsService {
     }
 
     if (product.discount) {
-      throw new BadRequestException('Bu məhsul üçün artıq endirim təyin edilib. Zəhmət olmasa mövcud endirimi yeniləyin.');
+      throw new BadRequestException(
+        'Bu məhsul üçün artıq endirim təyin edilib. Zəhmət olmasa mövcud endirimi yeniləyin.',
+      );
     }
 
     const discount = this.discountsRepository.create({

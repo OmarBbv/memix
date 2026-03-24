@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  BadRequestException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { MailService } from '../mail/mail.service';
@@ -19,7 +23,7 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private mailService: MailService,
-  ) { }
+  ) {}
 
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
@@ -52,9 +56,17 @@ export class AuthService {
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
 
-    this.otpStore.set(registerData.email, { code, data: registerData, expiresAt });
+    this.otpStore.set(registerData.email, {
+      code,
+      data: registerData,
+      expiresAt,
+    });
 
-    await this.mailService.sendOtpEmail(registerData.email, code, registerData.name);
+    await this.mailService.sendOtpEmail(
+      registerData.email,
+      code,
+      registerData.name,
+    );
 
     return { message: 'OTP kodu emailinizə göndərildi.' };
   }
@@ -68,7 +80,9 @@ export class AuthService {
 
     if (Date.now() > entry.expiresAt) {
       this.otpStore.delete(email);
-      throw new BadRequestException('OTP kodunun vaxtı bitib. Yenidən cəhd edin.');
+      throw new BadRequestException(
+        'OTP kodunun vaxtı bitib. Yenidən cəhd edin.',
+      );
     }
 
     if (entry.code !== code) {

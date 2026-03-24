@@ -38,7 +38,10 @@ describe('AnalyticsService', () => {
         AnalyticsService,
         { provide: getRepositoryToken(Order), useValue: mockOrderRepository },
         { provide: getRepositoryToken(User), useValue: mockUserRepository },
-        { provide: getRepositoryToken(Product), useValue: mockProductRepository },
+        {
+          provide: getRepositoryToken(Product),
+          useValue: mockProductRepository,
+        },
         { provide: getRepositoryToken(Branch), useValue: mockBranchRepository },
       ],
     }).compile();
@@ -87,8 +90,18 @@ describe('AnalyticsService', () => {
   describe('getBranchPerformance', () => {
     it('should return branch performance data', async () => {
       const branches = [
-        { id: 1, name: 'Branch 1', address: 'Address 1', stocks: [{ stock: 10 }, { stock: 20 }] },
-        { id: 2, name: 'Branch 2', address: 'Address 2', stocks: [{ stock: 15 }] },
+        {
+          id: 1,
+          name: 'Branch 1',
+          address: 'Address 1',
+          stocks: [{ stock: 10 }, { stock: 20 }],
+        },
+        {
+          id: 2,
+          name: 'Branch 2',
+          address: 'Address 2',
+          stocks: [{ stock: 15 }],
+        },
       ];
       mockBranchRepository.find.mockResolvedValue(branches);
 

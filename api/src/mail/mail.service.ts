@@ -7,7 +7,7 @@ export class MailService {
   constructor(
     private mailerService: MailerService,
     private configService: ConfigService,
-  ) { }
+  ) {}
 
   async sendWelcomeEmail(email: string, name: string) {
     await this.mailerService.sendMail({

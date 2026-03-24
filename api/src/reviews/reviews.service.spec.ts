@@ -27,7 +27,10 @@ describe('ReviewsService', () => {
       providers: [
         ReviewsService,
         { provide: getRepositoryToken(Review), useValue: mockReviewRepository },
-        { provide: getRepositoryToken(Product), useValue: mockProductRepository },
+        {
+          provide: getRepositoryToken(Product),
+          useValue: mockProductRepository,
+        },
       ],
     }).compile();
 
@@ -53,13 +56,17 @@ describe('ReviewsService', () => {
 
     it('should throw NotFoundException if product not found', async () => {
       mockProductRepository.findOne.mockResolvedValue(null);
-      await expect(service.create(1, { productId: 999, rating: 5 })).rejects.toThrow(NotFoundException);
+      await expect(
+        service.create(1, { productId: 999, rating: 5 }),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('should throw BadRequestException if user already reviewed', async () => {
       mockProductRepository.findOne.mockResolvedValue({ id: 1 });
       mockReviewRepository.findOne.mockResolvedValue({ id: 5 }); // Artıq rəy var
-      await expect(service.create(1, { productId: 1, rating: 5 })).rejects.toThrow(BadRequestException);
+      await expect(
+        service.create(1, { productId: 1, rating: 5 }),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 
@@ -67,7 +74,10 @@ describe('ReviewsService', () => {
     it('should approve a review', async () => {
       const review = { id: 1, isApproved: false };
       mockReviewRepository.findOne.mockResolvedValue(review);
-      mockReviewRepository.save.mockResolvedValue({ ...review, isApproved: true });
+      mockReviewRepository.save.mockResolvedValue({
+        ...review,
+        isApproved: true,
+      });
 
       const result = await service.approve(1);
       expect(result.isApproved).toBe(true);

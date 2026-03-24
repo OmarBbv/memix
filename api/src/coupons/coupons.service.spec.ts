@@ -33,7 +33,11 @@ describe('CouponsService', () => {
 
   describe('create', () => {
     it('should create a coupon', async () => {
-      const createDto = { code: 'SUMMER20', type: DiscountType.PERCENTAGE, value: 20 };
+      const createDto = {
+        code: 'SUMMER20',
+        type: DiscountType.PERCENTAGE,
+        value: 20,
+      };
       mockCouponRepository.findOne.mockResolvedValue(null);
       mockCouponRepository.create.mockReturnValue({ id: 1, ...createDto });
       mockCouponRepository.save.mockResolvedValue({ id: 1, ...createDto });
@@ -44,7 +48,9 @@ describe('CouponsService', () => {
 
     it('should throw BadRequestException if code exists', async () => {
       mockCouponRepository.findOne.mockResolvedValue({ id: 1 });
-      await expect(service.create({ code: 'EXIST' } as any)).rejects.toThrow(BadRequestException);
+      await expect(service.create({ code: 'EXIST' } as any)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
@@ -67,13 +73,20 @@ describe('CouponsService', () => {
 
     it('should throw NotFoundException if coupon not found', async () => {
       mockCouponRepository.findOne.mockResolvedValue(null);
-      await expect(service.validate('INVALID', 100)).rejects.toThrow(NotFoundException);
+      await expect(service.validate('INVALID', 100)).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('should throw BadRequestException if expired', async () => {
-      const coupon = { isActive: true, expiresAt: new Date(Date.now() - 100000) };
+      const coupon = {
+        isActive: true,
+        expiresAt: new Date(Date.now() - 100000),
+      };
       mockCouponRepository.findOne.mockResolvedValue(coupon);
-      await expect(service.validate('EXPIRED', 100)).rejects.toThrow(BadRequestException);
+      await expect(service.validate('EXPIRED', 100)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 

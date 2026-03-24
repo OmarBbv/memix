@@ -29,7 +29,10 @@ describe('CartsService', () => {
       providers: [
         CartsService,
         { provide: getRepositoryToken(Cart), useValue: mockCartRepository },
-        { provide: getRepositoryToken(CartItem), useValue: mockCartItemRepository },
+        {
+          provide: getRepositoryToken(CartItem),
+          useValue: mockCartItemRepository,
+        },
       ],
     }).compile();
 
@@ -74,7 +77,12 @@ describe('CartsService', () => {
     });
 
     it('should increase quantity if item already in cart', async () => {
-      const cart = { id: 1, items: [{ id: 10, product: { id: 101 }, quantity: 1, variants: undefined }] };
+      const cart = {
+        id: 1,
+        items: [
+          { id: 10, product: { id: 101 }, quantity: 1, variants: undefined },
+        ],
+      };
       mockCartRepository.findOne.mockResolvedValue(cart);
 
       const result = await service.addToCart(1, 101, 2);
@@ -97,7 +105,9 @@ describe('CartsService', () => {
       mockCartRepository.findOne.mockResolvedValue({ id: 1 });
       mockCartItemRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.removeItem(1, 10)).rejects.toThrow(NotFoundException);
+      await expect(service.removeItem(1, 10)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

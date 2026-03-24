@@ -3,7 +3,7 @@ import { PromotionsService } from './promotions.service';
 
 @Controller('promotions')
 export class PromotionsController {
-  constructor(private readonly promotionsService: PromotionsService) { }
+  constructor(private readonly promotionsService: PromotionsService) {}
 
   @Get()
   getPromotionsPage() {

@@ -17,7 +17,7 @@ export class AnalyticsService {
     private productRepository: Repository<Product>,
     @InjectRepository(Branch)
     private branchRepository: Repository<Branch>,
-  ) { }
+  ) {}
 
   async getSalesStats(startDate?: Date, endDate?: Date) {
     const where: any = { status: OrderStatus.DELIVERED };
@@ -28,7 +28,10 @@ export class AnalyticsService {
 
     const orders = await this.orderRepository.find({ where });
 
-    const totalSales = orders.reduce((sum, order) => sum + Number(order.totalPrice), 0);
+    const totalSales = orders.reduce(
+      (sum, order) => sum + Number(order.totalPrice),
+      0,
+    );
     const totalOrders = orders.length;
     const averageOrderValue = totalOrders > 0 ? totalSales / totalOrders : 0;
 
@@ -125,12 +128,16 @@ export class AnalyticsService {
 
     const orders = await this.orderRepository.find({ where });
 
-    const totalRevenue = orders.reduce((sum, order) => sum + Number(order.totalPrice), 0);
+    const totalRevenue = orders.reduce(
+      (sum, order) => sum + Number(order.totalPrice),
+      0,
+    );
     const totalOrders = orders.length;
 
     // Status üzrə qruplaşdırma
     const allOrders = await this.orderRepository.find({
-      where: startDate && endDate ? { createdAt: Between(startDate, endDate) } : {},
+      where:
+        startDate && endDate ? { createdAt: Between(startDate, endDate) } : {},
     });
 
     const ordersByStatus = allOrders.reduce((acc, order) => {
@@ -167,12 +174,17 @@ export class AnalyticsService {
   }
 
   async getBranchPerformance() {
-    const branches = await this.branchRepository.find({ relations: ['stocks'] });
+    const branches = await this.branchRepository.find({
+      relations: ['stocks'],
+    });
 
     const performance = await Promise.all(
       branches.map(async (branch) => {
         // Filialın məhsullarının satışlarını hesablayırıq
-        const totalStock = branch.stocks.reduce((sum, stock) => sum + stock.stock, 0);
+        const totalStock = branch.stocks.reduce(
+          (sum, stock) => sum + stock.stock,
+          0,
+        );
         const productCount = branch.stocks.length;
 
         return {

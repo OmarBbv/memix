@@ -1,4 +1,11 @@
-import { IsString, IsEnum, IsNumber, IsOptional, IsDate, Min } from 'class-validator';
+import {
+  IsString,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsDate,
+  Min,
+} from 'class-validator';
 import { DiscountType } from '../entities/coupon.entity';
 import { Type } from 'class-transformer';
 

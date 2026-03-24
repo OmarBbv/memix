@@ -53,22 +53,33 @@ describe('UsersService', () => {
       // Arrange
       mockUsersRepository.findOneBy.mockResolvedValue(null); // İstifadəçi yoxdur
       mockUsersRepository.create.mockReturnValue(createUserDto);
-      mockUsersRepository.save.mockImplementation((user) => Promise.resolve({ id: 1, ...user }));
+      mockUsersRepository.save.mockImplementation((user) =>
+        Promise.resolve({ id: 1, ...user }),
+      );
 
       // Act
       const result = await service.create(createUserDto as any);
 
       // Assert
-      expect(mockUsersRepository.findOneBy).toHaveBeenCalledWith({ email: createUserDto.email });
+      expect(mockUsersRepository.findOneBy).toHaveBeenCalledWith({
+        email: createUserDto.email,
+      });
       expect(mockUsersRepository.create).toHaveBeenCalled();
       expect(mockUsersRepository.save).toHaveBeenCalled();
-      expect(result).toEqual({ id: 1, ...createUserDto, password: 'hashedPassword' });
+      expect(result).toEqual({
+        id: 1,
+        ...createUserDto,
+        password: 'hashedPassword',
+      });
       // Password hash yoxlanılır (biz mock etmişik ki, 'hashedPassword' qaytarsın, amma DTO obyektini dəyişdiyimiz üçün yoxlamaq çətindir, save-ə baxmaq olar)
     });
 
     it('should throw ConflictException if user already exists', async () => {
       // Arrange
-      mockUsersRepository.findOneBy.mockResolvedValue({ id: 1, email: createUserDto.email }); // İstifadəçi var
+      mockUsersRepository.findOneBy.mockResolvedValue({
+        id: 1,
+        email: createUserDto.email,
+      }); // İstifadəçi var
 
       // Act & Assert
       await expect(service.create(createUserDto as any)).rejects.toThrow(

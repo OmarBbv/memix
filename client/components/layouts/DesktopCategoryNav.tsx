@@ -50,7 +50,7 @@ export function DesktopCategoryNav({ categories, show }: DesktopCategoryNavProps
     document.addEventListener("mousedown", handleClickOutside);
     document.addEventListener("touchstart", handleClickOutside);
     document.addEventListener("keydown", handleEscKey);
-    
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("touchstart", handleClickOutside);
@@ -97,100 +97,100 @@ export function DesktopCategoryNav({ categories, show }: DesktopCategoryNavProps
 
             {megaMenuOpen && (
               <>
-                <div 
-                  className="fixed inset-0 z-[90] bg-black/40"
-                  style={{ top: '135px' }} // Starts immediately below the header
+                <div
+                  className="fixed inset-0 z-90 bg-black/40"
+                  style={{ top: '135px' }}
                   onClick={(e) => {
                     e.stopPropagation();
                     setMegaMenuOpen(false);
                   }}
                 />
                 <div
-                  className="absolute left-0 right-0 top-[45px] bg-white shadow-2xl border border-gray-100 z-[100] flex rounded-b-lg overflow-hidden animate-in fade-in slide-in-from-top-1 duration-200"
+                  className="absolute left-0 right-0 top-[45px] bg-white shadow-2xl border border-gray-100 z-100 flex rounded-b-lg overflow-hidden animate-in fade-in slide-in-from-top-1 duration-200"
                   style={{ minHeight: '400px', maxHeight: '600px' }}
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="w-[260px] bg-[#fafafa] flex flex-col py-3 overflow-y-auto border-r border-gray-100" style={{ scrollbarWidth: 'none' }}>
-                  {categories.map(cat => {
-                    const isActive = activeSidebarCat === cat.id;
-                    return (
-                      <div
-                        key={cat.id}
-                        onMouseEnter={() => setActiveSidebarCat(cat.id)}
-                        className={cn(
-                          "flex items-center justify-between px-5 py-2.5 cursor-pointer transition-colors relative",
-                          isActive ? "bg-white" : "hover:bg-white"
-                        )}
-                      >
-                        <div className={cn(
-                          "flex items-center gap-3 text-[14px]",
-                          isActive ? "text-black font-medium" : "text-gray-700 font-normal group-hover/megatrigger:text-black"
-                        )}>
-                          {getCategoryIcon(cat.name)}
-                          <span>{cat.name}</span>
-                        </div>
-                        <ChevronRight className={cn(
-                          "w-4 h-4",
-                          isActive ? "text-black" : "text-gray-400 group-hover/megatrigger:text-black"
-                        )} />
-                      </div>
-                    );
-                  })}
-                </div>
-
-                <div className="flex-1 bg-white p-6 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
-                  {activeSidebarCatObj?.children && activeSidebarCatObj.children.length > 0 ? (
-                    <div className="grid grid-cols-4 gap-x-8 gap-y-8">
-                      {activeSidebarCatObj.children.map(subCat => (
-                        <div key={subCat.id} className="flex flex-col">
-                          <Link
-                            href={`/category/${subCat.slug}`}
-                            onClick={() => setMegaMenuOpen(false)}
-                            className="text-[14px] font-medium text-black mb-3 hover:underline flex items-center transition-all underline-offset-4 decoration-1"
-                          >
-                            {subCat.name} <ChevronRight className="w-4 h-4 ml-0.5 mt-0.5" />
-                          </Link>
-
-                          <div className="flex flex-col space-y-2">
-                            {subCat.children?.slice(0, 10).map(leaf => (
-                              <Link
-                                key={leaf.id}
-                                href={`/category/${leaf.slug}`}
-                                onClick={() => setMegaMenuOpen(false)}
-                                className="text-[13px] text-gray-700 hover:text-black hover:underline underline-offset-4 decoration-gray-300 transition-all"
-                              >
-                                {leaf.name}
-                              </Link>
-                            ))}
-
-                            {subCat.children && subCat.children.length > 10 && (
-                              <Link
-                                href={`/category/${subCat.slug}`}
-                                onClick={() => setMegaMenuOpen(false)}
-                                className="text-[13px] font-medium text-gray-900 mt-1 hover:text-black hover:underline underline-offset-4 transition-all"
-                              >
-                                Daha çox göstər <ChevronDown className="w-3.5 h-3.5 ml-1" />
-                              </Link>
-                            )}
+                    {categories.map(cat => {
+                      const isActive = activeSidebarCat === cat.id;
+                      return (
+                        <div
+                          key={cat.id}
+                          onMouseEnter={() => setActiveSidebarCat(cat.id)}
+                          className={cn(
+                            "flex items-center justify-between px-5 py-2.5 cursor-pointer transition-colors relative",
+                            isActive ? "bg-white" : "hover:bg-white"
+                          )}
+                        >
+                          <div className={cn(
+                            "flex items-center gap-3 text-[14px]",
+                            isActive ? "text-black font-medium" : "text-gray-700 font-normal group-hover/megatrigger:text-black"
+                          )}>
+                            {getCategoryIcon(cat.name)}
+                            <span>{cat.name}</span>
                           </div>
+                          <ChevronRight className={cn(
+                            "w-4 h-4",
+                            isActive ? "text-black" : "text-gray-400 group-hover/megatrigger:text-black"
+                          )} />
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center h-full text-gray-400">
-                      Bu kateqoriya üçün alt kateqoriya tapılmadı.
-                    </div>
-                  )}
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex-1 bg-white p-6 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+                    {activeSidebarCatObj?.children && activeSidebarCatObj.children.length > 0 ? (
+                      <div className="grid grid-cols-4 gap-x-8 gap-y-8">
+                        {activeSidebarCatObj.children.map(subCat => (
+                          <div key={subCat.id} className="flex flex-col">
+                            <Link
+                              href={`/category/${subCat.slug}`}
+                              onClick={() => setMegaMenuOpen(false)}
+                              className="text-[14px] font-medium text-black mb-3 hover:underline flex items-center transition-all underline-offset-4 decoration-1"
+                            >
+                              {subCat.name} <ChevronRight className="w-4 h-4 ml-0.5 mt-0.5" />
+                            </Link>
+
+                            <div className="flex flex-col space-y-2">
+                              {subCat.children?.slice(0, 10).map(leaf => (
+                                <Link
+                                  key={leaf.id}
+                                  href={`/category/${leaf.slug}`}
+                                  onClick={() => setMegaMenuOpen(false)}
+                                  className="text-[13px] text-gray-700 hover:text-black hover:underline underline-offset-4 decoration-gray-300 transition-all"
+                                >
+                                  {leaf.name}
+                                </Link>
+                              ))}
+
+                              {subCat.children && subCat.children.length > 10 && (
+                                <Link
+                                  href={`/category/${subCat.slug}`}
+                                  onClick={() => setMegaMenuOpen(false)}
+                                  className="text-[13px] font-medium text-gray-900 mt-1 hover:text-black hover:underline underline-offset-4 transition-all"
+                                >
+                                  Daha çox göstər <ChevronDown className="w-3.5 h-3.5 ml-1" />
+                                </Link>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-gray-400">
+                        Bu kateqoriya üçün alt kateqoriya tapılmadı.
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
               </>
             )}
           </li>
 
-          {categories.map((item) => (
+          {categories.slice(0, 11).map((item) => (
             <li
               key={item.id}
-              className="h-full flex items-center group cursor-pointer"
+              className="h-full flex items-center group cursor-pointer whitespace-nowrap"
             >
               <Link
                 href={`/category/${item.slug}`}

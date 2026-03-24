@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { CardsService } from './cards.service';
 import { CreateCardDto } from './dto/create-card.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -7,10 +16,13 @@ import type { AuthenticatedRequest } from '../common/interfaces/request.interfac
 @Controller('cards')
 @UseGuards(AuthGuard('jwt'))
 export class CardsController {
-  constructor(private readonly cardsService: CardsService) { }
+  constructor(private readonly cardsService: CardsService) {}
 
   @Post()
-  create(@Request() req: AuthenticatedRequest, @Body() createCardDto: CreateCardDto) {
+  create(
+    @Request() req: AuthenticatedRequest,
+    @Body() createCardDto: CreateCardDto,
+  ) {
     return this.cardsService.create(req.user.userId, createCardDto);
   }
 

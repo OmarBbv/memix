@@ -11,7 +11,7 @@ export class BrandsService {
   constructor(
     @InjectRepository(Brand)
     private brandRepository: Repository<Brand>,
-  ) { }
+  ) {}
 
   create(createBrandDto: CreateBrandDto) {
     const brand = this.brandRepository.create(createBrandDto);
@@ -22,14 +22,16 @@ export class BrandsService {
     const qb = this.brandRepository.createQueryBuilder('brand');
 
     if (query.showOnHome) {
-      qb.andWhere('brand.showOnHome = :show', { show: query.showOnHome === 'true' });
+      qb.andWhere('brand.showOnHome = :show', {
+        show: query.showOnHome === 'true',
+      });
     }
 
     qb.andWhere('brand.isActive = :isActive', { isActive: true });
     qb.orderBy('brand.order', 'ASC');
 
     const brands = await qb.getMany();
-    return brands.map(brand => ({
+    return brands.map((brand) => ({
       ...brand,
       logoUrl: brand.logoUrl ? ensureFullUrl(brand.logoUrl) : null,
     }));

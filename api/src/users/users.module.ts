@@ -14,4 +14,4 @@ import { SeedService } from './seed.service';
   providers: [UsersService, AddressesService, SeedService],
   exports: [UsersService, AddressesService],
 })
-export class UsersModule { }
+export class UsersModule {}

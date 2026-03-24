@@ -85,12 +85,17 @@ describe('BannersService', () => {
       // Since mockBannerRepository already provides a mock for createQueryBuilder, we can just spy/mock implementation if needed.
       // But let's refine the repository mock setup above to be more flexible or assert on it here.
 
-      (repository.createQueryBuilder as jest.Mock).mockReturnValue(mockQueryBuilder);
+      (repository.createQueryBuilder as jest.Mock).mockReturnValue(
+        mockQueryBuilder,
+      );
 
       const result = await service.findAll();
       expect(result).toEqual(banners);
       expect(repository.createQueryBuilder).toHaveBeenCalledWith('banner');
-      expect(mockQueryBuilder.where).toHaveBeenCalledWith('banner.isActive = :isActive', { isActive: true });
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith(
+        'banner.isActive = :isActive',
+        { isActive: true },
+      );
     });
 
     it('should filter by location if provided', async () => {
@@ -101,10 +106,15 @@ describe('BannersService', () => {
         orderBy: jest.fn().mockReturnThis(),
         getMany: jest.fn().mockResolvedValue([]),
       };
-      (repository.createQueryBuilder as jest.Mock).mockReturnValue(mockQueryBuilder);
+      (repository.createQueryBuilder as jest.Mock).mockReturnValue(
+        mockQueryBuilder,
+      );
 
       await service.findAll(location);
-      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('banner.location = :location', { location });
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        'banner.location = :location',
+        { location },
+      );
     });
   });
 
@@ -133,7 +143,9 @@ describe('BannersService', () => {
 
       repository.findOneBy.mockResolvedValue(existingBanner);
       // repository.merge implementation: (entity, dto) => Object.assign(entity, dto) roughly
-      repository.merge.mockImplementation((entity, dto) => Object.assign(entity, dto));
+      repository.merge.mockImplementation((entity, dto) =>
+        Object.assign(entity, dto),
+      );
       repository.save.mockResolvedValue(updatedBanner);
 
       const result = await service.update(1, updateDto);

@@ -1,14 +1,22 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { OrderItem } from './order-item.entity';
 
 export enum OrderStatus {
-  PENDING = 'PENDING',       // Sifariş verildi, təsdiq gözləyir
-  PREPARING = 'PREPARING',   // Hazırlanır
-  READY = 'READY',           // Hazırdır (Kuryer gözləyir)
-  ON_WAY = 'ON_WAY',         // Yoldadır
-  DELIVERED = 'DELIVERED',   // Çatdırıldı
-  CANCELLED = 'CANCELLED',   // Ləğv edildi
+  PENDING = 'PENDING', // Sifariş verildi, təsdiq gözləyir
+  PREPARING = 'PREPARING', // Hazırlanır
+  READY = 'READY', // Hazırdır (Kuryer gözləyir)
+  ON_WAY = 'ON_WAY', // Yoldadır
+  DELIVERED = 'DELIVERED', // Çatdırıldı
+  CANCELLED = 'CANCELLED', // Ləğv edildi
 }
 
 @Entity('orders')

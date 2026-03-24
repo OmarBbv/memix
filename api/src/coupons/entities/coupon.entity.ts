@@ -1,8 +1,14 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 export enum DiscountType {
   PERCENTAGE = 'percentage', // Faiz (məsələn: 20%)
-  FIXED = 'fixed',           // Sabit məbləğ (məsələn: 10 AZN)
+  FIXED = 'fixed', // Sabit məbləğ (məsələn: 10 AZN)
 }
 
 @Entity('coupons')

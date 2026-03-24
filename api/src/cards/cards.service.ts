@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Card } from './entities/card.entity';
@@ -10,7 +14,7 @@ export class CardsService {
   constructor(
     @InjectRepository(Card)
     private cardsRepository: Repository<Card>,
-  ) { }
+  ) {}
 
   async create(userId: number, createCardDto: CreateCardDto): Promise<Card> {
     const { cardNumber, holderName, expMonth, expYear, color } = createCardDto;
@@ -41,7 +45,7 @@ export class CardsService {
   async findAll(userId: number): Promise<Card[]> {
     return this.cardsRepository.find({
       where: { userId },
-      order: { id: 'DESC' }
+      order: { id: 'DESC' },
     });
   }
 

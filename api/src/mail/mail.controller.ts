@@ -7,7 +7,7 @@ import { UserRole } from '../users/entities/user.entity';
 
 @Controller('mail')
 export class MailController {
-  constructor(private readonly mailService: MailService) { }
+  constructor(private readonly mailService: MailService) {}
 
   // Test endpoint - Sonra silinəcək
   @Post('test/welcome')
@@ -20,9 +20,7 @@ export class MailController {
   async testOrder(@Body() data: any) {
     await this.mailService.sendOrderConfirmation(data.email, {
       orderId: 12345,
-      items: [
-        { product: { name: 'Test Məhsul' }, quantity: 2, price: 50 },
-      ],
+      items: [{ product: { name: 'Test Məhsul' }, quantity: 2, price: 50 }],
       totalPrice: 100,
       address: 'Test Ünvan',
       customerName: data.name,

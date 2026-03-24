@@ -9,7 +9,7 @@ import { UserRole } from '../users/entities/user.entity';
 @UseGuards(AuthGuard('jwt'), RolesGuard)
 @Roles(UserRole.ADMIN)
 export class AnalyticsController {
-  constructor(private readonly analyticsService: AnalyticsService) { }
+  constructor(private readonly analyticsService: AnalyticsService) {}
 
   @Get('dashboard')
   getDashboard() {
@@ -17,7 +17,10 @@ export class AnalyticsController {
   }
 
   @Get('sales')
-  getSales(@Query('startDate') startDate?: string, @Query('endDate') endDate?: string) {
+  getSales(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
     const start = startDate ? new Date(startDate) : undefined;
     const end = endDate ? new Date(endDate) : undefined;
     return this.analyticsService.getSalesStats(start, end);
@@ -35,11 +38,16 @@ export class AnalyticsController {
 
   @Get('products/top')
   getTopProducts(@Query('limit') limit?: string) {
-    return this.analyticsService.getTopSellingProducts(limit ? parseInt(limit) : 10);
+    return this.analyticsService.getTopSellingProducts(
+      limit ? parseInt(limit) : 10,
+    );
   }
 
   @Get('revenue')
-  getRevenue(@Query('startDate') startDate?: string, @Query('endDate') endDate?: string) {
+  getRevenue(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
     const start = startDate ? new Date(startDate) : undefined;
     const end = endDate ? new Date(endDate) : undefined;
     return this.analyticsService.getRevenueReport(start, end);

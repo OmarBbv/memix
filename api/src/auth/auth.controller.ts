@@ -18,7 +18,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
-  ) { }
+  ) {}
 
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
@@ -26,7 +26,15 @@ export class AuthController {
   }
 
   @Post('send-otp')
-  async sendOtp(@Body() body: { email: string; password: string; name: string; surname: string }) {
+  async sendOtp(
+    @Body()
+    body: {
+      email: string;
+      password: string;
+      name: string;
+      surname: string;
+    },
+  ) {
     return this.authService.sendRegistrationOtp(body);
   }
 
@@ -43,7 +51,7 @@ export class AuthController {
 
   @Get('google')
   @UseGuards(AuthGuard('google'))
-  async googleAuth(@Req() req) { }
+  async googleAuth(@Req() req) {}
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))

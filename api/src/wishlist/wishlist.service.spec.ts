@@ -33,8 +33,14 @@ describe('WishlistService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         WishlistService,
-        { provide: getRepositoryToken(Wishlist), useValue: mockWishlistRepository },
-        { provide: getRepositoryToken(Product), useValue: mockProductRepository },
+        {
+          provide: getRepositoryToken(Wishlist),
+          useValue: mockWishlistRepository,
+        },
+        {
+          provide: getRepositoryToken(Product),
+          useValue: mockProductRepository,
+        },
         { provide: CartsService, useValue: mockCartsService },
       ],
     }).compile();

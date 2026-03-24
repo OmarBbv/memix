@@ -27,7 +27,7 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly addressesService: AddressesService,
-  ) { }
+  ) {}
 
   @UseGuards(AuthGuard('jwt'))
   @Get('profile')
@@ -47,7 +47,10 @@ export class UsersController {
   // Ünvanlarım
   @UseGuards(AuthGuard('jwt'))
   @Post('addresses')
-  createAddress(@Request() req: AuthenticatedRequest, @Body() createAddressDto: CreateAddressDto): Promise<Address> {
+  createAddress(
+    @Request() req: AuthenticatedRequest,
+    @Body() createAddressDto: CreateAddressDto,
+  ): Promise<Address> {
     return this.addressesService.create(req.user.userId, createAddressDto);
   }
 
@@ -59,7 +62,10 @@ export class UsersController {
 
   @UseGuards(AuthGuard('jwt'))
   @Get('addresses/:id')
-  findOneAddress(@Request() req: AuthenticatedRequest, @Param('id') id: string): Promise<Address> {
+  findOneAddress(
+    @Request() req: AuthenticatedRequest,
+    @Param('id') id: string,
+  ): Promise<Address> {
     return this.addressesService.findOne(+id, req.user.userId);
   }
 
@@ -75,7 +81,10 @@ export class UsersController {
 
   @UseGuards(AuthGuard('jwt'))
   @Delete('addresses/:id')
-  removeAddress(@Request() req: AuthenticatedRequest, @Param('id') id: string): Promise<void> {
+  removeAddress(
+    @Request() req: AuthenticatedRequest,
+    @Param('id') id: string,
+  ): Promise<void> {
     return this.addressesService.remove(+id, req.user.userId);
   }
 

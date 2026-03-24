@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Delete, Param, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Delete,
+  Param,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { WishlistService } from './wishlist.service';
 import { CreateWishlistDto } from './dto/create-wishlist.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -6,7 +15,7 @@ import { AuthGuard } from '@nestjs/passport';
 @Controller('wishlist')
 @UseGuards(AuthGuard('jwt'))
 export class WishlistController {
-  constructor(private readonly wishlistService: WishlistService) { }
+  constructor(private readonly wishlistService: WishlistService) {}
 
   @Get()
   findAll(@Request() req: any) {
@@ -15,7 +24,10 @@ export class WishlistController {
 
   @Post()
   add(@Request() req: any, @Body() createWishlistDto: CreateWishlistDto) {
-    return this.wishlistService.add(req.user.userId, createWishlistDto.productId);
+    return this.wishlistService.add(
+      req.user.userId,
+      createWishlistDto.productId,
+    );
   }
 
   @Delete(':productId')

@@ -11,7 +11,7 @@ import { BranchesService } from './branches.service';
 
 @Controller('branches')
 export class BranchesController {
-  constructor(private readonly branchesService: BranchesService) { }
+  constructor(private readonly branchesService: BranchesService) {}
 
   @Post()
   create(@Body() createBranchDto: any) {

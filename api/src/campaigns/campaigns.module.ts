@@ -11,4 +11,4 @@ import { Coupon } from '../coupons/entities/coupon.entity';
   providers: [CampaignsService],
   exports: [CampaignsService],
 })
-export class CampaignsModule { }
+export class CampaignsModule {}

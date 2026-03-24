@@ -19,7 +19,11 @@ export class Discount {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'enum', enum: DiscountType, default: DiscountType.PERCENTAGE })
+  @Column({
+    type: 'enum',
+    enum: DiscountType,
+    default: DiscountType.PERCENTAGE,
+  })
   type: DiscountType;
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
@@ -34,7 +38,9 @@ export class Discount {
   @Column({ default: true })
   isActive: boolean;
 
-  @OneToOne(() => Product, (product) => product.discount, { onDelete: 'CASCADE' })
+  @OneToOne(() => Product, (product) => product.discount, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   product: Product;
 

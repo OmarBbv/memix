@@ -14,7 +14,12 @@ export const multerConfig = {
     },
   }),
   fileFilter: (req: any, file: any, callback: any) => {
-    console.log('Multer fileFilter for:', file.originalname, 'mimetype:', file.mimetype);
+    console.log(
+      'Multer fileFilter for:',
+      file.originalname,
+      'mimetype:',
+      file.mimetype,
+    );
     if (!file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
       return callback(
         new HttpException(

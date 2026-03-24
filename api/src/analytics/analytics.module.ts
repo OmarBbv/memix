@@ -12,4 +12,4 @@ import { Branch } from '../branches/entities/branch.entity';
   controllers: [AnalyticsController],
   providers: [AnalyticsService],
 })
-export class AnalyticsModule { }
+export class AnalyticsModule {}

@@ -3,7 +3,7 @@ import { NotificationsGateway } from './notifications/notifications.gateway';
 
 @Injectable()
 export class NotificationsService {
-  constructor(private notificationsGateway: NotificationsGateway) { }
+  constructor(private notificationsGateway: NotificationsGateway) {}
 
   // Yeni sifariş bildirişi
   notifyNewOrder(orderData: any) {

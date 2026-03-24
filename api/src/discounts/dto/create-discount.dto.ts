@@ -1,4 +1,10 @@
-import { IsEnum, IsNumber, IsOptional, IsDateString, IsBoolean } from 'class-validator';
+import {
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsDateString,
+  IsBoolean,
+} from 'class-validator';
 import { DiscountType } from '../entities/discount.entity';
 
 export class CreateDiscountDto {

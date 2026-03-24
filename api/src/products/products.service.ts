@@ -20,7 +20,7 @@ export class ProductsService {
     @InjectRepository(ProductStock)
     private productStockRepository: Repository<ProductStock>,
     private readonly searchService: SearchService,
-  ) { }
+  ) {}
 
   async create(
     createProductDto: CreateProductDto,
@@ -29,7 +29,8 @@ export class ProductsService {
       images?: Express.Multer.File[];
     },
   ) {
-    const { categoryId, variants, tags, branchStocks, ...productData } = createProductDto;
+    const { categoryId, variants, tags, branchStocks, ...productData } =
+      createProductDto;
 
     const appUrl = process.env.APP_URL || 'http://localhost:4444';
 
@@ -56,7 +57,10 @@ export class ProductsService {
 
     let parsedTags = tags;
     if (typeof tags === 'string') {
-      parsedTags = (tags as string).split(',').map(t => t.trim()).filter(Boolean);
+      parsedTags = tags
+        .split(',')
+        .map((t) => t.trim())
+        .filter(Boolean);
     } else if (Array.isArray(tags)) {
       parsedTags = tags;
     }
@@ -84,15 +88,17 @@ export class ProductsService {
     }
 
     if (Array.isArray(parsedBranchStocks)) {
-      const stockEntities = parsedBranchStocks.map(bs => this.productStockRepository.create({
-        product: { id: savedProduct.id } as any,
-        productId: savedProduct.id,
-        branch: { id: Number(bs.branchId) } as any,
-        branchId: Number(bs.branchId),
-        stock: Number(bs.stock) || 0,
-        size: bs.size || undefined,
-        color: bs.color || undefined,
-      }));
+      const stockEntities = parsedBranchStocks.map((bs) =>
+        this.productStockRepository.create({
+          product: { id: savedProduct.id } as any,
+          productId: savedProduct.id,
+          branch: { id: Number(bs.branchId) } as any,
+          branchId: Number(bs.branchId),
+          stock: Number(bs.stock) || 0,
+          size: bs.size || undefined,
+          color: bs.color || undefined,
+        }),
+      );
       await this.productStockRepository.save(stockEntities);
     }
 
@@ -102,7 +108,7 @@ export class ProductsService {
       ...savedProduct,
       banner: ensureFullUrl(savedProduct.banner),
       images: Array.isArray(savedProduct.images)
-        ? savedProduct.images.map(img => ensureFullUrl(img)).filter(Boolean)
+        ? savedProduct.images.map((img) => ensureFullUrl(img)).filter(Boolean)
         : savedProduct.images,
     };
   }
@@ -112,12 +118,17 @@ export class ProductsService {
 
     if (query.search) {
       const searchResults = await this.searchService.search(query.search);
-      const productIds = searchResults.filter(r => r.type === 'product').map(p => p.id);
-      const categoryIds = searchResults.filter(r => r.type === 'category').map(c => c.id);
+      const productIds = searchResults
+        .filter((r) => r.type === 'product')
+        .map((p) => p.id);
+      const categoryIds = searchResults
+        .filter((r) => r.type === 'category')
+        .map((c) => c.id);
 
       let fetchedProducts: Product[] = [];
       if (productIds.length > 0) {
-        fetchedProducts = await this.productsRepository.createQueryBuilder('product')
+        fetchedProducts = await this.productsRepository
+          .createQueryBuilder('product')
           .whereInIds(productIds)
           .leftJoinAndSelect('product.category', 'category')
           .leftJoinAndSelect('product.discount', 'discount')
@@ -127,14 +138,14 @@ export class ProductsService {
           .getMany();
       }
 
-      // We can also fetch categories from DB if we want full data, or just use ES data. 
+      // We can also fetch categories from DB if we want full data, or just use ES data.
       // For simplicity/speed, let's use the ES data for categories since it has name/slug/image/id
-      const categories = searchResults.filter(r => r.type === 'category');
+      const categories = searchResults.filter((r) => r.type === 'category');
 
       // Sort or merge? preserve ES order?
       // ES returns sorted by relevance. We should try to respect that.
       // Create a map for quick lookup
-      const productMap = new Map(fetchedProducts.map(p => [p.id, p]));
+      const productMap = new Map(fetchedProducts.map((p) => [p.id, p]));
 
       const finalResults: (Product | any)[] = [];
       for (const result of searchResults) {
@@ -176,33 +187,50 @@ export class ProductsService {
       }
 
       if (query.color) {
-        qb.andWhere(`(product.variants ->> 'color' = :color OR stocks.color = :color)`, {
-          color: query.color,
-        });
+        qb.andWhere(
+          `(product.variants ->> 'color' = :color OR stocks.color = :color)`,
+          {
+            color: query.color,
+          },
+        );
       }
 
       if (query.size) {
-        qb.andWhere(`(product.variants ->> 'size' = :size OR stocks.size = :size)`, {
-          size: query.size,
-        });
+        qb.andWhere(
+          `(product.variants ->> 'size' = :size OR stocks.size = :size)`,
+          {
+            size: query.size,
+          },
+        );
       }
 
       products = await qb.getMany();
     }
 
-    return products.map(product => ({
-      ...product,
-      banner: ensureFullUrl(product.banner),
-      images: Array.isArray(product.images)
-        ? (product.images.map(img => ensureFullUrl(img)).filter(Boolean) as string[])
-        : product.images,
-    } as any));
+    return products.map(
+      (product) =>
+        ({
+          ...product,
+          banner: ensureFullUrl(product.banner),
+          images: Array.isArray(product.images)
+            ? (product.images
+                .map((img) => ensureFullUrl(img))
+                .filter(Boolean) as string[])
+            : product.images,
+        }) as any,
+    );
   }
 
   async findOne(id: number) {
     const product = await this.productsRepository.findOne({
       where: { id },
-      relations: ['category', 'discount', 'priceHistory', 'stocks', 'stocks.branch'],
+      relations: [
+        'category',
+        'discount',
+        'priceHistory',
+        'stocks',
+        'stocks.branch',
+      ],
       order: {
         priceHistory: {
           changedAt: 'DESC',
@@ -218,7 +246,9 @@ export class ProductsService {
       ...product,
       banner: ensureFullUrl(product.banner),
       images: Array.isArray(product.images)
-        ? (product.images.map(img => ensureFullUrl(img)).filter(Boolean) as string[])
+        ? (product.images
+            .map((img) => ensureFullUrl(img))
+            .filter(Boolean) as string[])
         : product.images,
     } as any;
   }
@@ -247,8 +277,8 @@ export class ProductsService {
         where: { id },
         relations: ['category', 'discount', 'stocks', 'stocks.branch'],
         order: {
-          stocks: { id: 'ASC' }
-        } as any
+          stocks: { id: 'ASC' },
+        } as any,
       });
 
       if (!product) {
@@ -293,7 +323,10 @@ export class ProductsService {
 
       let parsedTags = tags;
       if (typeof tags === 'string') {
-        parsedTags = (tags as string).split(',').map(t => t.trim()).filter(Boolean);
+        parsedTags = tags
+          .split(',')
+          .map((t) => t.trim())
+          .filter(Boolean);
       } else if (Array.isArray(tags)) {
         parsedTags = tags;
       }
@@ -302,14 +335,18 @@ export class ProductsService {
         const newPrice = Number(productData.price);
         const oldPrice = Number(product.price);
 
-        if (!isNaN(newPrice) && !isNaN(oldPrice) && Math.abs(newPrice - oldPrice) > 0.01) {
+        if (
+          !isNaN(newPrice) &&
+          !isNaN(oldPrice) &&
+          Math.abs(newPrice - oldPrice) > 0.01
+        ) {
           // Verify productRef exists before saving history
           if (product) {
             await this.priceHistoryRepository.save(
               this.priceHistoryRepository.create({
                 price: oldPrice,
-                product: { id: product.id } as Product
-              })
+                product: { id: product.id } as Product,
+              }),
             );
           }
         }
@@ -328,16 +365,18 @@ export class ProductsService {
         // Clear existing stocks or update selectively? Simple way: clear and recreate
         await this.productStockRepository.delete({ productId: product.id });
         const stockEntities = parsedBranchStocks
-          .filter(bs => Number(bs.branchId) > 0)
-          .map(bs => this.productStockRepository.create({
-            product: { id: product.id } as any,
-            productId: product.id,
-            branch: { id: Number(bs.branchId) } as any,
-            branchId: Number(bs.branchId),
-            stock: Number(bs.stock) || 0,
-            size: bs.size || undefined,
-            color: bs.color || undefined,
-          }));
+          .filter((bs) => Number(bs.branchId) > 0)
+          .map((bs) =>
+            this.productStockRepository.create({
+              product: { id: product.id } as any,
+              productId: product.id,
+              branch: { id: Number(bs.branchId) } as any,
+              branchId: Number(bs.branchId),
+              stock: Number(bs.stock) || 0,
+              size: bs.size || undefined,
+              color: bs.color || undefined,
+            }),
+          );
         await this.productStockRepository.save(stockEntities);
       }
 
@@ -355,14 +394,16 @@ export class ProductsService {
         price: productData.price ? Number(productData.price) : product.price,
       } as any);
 
-      const updatedProduct = (await this.productsRepository.save(product)) as Product;
+      const updatedProduct = await this.productsRepository.save(product);
       await this.searchService.indexProduct(updatedProduct);
 
       return {
         ...updatedProduct,
         banner: ensureFullUrl(updatedProduct.banner),
         images: Array.isArray(updatedProduct.images)
-          ? updatedProduct.images.map(img => ensureFullUrl(img)).filter(Boolean)
+          ? updatedProduct.images
+              .map((img) => ensureFullUrl(img))
+              .filter(Boolean)
           : updatedProduct.images,
       };
     } catch (e) {
@@ -390,5 +431,4 @@ export class ProductsService {
 
     return { count: products.length, message: 'Products indexed successfully' };
   }
-
 }
