@@ -62,7 +62,7 @@ export default async function LocaleLayout({
             <QueryProvider>
               <Navbar />
               <CartDrawer />
-              <ContainerWapper className={cn('min-h-screen xl:px-0 pb-[70px] md:pb-0')}>
+              <ContainerWapper className={cn('min-h-screen xl:px-0')}>
                 {children}
                 <Footer />
               </ContainerWapper>

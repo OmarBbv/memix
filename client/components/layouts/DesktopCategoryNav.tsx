@@ -31,19 +31,31 @@ export function DesktopCategoryNav({ categories, show }: DesktopCategoryNavProps
   const [activeSidebarCat, setActiveSidebarCat] = useState<number | null>(null);
   const menuRef = useRef<HTMLLIElement>(null);
 
-  // Close menu on click outside
+  // Close menu on click outside and Escape key
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    if (!megaMenuOpen) return;
+
+    const handleClickOutside: EventListener = (event: Event) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setMegaMenuOpen(false);
       }
+    };
+
+    function handleEscKey(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setMegaMenuOpen(false);
+      }
     }
-    if (megaMenuOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+    document.addEventListener("keydown", handleEscKey);
+    
+    return () => {
       document.removeEventListener("mousedown", handleClickOutside);
-    }
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+      document.removeEventListener("keydown", handleEscKey);
+    };
   }, [megaMenuOpen]);
 
   if (!categories || categories.length === 0) return null;
@@ -84,12 +96,21 @@ export function DesktopCategoryNav({ categories, show }: DesktopCategoryNavProps
             </div>
 
             {megaMenuOpen && (
-              <div
-                className="absolute left-0 right-0 top-[45px] bg-white shadow-2xl border border-gray-100 z-100 flex rounded-b-lg overflow-hidden animate-in fade-in slide-in-from-top-1 duration-200"
-                style={{ minHeight: '400px', maxHeight: '600px' }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="w-[260px] bg-[#fafafa] flex flex-col py-3 overflow-y-auto border-r border-gray-100" style={{ scrollbarWidth: 'none' }}>
+              <>
+                <div 
+                  className="fixed inset-0 z-[90] bg-black/40"
+                  style={{ top: '135px' }} // Starts immediately below the header
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMegaMenuOpen(false);
+                  }}
+                />
+                <div
+                  className="absolute left-0 right-0 top-[45px] bg-white shadow-2xl border border-gray-100 z-[100] flex rounded-b-lg overflow-hidden animate-in fade-in slide-in-from-top-1 duration-200"
+                  style={{ minHeight: '400px', maxHeight: '600px' }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="w-[260px] bg-[#fafafa] flex flex-col py-3 overflow-y-auto border-r border-gray-100" style={{ scrollbarWidth: 'none' }}>
                   {categories.map(cat => {
                     const isActive = activeSidebarCat === cat.id;
                     return (
@@ -162,6 +183,7 @@ export function DesktopCategoryNav({ categories, show }: DesktopCategoryNavProps
                   )}
                 </div>
               </div>
+              </>
             )}
           </li>
 
@@ -172,10 +194,11 @@ export function DesktopCategoryNav({ categories, show }: DesktopCategoryNavProps
             >
               <Link
                 href={`/category/${item.slug}`}
+                onClick={() => setMegaMenuOpen(false)}
                 className="h-full flex items-center font-medium text-[13px] text-gray-800 capitalize group-hover:text-black transition-colors relative"
               >
                 {item.name}
-                <span className="absolute bottom-0 left-0 w-full h-[3px] bg-black scale-x-0 group-hover:scale-x-100 transition-transform origin-left rounded-t-sm" />
+                <span className="absolute -bottom-px left-0 w-full h-[3px] bg-black scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
               </Link>
             </li>
           ))}
