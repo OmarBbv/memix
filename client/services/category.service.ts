@@ -3,8 +3,9 @@ import { Category } from "@/types/category.types";
 
 interface ICategoryService {
   getTree(): Promise<Category[]>;
+  getHomeCategories(): Promise<Category[]>;
   getAll(): Promise<Category[]>;
-  getBySlug(slug: string): Promise<Category>;
+  getBySlug(slug: string, filters?: Record<string, string>): Promise<Category>;
   getFilters(id: number): Promise<any>;
 }
 
@@ -15,6 +16,16 @@ class CategoryService implements ICategoryService {
       return response.data;
     } catch (error) {
       console.error("CategoryService getTree error:", error);
+      throw error;
+    }
+  }
+
+  async getHomeCategories(): Promise<Category[]> {
+    try {
+      const response = await httpClientPublic.get('/categories/home');
+      return response.data;
+    } catch (error) {
+      console.error("CategoryService getHomeCategories error:", error);
       throw error;
     }
   }

@@ -16,11 +16,20 @@ import { SearchService } from '../search/search.service';
 
 @Injectable()
 export class CategoriesService {
+  private cachedTree: Category[] | null = null;
+  private cacheTimestamp: number = 0;
+  private readonly CACHE_TTL = 1000 * 60 * 60; // 1 hour
+
   constructor(
     @InjectRepository(Category)
     private categoriesRepository: Repository<Category>,
     private readonly searchService: SearchService,
   ) {}
+
+  private clearCache() {
+    this.cachedTree = null;
+    this.cacheTimestamp = 0;
+  }
 
   private formatName(name: string): string {
     if (!name) return name;
@@ -107,6 +116,7 @@ export class CategoriesService {
 
     const savedCategory = await this.categoriesRepository.save(category);
     await this.searchService.indexCategory(savedCategory);
+    this.clearCache();
 
     return {
       ...savedCategory,
@@ -149,6 +159,10 @@ export class CategoriesService {
   }
 
   async findTree(all: boolean = false) {
+    if (!all && this.cachedTree && Date.now() - this.cacheTimestamp < this.CACHE_TTL) {
+      return this.cachedTree;
+    }
+
     const where: any = { parent: IsNull() };
     if (!all) {
       where.isActive = true;
@@ -160,9 +174,29 @@ export class CategoriesService {
       order: { order: 'ASC', id: 'ASC' },
     });
 
-    return trees
+    const result = trees
       .map((tree) => this.formatCategoryTree(tree, all))
       .filter((t): t is Category => t !== null);
+
+    if (!all) {
+      this.cachedTree = result;
+      this.cacheTimestamp = Date.now();
+    }
+
+    return result;
+  }
+
+  async findHomeCategories() {
+    const categories = await this.categoriesRepository.find({
+      where: { showOnHome: true, isActive: true },
+      order: { order: 'ASC', id: 'ASC' },
+    });
+
+    return categories.map((cat) => ({
+      ...cat,
+      imageUrl: ensureFullUrl(cat.imageUrl),
+      name: this.formatName(cat.name),
+    }));
   }
 
   async findOne(id: number): Promise<Category> {
@@ -183,7 +217,7 @@ export class CategoriesService {
   async findBySlug(
     slug: string,
     filters: Record<string, string> = {},
-  ): Promise<Category> {
+  ): Promise<any> {
     const category = await this.categoriesRepository.findOne({
       where: { slug },
       relations: [
@@ -199,8 +233,11 @@ export class CategoriesService {
     }
 
     const categoryIds = this.getIdsFromTree(category);
-    const { subcategory, price, minPrice, maxPrice, ...variantFilters } =
+    const { subcategory, price, minPrice, maxPrice, page: pageParam, limit: limitParam, ...variantFilters } =
       filters;
+
+    const page = pageParam ? parseInt(pageParam, 10) : 1;
+    const limit = limitParam ? parseInt(limitParam, 10) : 12;
 
     const productRepo =
       this.categoriesRepository.manager.getRepository(Product);
@@ -208,6 +245,8 @@ export class CategoriesService {
       .createQueryBuilder('product')
       .leftJoinAndSelect('product.category', 'category')
       .leftJoinAndSelect('product.discount', 'discount')
+      .leftJoinAndSelect('product.stocks', 'stocks')
+      .leftJoinAndSelect('stocks.branch', 'branch')
       .where('product.categoryId IN (:...categoryIds)', { categoryIds })
       .orderBy('product.createdAt', 'DESC');
 
@@ -251,32 +290,35 @@ export class CategoriesService {
 
     Object.entries(variantFilters).forEach(([key, value]) => {
       if (!value) return;
-      const values = value.split(',').map((v) => v.trim());
+      const values = Array.isArray(value) ? value : value.split(',').map((v) => v.trim());
 
-      if (values.length === 1) {
-        qb = qb.andWhere(
-          `(product.variants->>:key_${key} = :val_${key} OR product.variants->:key_${key} @> :valArr_${key}::jsonb)`,
-          {
-            [`key_${key}`]: key,
-            [`val_${key}`]: values[0],
-            [`valArr_${key}`]: JSON.stringify([values[0]]),
-          },
-        );
+      if (key === 'color' || key === 'size') {
+         qb = qb.andWhere(
+           `(product.variants->>:key_${key} IN (:...valArr_${key}) OR stocks.${key} IN (:...valArr_${key}))`,
+           {
+             [`key_${key}`]: key,
+             [`valArr_${key}`]: values,
+           }
+         );
       } else {
         const conditions = values.map(
           (v, i) =>
-            `(product.variants->>:key_${key} = :val_${key}_${i} OR product.variants->:key_${key} @> :valArr_${key}_${i}::jsonb)`,
+            `(product.variants->>:key_${key} = :val_${key}_${i} OR product.variants->:key_${key} @> :valArrJSON_${key}_${i}::jsonb)`
         );
         const params: Record<string, any> = { [`key_${key}`]: key };
         values.forEach((v, i) => {
           params[`val_${key}_${i}`] = v;
-          params[`valArr_${key}_${i}`] = JSON.stringify([v]);
+          params[`valArrJSON_${key}_${i}`] = JSON.stringify([v]);
         });
         qb = qb.andWhere(`(${conditions.join(' OR ')})`, params);
       }
     });
 
-    const allProducts = await qb.getMany();
+    const total = await qb.getCount();
+    const allProducts = await qb
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getMany();
 
     category.products = allProducts.map(
       (product) =>
@@ -290,9 +332,20 @@ export class CategoriesService {
             : product.images,
         }) as any,
     );
-    category.imageUrl = ensureFullUrl(category.imageUrl);
-    category.name = this.formatName(category.name);
-    return category;
+    const responseCategory: any = {
+      ...category,
+      imageUrl: ensureFullUrl(category.imageUrl),
+      name: this.formatName(category.name),
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        hasNextPage: page < Math.ceil(total / limit),
+      }
+    };
+
+    return responseCategory;
   }
 
   private getIdsFromTree(category: Category): number[] {
@@ -338,6 +391,7 @@ export class CategoriesService {
     this.categoriesRepository.merge(category, rest);
     const updatedCategory = await this.categoriesRepository.save(category);
     await this.searchService.indexCategory(updatedCategory);
+    this.clearCache();
 
     return {
       ...updatedCategory,
@@ -349,6 +403,7 @@ export class CategoriesService {
     const category = await this.findOne(id);
     await this.categoriesRepository.remove(category);
     await this.searchService.removeCategory(id);
+    this.clearCache();
     return category;
   }
 

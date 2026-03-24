@@ -46,6 +46,11 @@ export class CategoriesController {
     return this.categoriesService.findAll(all === 'true');
   }
 
+  @Get('home')
+  findHomeCategories() {
+    return this.categoriesService.findHomeCategories();
+  }
+
   @Get('tree')
   findTree(@Query('all') all?: string) {
     return this.categoriesService.findTree(all === 'true');

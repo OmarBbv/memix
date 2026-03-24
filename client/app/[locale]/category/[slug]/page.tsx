@@ -53,8 +53,18 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
 
     const debouncedFilters = useDebounce(apiFilters, 300);
 
-    const { data: category, isLoading, error, isFetching } = useCategoryBySlug(slug, debouncedFilters);
-    const isFiltering = isFetching && !isLoading;
+    const { 
+        data: infiniteData, 
+        isLoading, 
+        error, 
+        isFetching, 
+        fetchNextPage, 
+        hasNextPage, 
+        isFetchingNextPage 
+    } = useCategoryBySlug(slug, debouncedFilters);
+    
+    const category = infiniteData?.pages[0];
+    const isFiltering = isFetching && !isLoading && !isFetchingNextPage;
     const { data: filtersData } = useCategoryFilters(category?.id as number);
 
     const buildUrlParams = useCallback((filters: Record<string, string[]>, priceMin?: number, priceMax?: number) => {
@@ -123,7 +133,11 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
         ? { min: Math.floor(filtersData.priceRange.min || 0), max: Math.ceil(filtersData.priceRange.max) }
         : undefined;
 
-    const products: any[] = (category as any)?.products || [];
+    const products = useMemo(() => 
+        infiniteData?.pages.flatMap(page => page.products || []) || []
+    , [infiniteData]);
+
+    const totalProducts = category?.pagination?.total || 0;
     const priceFilterCount = (selectedPriceMin != null ? 1 : 0) + (selectedPriceMax != null ? 1 : 0);
     const activeFilterCount = Object.values(selectedFilters).reduce((sum, arr) => sum + arr.length, 0) + priceFilterCount;
 
@@ -191,7 +205,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                                             {category.name}
                                         </h1>
                                         <p className="text-sm text-gray-500 mt-1">
-                                            {products.length} məhsul
+                                            {totalProducts} məhsul
                                             {activeFilterCount > 0 && ` (${activeFilterCount} filtr aktiv)`}
                                         </p>
                                     </div>
@@ -230,7 +244,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                                             <div className="fixed bottom-0 left-0 right-0 bg-white border-t px-5 py-4 safe-area-bottom">
                                                 <SheetTrigger asChild>
                                                     <Button className="w-full h-12 bg-black text-white hover:bg-zinc-800 rounded-xl font-bold text-base">
-                                                        {products.length} məhsul göstər
+                                                        {totalProducts} məhsul göstər
                                                     </Button>
                                                 </SheetTrigger>
                                             </div>
@@ -333,10 +347,24 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                                     )}
                                 </div>
 
-                                {products.length > 0 && (
-                                    <div className="mt-12 flex justify-center">
-                                        <Button variant="outline" className="px-8 border-gray-300">
-                                            Daha çox göstər
+                                {hasNextPage && (
+                                    <div className="mt-12 flex flex-col items-center gap-4">
+                                        <p className="text-sm text-gray-500">
+                                            {products.length} / {totalProducts} məhsul göstərilir
+                                        </p>
+                                        <Button 
+                                            variant="outline" 
+                                            className="px-8 border-gray-300 h-12 rounded-xl"
+                                            onClick={() => fetchNextPage()}
+                                            disabled={isFetchingNextPage}
+                                        >
+                                            {isFetchingNextPage ? (
+                                                <div className="flex items-center gap-2">
+                                                    <Loading /> Yüklənir...
+                                                </div>
+                                            ) : (
+                                                'Daha çox göstər'
+                                            )}
                                         </Button>
                                     </div>
                                 )}

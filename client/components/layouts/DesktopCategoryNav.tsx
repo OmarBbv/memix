@@ -198,7 +198,7 @@ export function DesktopCategoryNav({ categories, show }: DesktopCategoryNavProps
                 className="h-full flex items-center font-medium text-[13px] text-gray-800 capitalize group-hover:text-black transition-colors relative"
               >
                 {item.name}
-                <span className="absolute -bottom-px left-0 w-full h-[3px] bg-black scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
+                <span className="absolute -bottom-px left-0 w-full h-[2px] bg-black scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
               </Link>
             </li>
           ))}

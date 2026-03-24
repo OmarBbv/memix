@@ -9,8 +9,8 @@ import { ArrowRight, Leaf, ShieldCheck, Sparkles, Zap, ChevronRight, Star, Trend
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay, EffectFade } from 'swiper/modules';
 import { useEffect, useState, useMemo } from "react";
-import { useCategories } from "@/hooks/useCategories";
-import { useProducts } from "@/hooks/useProducts";
+import { useHomeCategories } from "@/hooks/useCategories";
+import { useNewArrivals } from "@/hooks/useProducts";
 import { Product as ApiProduct } from "@/services/product.service";
 import { useBanners } from "@/hooks/useBanners";
 import { useBrands } from "@/hooks/useBrands";
@@ -22,8 +22,8 @@ import 'swiper/css/pagination';
 import 'swiper/css/effect-fade';
 
 export default function Home() {
-  const { data: allCategories = [], isLoading } = useCategories();
-  const { data: apiProducts = [], isLoading: isProductsLoading } = useProducts();
+  const { data: categories = [], isLoading } = useHomeCategories();
+  const { data: apiProducts = [], isLoading: isProductsLoading } = useNewArrivals(8);
 
   const products = useMemo(() => {
     if (!apiProducts.length) return Array.from({ length: 8 });
@@ -42,20 +42,18 @@ export default function Home() {
     }));
   }, [apiProducts]);
 
-  const categories = useMemo(() => {
-    return allCategories.filter(cat => cat.showOnHome && cat.isActive);
-  }, [allCategories]);
-
-  const staticCategories = [
-    { name: "Qadın", slug: "women", imageUrl: "/cat.jpeg", productsCount: "12.5K+" },
-    { name: "Kişi", slug: "men", imageUrl: "/cat2.jpeg", productsCount: "8.2K+" },
-    { name: "Uşaq", slug: "kids", imageUrl: "/cat3.jpeg", productsCount: "4.1K+" },
-    { name: "Çantalar", slug: "bags", imageUrl: "/cat4.jpeg", productsCount: "3.8K+" },
-    { name: "Ayaqqabılar", slug: "shoes", imageUrl: "/cat5.jpeg", productsCount: "6.5K+" },
-    { name: "Aksesuarlar", slug: "accessories", imageUrl: "/cat6.jpeg", productsCount: "5.3K+" },
-  ];
-
-  const displayCategories = categories.length > 0 ? categories : staticCategories;
+  const displayCategories = useMemo(() => {
+    if (categories.length > 0) return categories;
+    
+    return [
+      { name: "Qadın", slug: "women", imageUrl: "/cat.jpeg", productsCount: "12.5K+" },
+      { name: "Kişi", slug: "men", imageUrl: "/cat2.jpeg", productsCount: "8.2K+" },
+      { name: "Uşaq", slug: "kids", imageUrl: "/cat3.jpeg", productsCount: "4.1K+" },
+      { name: "Çantalar", slug: "bags", imageUrl: "/cat4.jpeg", productsCount: "3.8K+" },
+      { name: "Ayaqqabılar", slug: "shoes", imageUrl: "/cat5.jpeg", productsCount: "6.5K+" },
+      { name: "Aksesuarlar", slug: "accessories", imageUrl: "/cat6.jpeg", productsCount: "5.3K+" },
+    ];
+  }, [categories]);
 
   const { data: banners = [] } = useBanners(BannerLocation.HOME_MAIN_SLIDER);
 

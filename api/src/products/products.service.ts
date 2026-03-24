@@ -181,44 +181,58 @@ export class ProductsService {
       }
 
       if (query.brand) {
-        qb.andWhere(`product.variants ->> 'brand' = :brand`, {
-          brand: query.brand,
-        });
+        const brands = Array.isArray(query.brand) 
+          ? query.brand 
+          : query.brand.split(',').map((b: string) => b.trim());
+        qb.andWhere(`product.variants ->> 'brand' IN (:...brands)`, { brands });
       }
 
       if (query.color) {
+        const colors = Array.isArray(query.color) 
+          ? query.color 
+          : query.color.split(',').map((c: string) => c.trim());
         qb.andWhere(
-          `(product.variants ->> 'color' = :color OR stocks.color = :color)`,
-          {
-            color: query.color,
-          },
+          `(product.variants ->> 'color' IN (:...colors) OR stocks.color IN (:...colors))`,
+          { colors }
         );
       }
 
       if (query.size) {
+        const sizes = Array.isArray(query.size) 
+          ? query.size 
+          : query.size.split(',').map((s: string) => s.trim());
         qb.andWhere(
-          `(product.variants ->> 'size' = :size OR stocks.size = :size)`,
-          {
-            size: query.size,
-          },
+          `(product.variants ->> 'size' IN (:...sizes) OR stocks.size IN (:...sizes))`,
+          { sizes }
         );
       }
 
       products = await qb.getMany();
     }
 
-    return products.map(
-      (product) =>
-        ({
-          ...product,
-          banner: ensureFullUrl(product.banner),
-          images: Array.isArray(product.images)
-            ? (product.images
-                .map((img) => ensureFullUrl(img))
-                .filter(Boolean) as string[])
-            : product.images,
-        }) as any,
-    );
+    return products.map((product) => ({
+      ...product,
+      banner: ensureFullUrl(product.banner),
+      images: Array.isArray(product.images)
+        ? product.images.map((img) => ensureFullUrl(img)).filter(Boolean)
+        : product.images,
+    }));
+  }
+
+  async findNewArrivals(limit: number = 8) {
+    const products = await this.productsRepository.find({
+      relations: ['category', 'discount', 'priceHistory'],
+      order: { createdAt: 'DESC' },
+      take: limit,
+    });
+
+    return products.map((product) => ({
+      ...product,
+      banner: ensureFullUrl(product.banner),
+      images: Array.isArray(product.images)
+        ? product.images.map((img) => ensureFullUrl(img)).filter(Boolean)
+        : product.images,
+    }));
   }
 
   async findOne(id: number) {

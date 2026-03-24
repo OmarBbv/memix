@@ -23,7 +23,7 @@ import { multerConfig } from '../common/utils/multer.config';
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(private readonly productsService: ProductsService) { }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(UserRole.ADMIN)
@@ -51,6 +51,11 @@ export class ProductsController {
   @Get()
   findAll(@Query() query: any) {
     return this.productsService.findAll(query);
+  }
+
+  @Get('new-arrivals')
+  findNewArrivals(@Query('limit') limit?: string) {
+    return this.productsService.findNewArrivals(limit ? +limit : 8);
   }
 
   @Get('sync-index')

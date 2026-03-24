@@ -15,3 +15,11 @@ export const useProduct = (id: number) => {
     enabled: !!id,
   });
 };
+
+export const useNewArrivals = (limit: number = 8) => {
+  return useQuery({
+    queryKey: ["newArrivals", limit],
+    queryFn: () => productService.getNewArrivals(limit),
+    staleTime: 1000 * 60 * 60, // 1 hour
+  });
+};

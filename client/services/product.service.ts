@@ -67,5 +67,12 @@ export const productService = {
   async getById(id: number) {
     const response = await httpClientPublic.get<Product>(`/products/${id}`);
     return response.data;
+  },
+
+  async getNewArrivals(limit: number = 8) {
+    const response = await httpClientPublic.get<Product[]>('/products/new-arrivals', {
+      params: { limit }
+    });
+    return response.data;
   }
 };
