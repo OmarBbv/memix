@@ -467,7 +467,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="group relative bg-white rounded-3xl p-8 lg:p-10 shadow-sm border border-zinc-100 hover:shadow-lg hover:border-zinc-200 transition-all duration-500">
               {/* Icon */}
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-100 to-amber-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+              <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-amber-100 to-amber-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
                 <Zap className="w-7 h-7 text-amber-600" />
               </div>
               <h3 className="text-xl font-bold mb-3">24 Saatda Çatdırılma</h3>
@@ -478,7 +478,7 @@ export default function Home() {
 
             <div className="group relative bg-white rounded-3xl p-8 lg:p-10 shadow-sm border border-zinc-100 hover:shadow-lg hover:border-zinc-200 transition-all duration-500">
               {/* Icon */}
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-100 to-emerald-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+              <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-emerald-100 to-emerald-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
                 <ShieldCheck className="w-7 h-7 text-emerald-600" />
               </div>
               <h3 className="text-xl font-bold mb-3">Orijinallıq Zəmanəti</h3>
@@ -489,7 +489,7 @@ export default function Home() {
 
             <div className="group relative bg-white rounded-3xl p-8 lg:p-10 shadow-sm border border-zinc-100 hover:shadow-lg hover:border-zinc-200 transition-all duration-500">
               {/* Icon */}
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-sky-100 to-sky-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+              <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-sky-100 to-sky-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
                 <Leaf className="w-7 h-7 text-sky-600" />
               </div>
               <h3 className="text-xl font-bold mb-3">Ekoloji Təsir</h3>
@@ -507,7 +507,7 @@ export default function Home() {
           <div className="relative overflow-hidden rounded-3xl bg-zinc-950 p-8 lg:p-16">
             {/* Background Pattern */}
             <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-0 left-1/2 w-[800px] h-[800px] -translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-white to-transparent rounded-full blur-3xl" />
+              <div className="absolute top-0 left-1/2 w-[800px] h-[800px] -translate-x-1/2 -translate-y-1/2 bg-linear-to-br from-white to-transparent rounded-full blur-3xl" />
             </div>
 
             <div className="relative z-10 text-center max-w-3xl mx-auto space-y-8">

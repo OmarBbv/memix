@@ -74,6 +74,11 @@ export class ProductsController {
     return this.productsService.findOne(+id);
   }
 
+  @Get(':id/similar')
+  findSimilar(@Param('id') id: string, @Query('limit') limit?: string) {
+    return this.productsService.findSimilar(+id, limit ? +limit : 4);
+  }
+
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(UserRole.ADMIN)
   @Patch(':id')

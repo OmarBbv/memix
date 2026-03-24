@@ -2,6 +2,7 @@
 
 import React, { useState, use } from 'react';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/shared/Card';
 import { ImageGallery } from './components/ImageGallery';
 import { ContentState } from '@/components/shared/ContentState';
 
@@ -17,7 +18,7 @@ import { Link } from '@/i18n/routing';
 import { Breadcrumb } from '@/components/shared/Breadcrumb';
 import { addToCartAsync } from '@/lib/redux/features/cartSlice';
 import { useAppDispatch } from '@/lib/redux/hooks';
-import { useProduct } from '@/hooks/useProducts';
+import { useProduct, useSimilarProducts } from '@/hooks/useProducts';
 import { baseUrl } from '@/lib/httpClient';
 import { useWishlist } from '@/hooks/useWishlist';
 import { getSizesForCategory, getSizeLabel } from '@/constants/sizes';
@@ -27,6 +28,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const dispatch = useAppDispatch();
 
   const { data: product, isLoading, isError } = useProduct(Number(id));
+  const { data: similarProducts, isLoading: isSimilarLoading } = useSimilarProducts(Number(id));
   const { isInWishlist, toggleWishlist } = useWishlist();
 
   const [selectedSize, setSelectedSize] = useState<string>('');
@@ -417,12 +419,31 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           </div>
         </div>
 
-        <div className="mt-24 mb-12">
-          <h2 className="text-2xl font-bold mb-8">Bənzər məhsullar</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="aspect-3/4 bg-gray-100 rounded-xl animate-pulse"></div>
-            ))}
+        <div className="mt-24 mb-12 px-4 md:px-0">
+          <h2 className="text-2xl font-bold mb-8">Sizə həmçinin maraqlı ola bilər</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {isSimilarLoading ? (
+              [1, 2, 3, 4].map((i) => (
+                <div key={i} className="aspect-3/4 bg-gray-100 rounded-xl animate-pulse"></div>
+              ))
+            ) : (
+              similarProducts?.map((p: any) => (
+                <Card 
+                  key={p.id} 
+                  product={{
+                    ...p,
+                    title: p.name,
+                    image: p.banner || p.images?.[0] || "",
+                    price: Number(p.price)
+                  }} 
+                />
+              ))
+            )}
+            {!isSimilarLoading && (!similarProducts || similarProducts.length === 0) && (
+              <p className="col-span-full text-gray-500 text-center py-10 italic">
+                Bənzər məhsul tapılmadı.
+              </p>
+            )}
           </div>
         </div>
       </div>

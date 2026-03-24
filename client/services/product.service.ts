@@ -74,5 +74,12 @@ export const productService = {
       params: { limit }
     });
     return response.data;
+  },
+
+  async getSimilarProducts(id: number, limit: number = 4) {
+    const response = await httpClientPublic.get<Product[]>(`/products/${id}/similar`, {
+      params: { limit }
+    });
+    return response.data;
   }
 };

@@ -23,3 +23,12 @@ export const useNewArrivals = (limit: number = 8) => {
     staleTime: 1000 * 60 * 60, // 1 hour
   });
 };
+
+export const useSimilarProducts = (id: number, limit: number = 4) => {
+  return useQuery({
+    queryKey: ["similarProducts", id, limit],
+    queryFn: () => productService.getSimilarProducts(id, limit),
+    enabled: !!id,
+    staleTime: 1000 * 60 * 60, // 1 hour
+  });
+};
