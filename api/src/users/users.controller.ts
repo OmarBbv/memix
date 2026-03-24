@@ -27,7 +27,7 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly addressesService: AddressesService,
-  ) {}
+  ) { }
 
   @UseGuards(AuthGuard('jwt'))
   @Get('profile')
@@ -44,7 +44,6 @@ export class UsersController {
     return this.usersService.update(req.user.userId, updateUserDto);
   }
 
-  // Ünvanlarım
   @UseGuards(AuthGuard('jwt'))
   @Post('addresses')
   createAddress(

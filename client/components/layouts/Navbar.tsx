@@ -55,8 +55,8 @@ export default function Navbar() {
     })
 
     const suggestions = searchQuery
-        ? (searchResults?.slice(0, 7) || [])
-        : (popularProducts?.slice(0, 5) || [])
+        ? (searchResults?.data?.slice(0, 7) || [])
+        : (popularProducts?.data?.slice(0, 5) || [])
     const isLoading = searchQuery ? isSearchLoading : isPopularLoading
 
     const pathname = usePathname()

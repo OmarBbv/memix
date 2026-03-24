@@ -301,7 +301,6 @@ export const FilterSidebar = ({
   );
   const totalActiveCount = activeCount + (isPriceActive ? 1 : 0);
 
-  // Filter out the old checkbox-based 'price' filter from the list
   const nonPriceFilters = filters.filter(f => f.id !== 'price');
 
   return (

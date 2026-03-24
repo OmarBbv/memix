@@ -114,50 +114,68 @@ export class ProductsService {
   }
 
   async findAll(query: any = {}) {
+    const page = Math.max(1, parseInt(query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(query.limit) || 20));
+    const skip = (page - 1) * limit;
+
     let products: Product[];
+    let total: number;
+    let categories: any[] = [];
 
     if (query.search) {
       const searchResults = await this.searchService.search(query.search);
       const productIds = searchResults
         .filter((r) => r.type === 'product')
         .map((p) => p.id);
-      const categoryIds = searchResults
-        .filter((r) => r.type === 'category')
-        .map((c) => c.id);
+
+      categories = searchResults.filter((r) => r.type === 'category');
 
       let fetchedProducts: Product[] = [];
       if (productIds.length > 0) {
-        fetchedProducts = await this.productsRepository
+        const fetchQb = this.productsRepository
           .createQueryBuilder('product')
           .whereInIds(productIds)
           .leftJoinAndSelect('product.category', 'category')
           .leftJoinAndSelect('product.discount', 'discount')
           .leftJoinAndSelect('product.priceHistory', 'priceHistory')
           .leftJoinAndSelect('product.stocks', 'stocks')
-          .leftJoinAndSelect('stocks.branch', 'branch')
-          .getMany();
+          .leftJoinAndSelect('stocks.branch', 'branch');
+
+        if (query.minPrice) {
+          fetchQb.andWhere('product.price >= :minPrice', { minPrice: query.minPrice });
+        }
+        if (query.maxPrice) {
+          fetchQb.andWhere('product.price <= :maxPrice', { maxPrice: query.maxPrice });
+        }
+        if (query.brand) {
+          const brands = Array.isArray(query.brand) ? query.brand : query.brand.split(',').map((b: string) => b.trim());
+          fetchQb.andWhere(`product.variants ->> 'brand' IN (:...brands)`, { brands });
+        }
+        if (query.color) {
+          const colors = Array.isArray(query.color) ? query.color : query.color.split(',').map((c: string) => c.trim());
+          fetchQb.andWhere(`(product.variants ->> 'color' IN (:...colors) OR stocks.color IN (:...colors))`, { colors });
+        }
+        if (query.size) {
+          const sizes = Array.isArray(query.size) ? query.size : query.size.split(',').map((s: string) => s.trim());
+          fetchQb.andWhere(`(product.variants ->> 'size' IN (:...sizes) OR stocks.size IN (:...sizes))`, { sizes });
+        }
+
+        fetchedProducts = await fetchQb.getMany();
       }
 
-      // We can also fetch categories from DB if we want full data, or just use ES data.
-      // For simplicity/speed, let's use the ES data for categories since it has name/slug/image/id
-      const categories = searchResults.filter((r) => r.type === 'category');
-
-      // Sort or merge? preserve ES order?
-      // ES returns sorted by relevance. We should try to respect that.
-      // Create a map for quick lookup
       const productMap = new Map(fetchedProducts.map((p) => [p.id, p]));
 
-      const finalResults: (Product | any)[] = [];
+      // Build ordered product list from ES relevance
+      const orderedProducts: Product[] = [];
       for (const result of searchResults) {
         if (result.type === 'product') {
           const p = productMap.get(result.id);
-          if (p) finalResults.push(p);
-        } else if (result.type === 'category') {
-          finalResults.push(result);
+          if (p) orderedProducts.push(p);
         }
       }
 
-      products = finalResults as any;
+      total = orderedProducts.length;
+      products = orderedProducts.slice(skip, skip + limit);
     } else {
       const qb = this.productsRepository.createQueryBuilder('product');
 
@@ -207,16 +225,134 @@ export class ProductsService {
         );
       }
 
+      if (query.sort === 'popular') {
+        qb.orderBy('product.id', 'DESC');
+      }
+
+      total = await qb.getCount();
+      qb.skip(skip).take(limit);
       products = await qb.getMany();
     }
 
-    return products.map((product) => ({
+    const mappedProducts = products.map((product) => ({
       ...product,
       banner: ensureFullUrl(product.banner),
       images: Array.isArray(product.images)
         ? product.images.map((img) => ensureFullUrl(img)).filter(Boolean)
         : product.images,
     }));
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: [...categories, ...mappedProducts],
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNextPage: page < totalPages,
+      },
+    };
+  }
+
+  async getFilters(query: any = {}) {
+    let products: Product[] = [];
+
+    if (query.search) {
+      const searchResults = await this.searchService.search(query.search);
+      const productIds = searchResults
+        .filter((r) => r.type === 'product')
+        .map((p) => p.id);
+
+      if (productIds.length > 0) {
+        products = await this.productsRepository
+          .createQueryBuilder('product')
+          .whereInIds(productIds)
+          .leftJoinAndSelect('product.stocks', 'stocks')
+          .getMany();
+      }
+    } else {
+      const qb = this.productsRepository.createQueryBuilder('product');
+      qb.leftJoinAndSelect('product.stocks', 'stocks');
+
+      if (query.categoryId) {
+        qb.leftJoin('product.category', 'category');
+        qb.andWhere('category.id = :categoryId', {
+          categoryId: query.categoryId,
+        });
+      }
+      products = await qb.getMany();
+    }
+
+    if (!products || products.length === 0) {
+      return {
+        filters: {},
+        priceRange: { min: 0, max: 0 },
+      };
+    }
+
+    const dynamicFilters: Record<string, any[]> = {};
+
+    products.forEach((product) => {
+      // Extract from variants JSON
+      if (product.variants && typeof product.variants === 'object') {
+        Object.entries(product.variants).forEach(([key, value]) => {
+          if (!dynamicFilters[key]) {
+            dynamicFilters[key] = [];
+          }
+
+          if (Array.isArray(value)) {
+            dynamicFilters[key].push(...value);
+          } else if (value !== null && value !== undefined && value !== '') {
+            if (typeof value === 'boolean') {
+              dynamicFilters[key].push(value ? 'Bəli' : 'Xeyr');
+            } else {
+              dynamicFilters[key].push(value);
+            }
+          }
+        });
+      }
+
+      // Extract from ProductStock (Trendyol model)
+      if (product.stocks && Array.isArray(product.stocks)) {
+        product.stocks.forEach((stock) => {
+          if (stock.color) {
+            if (!dynamicFilters['color']) dynamicFilters['color'] = [];
+            dynamicFilters['color'].push(stock.color);
+          }
+          if (stock.size) {
+            if (!dynamicFilters['size']) dynamicFilters['size'] = [];
+            dynamicFilters['size'].push(stock.size);
+          }
+        });
+      }
+    });
+
+    const filters = Object.entries(dynamicFilters).reduce(
+      (acc, [key, values]) => {
+        const uniqueValues = [...new Set(values)].filter(
+          (v) => v !== null && v !== '',
+        );
+        if (uniqueValues.length > 0) {
+          acc[key] = uniqueValues;
+        }
+        return acc;
+      },
+      {} as Record<string, any[]>,
+    );
+
+    const prices = products.map((p) => Number(p.price)).filter((p) => !isNaN(p));
+    const minPrice = prices.length ? Math.min(...prices) : 0;
+    const maxPrice = prices.length ? Math.max(...prices) : 0;
+
+    return {
+      filters,
+      priceRange: {
+        min: minPrice,
+        max: maxPrice,
+      },
+    };
   }
 
   async findNewArrivals(limit: number = 8) {

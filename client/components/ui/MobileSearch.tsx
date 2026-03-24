@@ -55,8 +55,8 @@ export function MobileSearch({ isOpen, onClose }: MobileSearchProps) {
 
   const uniqueSuggestions = React.useMemo(() => {
     const rawSuggestions = query
-      ? (searchResults?.slice(0, 10) || [])
-      : (popularProducts?.slice(0, 5) || []);
+      ? (searchResults?.data?.slice(0, 10) || [])
+      : (popularProducts?.data?.slice(0, 5) || []);
 
     const seenCategories = new Set();
     return rawSuggestions.filter(item => {
@@ -188,8 +188,8 @@ export function MobileSearch({ isOpen, onClose }: MobileSearchProps) {
           <div className="p-4">
             <h3 className="text-sm font-bold text-gray-900 mb-3">Populyar Axtarışlar</h3>
             <div className="flex flex-wrap gap-2">
-              {popularProducts && popularProducts.length > 0 ? (
-                popularProducts.map((prod) => (
+              {popularProducts?.data && popularProducts.data.length > 0 ? (
+                popularProducts.data.map((prod: any) => (
                   <button
                     key={prod.id}
                     onClick={() => handleSelect(prod)}

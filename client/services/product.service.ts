@@ -58,9 +58,25 @@ export type Product = {
   updatedAt?: string;
 };
 
+export type PaginatedResponse = {
+  data: Product[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNextPage: boolean;
+  };
+};
+
 export const productService = {
-  async getAll(params?: any) {
-    const response = await httpClientPublic.get<Product[]>('/products', { params });
+  async getAll(params?: any): Promise<PaginatedResponse> {
+    const response = await httpClientPublic.get<PaginatedResponse>('/products', { params });
+    return response.data;
+  },
+
+  async getFilters(params?: any): Promise<any> {
+    const response = await httpClientPublic.get('/products/filters', { params });
     return response.data;
   },
 

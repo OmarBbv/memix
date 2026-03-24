@@ -53,6 +53,11 @@ export class ProductsController {
     return this.productsService.findAll(query);
   }
 
+  @Get('filters')
+  getFilters(@Query() query: any) {
+    return this.productsService.getFilters(query);
+  }
+
   @Get('new-arrivals')
   findNewArrivals(@Query('limit') limit?: string) {
     return this.productsService.findNewArrivals(limit ? +limit : 8);
