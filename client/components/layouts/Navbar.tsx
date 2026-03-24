@@ -1,6 +1,5 @@
 'use client'
 
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import logoIcon from "@/public/memi.svg";
 import searchIcon from "@/public/navbar/search.svg";
 import { Heart, ShoppingBag, User, Menu, ChevronRight, Globe, Search, X } from "lucide-react";
@@ -12,6 +11,7 @@ import { MobileSearch } from "../ui/MobileSearch";
 import { useState, useEffect } from "react";
 import { TopBar } from "../home/TopBar";
 import { Input } from "../ui/input";
+import { DesktopCategoryNav } from "./DesktopCategoryNav";
 import { AuthModal } from "./AuthModal";
 import { useCategoryTree } from "@/hooks/useCategories";
 import { useProducts } from "@/hooks/useProducts";
@@ -349,71 +349,7 @@ export default function Navbar() {
                     </Sheet>
                 </div>
 
-                <div
-                    className={`hidden md:block w-full bg-white px-2 transition-all duration-300 ease-in-out overflow-hidden ${showCategories
-                        ? 'h-auto pt-1 pb-0 opacity-100'
-                        : 'max-h-0 py-0 opacity-0'
-                        }`}
-                >
-                    <div className="max-w-7xl flex mx-auto items-center gap-4 pb-4">
-                        {categories?.map((item: Category) => (
-                            <HoverCard
-                                key={`${item.id}-${pathname}`}
-                                openDelay={20}
-                                closeDelay={100}
-                            >
-                                <HoverCardTrigger asChild>
-                                    <Link href={`/category/${item.slug}`} className="text-sm font-medium text-zinc-700 hover:text-black flex items-center gap-2 transition-colors hover:underline hover:decoration-1 hover:underline-offset-4">
-                                        {item.name}
-                                    </Link>
-                                </HoverCardTrigger>
-                                <HoverCardContent className="w-screen max-w-none p-0 rounded-none border-0 shadow-lg" style={{ width: '100vw', maxWidth: 'none', left: 0, right: 0 }}>
-                                    <div className="w-full bg-white min-h-[60vh]">
-                                        <div className="max-w-7xl mx-auto py-8">
-                                            <div className="grid grid-cols-5 gap-8">
-                                                {item.children?.map((subCategory: Category) => (
-                                                    <div key={subCategory.id} className="space-y-4">
-                                                        <h3 className="font-semibold text-gray-900 text-base">
-                                                            {subCategory.name}
-                                                        </h3>
-                                                        <div className="space-y-2">
-                                                            {subCategory.children?.map((leaf: Category) => (
-                                                                <Link
-                                                                    key={leaf.id}
-                                                                    href={`/category/${leaf.slug}`}
-                                                                    className={`block text-sm hover:text-gray-900 transition-colors hover:underline hover:decoration-1 hover:underline-offset-4 ${leaf.name.includes('🔥') ? 'text-red-500 hover:text-red-600' :
-                                                                        leaf.name.includes('🇹🇭') ? 'text-blue-600 hover:text-blue-700' :
-                                                                            leaf.name === 'FRESH' ? 'bg-black text-white px-2 py-1 rounded text-xs font-medium inline-block hover:no-underline' :
-                                                                                leaf.name === 'Bütün brendləri gör' ? 'text-gray-600 underline hover:no-underline' :
-                                                                                    'text-gray-600'
-                                                                        }`}
-                                                                >
-                                                                    {leaf.name}
-                                                                </Link>
-                                                            ))}
-                                                        </div>
-                                                        {subCategory.name === 'Şəxsi vaucherlər' && (
-                                                            <div className="space-y-2 mt-4">
-                                                                <h4 className="font-semibold text-gray-900 text-base">Qiymət</h4>
-                                                                <div className="space-y-1 text-sm text-gray-600">
-                                                                    <div>10 €-a qədər</div>
-                                                                    <div>30 €-a qədər</div>
-                                                                    <div>50 €-a qədər</div>
-                                                                    <div>70 €-a qədər</div>
-                                                                    <div>100 €-a qədər</div>
-                                                                </div>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </HoverCardContent>
-                            </HoverCard>
-                        ))}
-                    </div>
-                </div>
+                <DesktopCategoryNav categories={categories} show={showCategories} />
             </nav>
 
             <AuthModal
