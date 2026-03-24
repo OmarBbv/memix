@@ -31,4 +31,10 @@ export class ProductStock {
 
   @Column({ default: 0 })
   stock: number; // Bu filialda bu məhsuldan neçə dənə var?
+
+  @Column({ nullable: true })
+  size: string; // Ölçü (S, M, L, XL, 30, 32 və s.)
+
+  @Column({ nullable: true })
+  color: string; // Rəng (Qırmızı, Mavi, Qara və s.)
 }

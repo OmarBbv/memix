@@ -37,9 +37,13 @@ export class BranchesService {
     return this.branchRepository.delete(id);
   }
 
-  async updateStock(branchId: number, productId: number, quantity: number) {
+  async updateStock(branchId: number, productId: number, quantity: number, size?: string, color?: string) {
+    const whereClause: any = { branchId, productId };
+    if (size) whereClause.size = size;
+    if (color) whereClause.color = color;
+
     let stock = await this.productStockRepository.findOne({
-      where: { branchId, productId },
+      where: whereClause,
     });
 
     if (stock) {
@@ -49,6 +53,8 @@ export class BranchesService {
         branchId,
         productId,
         stock: quantity,
+        size: size || undefined,
+        color: color || undefined,
       });
     }
 

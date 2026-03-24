@@ -16,6 +16,7 @@ import { useBranches } from "../../hooks/useBranches";
 import { productSchema, ProductFormValues } from "../../validations/productSchema";
 import { ChevronLeftIcon, TrashBinIcon } from "../../icons";
 import { allowOnlyNumbers } from "../../utils/inputHelpers";
+import SearchableSelect from "../../components/ui/select/SearchableSelect";
 
 export default function EditProduct() {
   const { id } = useParams();
@@ -61,6 +62,8 @@ export default function EditProduct() {
         branchStocks: product.stocks?.map((s: any) => ({
           branchId: s.branchId,
           stock: s.stock,
+          size: s.size || '',
+          color: s.color || '',
         })) || [],
       });
       setExistingBanner(product.banner);
@@ -146,11 +149,6 @@ export default function EditProduct() {
     });
   };
 
-  const categoryOptions = categories?.map((cat) => ({
-    value: String(cat.id),
-    label: cat.name,
-  })) || [];
-
   if (isLoading) return <div>Yüklənir...</div>;
 
   return (
@@ -214,20 +212,23 @@ export default function EditProduct() {
                 {/* Branch-specific Stocks */}
                 <div className="rounded-xl border border-gray-200 p-5 dark:border-gray-800">
                   <div className="mb-4 flex items-center justify-between">
-                    <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Filial Üzrə Stok</h3>
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Filial, Rəng & Ölçü Üzrə Stok</h3>
+                      <p className="text-xs text-gray-500 mt-1">Hər filialda, hər rəng+ölçüdəki stok sayını ayrıca əlavə edin</p>
+                    </div>
                     <Button
                       type="button"
                       size="sm"
                       variant="outline"
-                      onClick={() => append({ branchId: 0, stock: "" as any })}
+                      onClick={() => append({ branchId: 0, stock: "" as any, size: "", color: "" })}
                     >
-                      Filial Əlavə Et
+                      + Stok Sətri
                     </Button>
                   </div>
 
                   <div className="space-y-4">
                     {fields.map((item, index) => (
-                      <div key={item.id} className="flex items-end gap-4 rounded-lg bg-gray-50 p-4 dark:bg-gray-800/50">
+                      <div key={item.id} className="flex items-end gap-3 rounded-lg bg-gray-50 p-4 dark:bg-gray-800/50">
                         <div className="flex-1">
                           <Label>Filial</Label>
                           <Controller
@@ -243,7 +244,23 @@ export default function EditProduct() {
                             )}
                           />
                         </div>
-                        <div className="w-32">
+                        <div className="w-28">
+                          <Label>Rəng</Label>
+                          <Input
+                            type="text"
+                            placeholder="Qırmızı, Mavi..."
+                            {...register(`branchStocks.${index}.color` as const)}
+                          />
+                        </div>
+                        <div className="w-24">
+                          <Label>Ölçü</Label>
+                          <Input
+                            type="text"
+                            placeholder="M, 32..."
+                            {...register(`branchStocks.${index}.size` as const)}
+                          />
+                        </div>
+                        <div className="w-20">
                           <Label>Stok</Label>
                           <Input
                             type="text"
@@ -263,7 +280,7 @@ export default function EditProduct() {
                     ))}
                     {fields.length === 0 && (
                       <p className="text-center text-sm text-gray-500 py-4">
-                        Heç bir filial seçilməyib.
+                        Heç bir stok sətri əlavə edilməyib. Hər rəng+ölçü kombinasiyası üçün ayrıca sətir əlavə edin.
                       </p>
                     )}
                   </div>
@@ -275,10 +292,15 @@ export default function EditProduct() {
                     name="categoryId"
                     control={control}
                     render={({ field }) => (
-                      <Select
-                        options={categoryOptions}
+                      <SearchableSelect
+                        options={categories?.map((cat) => ({
+                          label: cat.name,
+                          value: cat.id,
+                        })) || []}
+                        placeholder="Kateqoriya seçin"
                         onChange={field.onChange}
-                        value={field.value !== undefined ? String(field.value) : ""}
+                        value={field.value as any}
+                        error={!!errors.categoryId}
                       />
                     )}
                   />

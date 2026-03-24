@@ -1,5 +1,6 @@
 import { IsString, IsOptional, IsNumber, IsBoolean } from 'class-validator';
 import { Transform } from 'class-transformer';
+import { SizeType } from '../entities/category.entity';
 
 export class CreateCategoryDto {
   @IsString()
@@ -28,4 +29,8 @@ export class CreateCategoryDto {
   @Transform(({ value }) => value === 'true')
   @IsBoolean()
   showOnHome?: boolean;
+
+  @IsOptional()
+  @Transform(({ value }) => (value === '' || value === 'null') ? null : value as SizeType)
+  sizeType?: SizeType | null;
 }

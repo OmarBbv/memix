@@ -43,10 +43,38 @@ export class OrdersService {
       const orderItems: OrderItem[] = [];
 
       for (const item of cart.items) {
-        // Stok yoxlanışı
-        const stock = await this.productStockRepository.findOne({
-          where: { branchId, productId: item.product.id },
-        });
+        // Stok yoxlanışı — rəng+ölçüyə görə (Trendyol modeli)
+        const itemSize = item.variants?.size || null;
+        const itemColor = item.variants?.color || null;
+        let stock: ProductStock | null = null;
+
+        // 1. Əvvəl rəng+ölçüyə görə axtarırıq
+        if (itemColor && itemSize) {
+          stock = await this.productStockRepository.findOne({
+            where: { branchId, productId: item.product.id, size: itemSize, color: itemColor },
+          });
+        }
+
+        // 2. Yalnız ölçüyə görə
+        if (!stock && itemSize) {
+          stock = await this.productStockRepository.findOne({
+            where: { branchId, productId: item.product.id, size: itemSize },
+          });
+        }
+
+        // 3. Yalnız rəngə görə
+        if (!stock && itemColor) {
+          stock = await this.productStockRepository.findOne({
+            where: { branchId, productId: item.product.id, color: itemColor },
+          });
+        }
+
+        // 4. Ümumi stoku yoxlayırıq
+        if (!stock) {
+          stock = await this.productStockRepository.findOne({
+            where: { branchId, productId: item.product.id },
+          });
+        }
 
         if (!stock || stock.stock < item.quantity) {
           throw new BadRequestException(`${item.product.name} üçün kifayət qədər stok yoxdur`);

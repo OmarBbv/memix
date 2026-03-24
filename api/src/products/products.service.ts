@@ -89,7 +89,9 @@ export class ProductsService {
         productId: savedProduct.id,
         branch: { id: Number(bs.branchId) } as any,
         branchId: Number(bs.branchId),
-        stock: Number(bs.stock) || 0
+        stock: Number(bs.stock) || 0,
+        size: bs.size || undefined,
+        color: bs.color || undefined,
       }));
       await this.productStockRepository.save(stockEntities);
     }
@@ -174,13 +176,13 @@ export class ProductsService {
       }
 
       if (query.color) {
-        qb.andWhere(`product.variants ->> 'color' = :color`, {
+        qb.andWhere(`(product.variants ->> 'color' = :color OR stocks.color = :color)`, {
           color: query.color,
         });
       }
 
       if (query.size) {
-        qb.andWhere(`product.variants ->> 'size' = :size`, {
+        qb.andWhere(`(product.variants ->> 'size' = :size OR stocks.size = :size)`, {
           size: query.size,
         });
       }
@@ -332,7 +334,9 @@ export class ProductsService {
             productId: product.id,
             branch: { id: Number(bs.branchId) } as any,
             branchId: Number(bs.branchId),
-            stock: Number(bs.stock) || 0
+            stock: Number(bs.stock) || 0,
+            size: bs.size || undefined,
+            color: bs.color || undefined,
           }));
         await this.productStockRepository.save(stockEntities);
       }

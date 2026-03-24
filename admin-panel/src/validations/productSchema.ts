@@ -15,6 +15,8 @@ export const productSchema = z.object({
   branchStocks: z.array(z.object({
     branchId: z.coerce.number(),
     stock: z.coerce.number().int().nonnegative(),
+    size: z.string().optional().default(''),
+    color: z.string().optional().default(''),
   })).optional().default([]),
   banner: z.string().optional().or(z.literal('')),
 });

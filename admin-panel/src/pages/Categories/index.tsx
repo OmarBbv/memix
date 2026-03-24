@@ -1,30 +1,22 @@
-import React, { useState } from "react";
+import React from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import { PlusIcon } from "../../icons";
 import { useCategoryTree } from "../../hooks/useCategories";
 import CategoryItem from "./CategoryItem";
-import CategoryModal from "./CategoryModal";
 import { Category } from "../../types/category";
+import { useNavigate } from "react-router";
 
 const Categories: React.FC = () => {
   const { data: categories, isLoading } = useCategoryTree();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const navigate = useNavigate();
 
   const handleEdit = (category: Category) => {
-    setEditingCategory(category);
-    setIsModalOpen(true);
+    navigate(`/categories/edit/${category.id}`);
   };
 
   const handleAdd = () => {
-    setEditingCategory(null);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setEditingCategory(null);
+    navigate("/categories/create");
   };
 
   return (
@@ -39,7 +31,7 @@ const Categories: React.FC = () => {
         <div className="flex items-center justify-end">
           <button
             onClick={handleAdd}
-            className="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-brand-600 active:scale-95"
+            className="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-brand-600 active:scale-95 shadow-lg shadow-brand-500/20"
           >
             <PlusIcon className="size-5" />
             <span>Yeni Kateqoriya</span>
@@ -70,12 +62,6 @@ const Categories: React.FC = () => {
           )}
         </div>
       </div>
-
-      <CategoryModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        category={editingCategory}
-      />
     </>
   );
 };

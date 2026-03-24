@@ -15,11 +15,12 @@ import {
 import { cn } from '@/lib/utils';
 import { Link } from '@/i18n/routing';
 import { Breadcrumb } from '@/components/shared/Breadcrumb';
-import { addToCart } from '@/lib/redux/features/cartSlice';
+import { addToCartAsync } from '@/lib/redux/features/cartSlice';
 import { useAppDispatch } from '@/lib/redux/hooks';
 import { useProduct } from '@/hooks/useProducts';
 import { baseUrl } from '@/lib/httpClient';
 import { useWishlist } from '@/hooks/useWishlist';
+import { getSizesForCategory, getSizeLabel } from '@/constants/sizes';
 
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -29,6 +30,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const { isInWishlist, toggleWishlist } = useWishlist();
 
   const [selectedSize, setSelectedSize] = useState<string>('');
+  const [selectedColor, setSelectedColor] = useState<string>('');
   const isLiked = isInWishlist(Number(id));
 
   if (isLoading || isError || !product) {
@@ -87,24 +89,65 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
     }
   }
 
-  const sizes = product.variants?.size || ['S', 'M', 'L', 'XL'];
+  const categorySizeType = (product.category as any)?.sizeType || null;
+  const categorySizes = getSizesForCategory(categorySizeType);
+  const sizes: string[] = categorySizes
+    ? categorySizes.map(s => s.value)
+    : (product.variants?.size || ['S', 'M', 'L', 'XL']);
+  const sizeTypeTitle = categorySizes ? categorySizeType : null;
+
+  // Stoklardakı mövcud rəngləri çıxarırıq
+  const availableColors: string[] = product.stocks && product.stocks.length > 0
+    ? [...new Set(product.stocks.filter((s: any) => s.color).map((s: any) => s.color))]
+    : (product.variants?.color ? (Array.isArray(product.variants.color) ? product.variants.color : [product.variants.color]) : []);
+
   const brand = product.variants?.brand || product.brand || '';
   const condition = product.variants?.condition || product.condition || 'Yeni';
-  const color = product.variants?.color || '';
   const categoryName = product.category?.name || '';
   const categorySlug = product.category?.slug || '';
   const productName = product.name || product.title || '';
   const tags = product.tags || [categoryName, brand].filter(Boolean);
 
+  const totalStock = product.stocks?.reduce((acc: number, s: any) => acc + s.stock, 0) || 0;
+  const isOutOfStock = product.stocks && product.stocks.length > 0 ? totalStock <= 0 : false;
+
+  // Per-color+size stock hesablanması (Trendyol modeli)
+  const getSizeStock = (size: string): number => {
+    if (!product.stocks || product.stocks.length === 0) return 999;
+
+    // 1. Rəng + Ölçü üzrə stok
+    if (selectedColor) {
+      const colorSizeStocks = product.stocks.filter((s: any) => s.color === selectedColor && s.size === size);
+      if (colorSizeStocks.length > 0) {
+        return colorSizeStocks.reduce((acc: number, s: any) => acc + s.stock, 0);
+      }
+    }
+
+    // 2. Yalnız ölçü üzrə stok
+    const sizeStocks = product.stocks.filter((s: any) => s.size === size && !s.color);
+    if (sizeStocks.length > 0) {
+      return sizeStocks.reduce((acc: number, s: any) => acc + s.stock, 0);
+    }
+    return totalStock;
+  };
+
+  // Rəng üzrə ümumi stok
+  const getColorStock = (color: string): number => {
+    if (!product.stocks || product.stocks.length === 0) return 999;
+    const colorStocks = product.stocks.filter((s: any) => s.color === color);
+    return colorStocks.reduce((acc: number, s: any) => acc + s.stock, 0);
+  };
+
   const handleAddToCart = () => {
     if (!selectedSize) return;
 
-    dispatch(addToCart({
+    dispatch(addToCartAsync({
       id: id,
       title: productName,
       price: currentPrice,
       image: allImages[0],
       size: selectedSize,
+      color: selectedColor || undefined,
       seller: {
         name: brand || 'Satıcı'
       }
@@ -139,9 +182,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             onToggleWishlist={() => toggleWishlist(Number(id))}
           />
 
-          {/* Right Column - Product Info */}
           <div className="lg:col-span-6 flex flex-col gap-6 lg:gap-8">
-            {/* Header Info */}
             <div className="space-y-4">
               <div className="flex flex-col gap-2">
                 <div className="flex flex-wrap items-center gap-3">
@@ -159,9 +200,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   <span className="px-3 py-1 bg-green-50 rounded-full text-xs font-semibold text-green-700">
                     {condition}
                   </span>
-                  {color && (
+                  {selectedColor && (
                     <span className="px-3 py-1 bg-gray-50 rounded-full text-xs font-semibold text-gray-600">
-                      {color}
+                      {selectedColor}
                     </span>
                   )}
                   {brand && (
@@ -183,31 +224,101 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
             <hr className="border-gray-100" />
 
-            {/* Size Selection */}
+            {/* Rəng Seçimi — Trendyol modeli */}
+            {availableColors.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <h3 className="font-bold text-gray-900">
+                    Rəng seçin
+                    {selectedColor && (
+                      <span className="ml-2 text-sm font-normal text-gray-500">— {selectedColor}</span>
+                    )}
+                  </h3>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  {availableColors.map((colorName) => {
+                    const colorStock = getColorStock(colorName);
+                    const isColorOut = colorStock <= 0;
+                    const isColorSelected = selectedColor === colorName;
+
+                    return (
+                      <button
+                        key={colorName}
+                        onClick={() => {
+                          if (!isColorOut) {
+                            setSelectedColor(isColorSelected ? '' : colorName);
+                            setSelectedSize('');
+                          }
+                        }}
+                        disabled={isColorOut}
+                        className={cn(
+                          "h-12 px-5 rounded-xl border-2 font-medium transition-all flex items-center justify-center relative",
+                          isColorOut
+                            ? "border-gray-100 bg-gray-50 text-gray-300 cursor-not-allowed line-through"
+                            : isColorSelected
+                              ? "border-black bg-black text-white shadow-lg shadow-black/20 active:scale-95"
+                              : "border-gray-200 text-gray-600 hover:border-black/30 hover:bg-gray-50 active:scale-95"
+                        )}
+                      >
+                        {colorName}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            <hr className="border-gray-100" />
+
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <h3 className="font-bold text-gray-900">Ölçü seçin</h3>
+                <h3 className="font-bold text-gray-900">
+                  {sizeTypeTitle === 'ayaqqabi' ? 'Nömrə seçin' :
+                    sizeTypeTitle === 'uzuk' ? 'Üzük ölçüsü seçin' :
+                      sizeTypeTitle === 'yas-grupu' ? 'Yaş qrupu seçin' :
+                        sizeTypeTitle === 'beden-numeric' ? 'Bədən nömrəsi seçin' :
+                          'Ölçü seçin'}
+                </h3>
                 <button className="text-sm underline text-gray-500 hover:text-black">Ölçü cədvəli</button>
               </div>
               <div className="flex flex-wrap gap-3">
-                {sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={cn(
-                      "h-12 w-16 rounded-xl border-2 font-medium transition-all active:scale-95 flex items-center justify-center",
-                      selectedSize === size
-                        ? "border-black bg-black text-white shadow-lg shadow-black/20"
-                        : "border-gray-200 text-gray-600 hover:border-black/30 hover:bg-gray-50"
-                    )}
-                  >
-                    {size}
-                  </button>
-                ))}
+                {sizes.map((size: string) => {
+                  const sizeStock = getSizeStock(size);
+                  const isSizeOut = sizeStock <= 0;
+                  const isLowStock = sizeStock > 0 && sizeStock <= 3;
+
+                  return (
+                    <div key={size} className="relative">
+                      <button
+                        onClick={() => !isSizeOut && setSelectedSize(size)}
+                        disabled={isSizeOut}
+                        className={cn(
+                          "h-12 min-w-16 px-3 rounded-xl border-2 font-medium transition-all flex items-center justify-center relative",
+                          isSizeOut
+                            ? "border-gray-100 bg-gray-50 text-gray-300 cursor-not-allowed line-through"
+                            : selectedSize === size
+                              ? "border-black bg-black text-white shadow-lg shadow-black/20 active:scale-95"
+                              : "border-gray-200 text-gray-600 hover:border-black/30 hover:bg-gray-50 active:scale-95"
+                        )}
+                      >
+                        {getSizeLabel(categorySizeType, size)}
+                      </button>
+                      {isSizeOut && (
+                        <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none whitespace-nowrap">
+                          Bitib
+                        </span>
+                      )}
+                      {isLowStock && (
+                        <span className="absolute -top-1.5 -right-1.5 bg-orange-500 text-white text-[9px] font-bold w-5 h-5 rounded-full flex items-center justify-center leading-none">
+                          {sizeStock}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Stock Info */}
             {product.stocks && product.stocks.length > 0 && (
               <div className="space-y-2">
                 <h3 className="font-bold text-gray-900 text-sm">Stok məlumatı</h3>
@@ -229,19 +340,20 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               </div>
             )}
 
-            {/* Action Buttons */}
             <div className="grid grid-cols-2 gap-4">
               <Button
-                disabled={!selectedSize}
+                disabled={isOutOfStock || !selectedSize || (!!selectedSize && getSizeStock(selectedSize) <= 0)}
                 onClick={handleAddToCart}
                 className={cn(
-                  "h-12 lg:h-14 text-base lg:text-lg rounded-xl shadow-xl transition-all",
-                  selectedSize
-                    ? "bg-black hover:bg-gray-800 shadow-black/10"
-                    : "bg-gray-200 text-gray-400 cursor-not-allowed shadow-none"
+                  "h-12 lg:h-14 text-base lg:text-lg rounded-xl transition-all",
+                  isOutOfStock || (selectedSize && getSizeStock(selectedSize) <= 0)
+                    ? "bg-red-50 text-red-500 font-bold border border-red-200 cursor-not-allowed shadow-none hover:bg-red-50"
+                    : selectedSize
+                      ? "bg-black hover:bg-gray-800 shadow-xl shadow-black/10"
+                      : "bg-gray-200 text-gray-400 cursor-not-allowed shadow-none"
                 )}
               >
-                Səbətə əlavə et
+                {isOutOfStock ? "İndi məhsul bitib" : (selectedSize && getSizeStock(selectedSize) <= 0) ? "Bu ölçü bitib" : "Səbətə əlavə et"}
               </Button>
               <Button variant="outline" className="h-12 lg:h-14 text-base lg:text-lg border-2 border-gray-200 hover:bg-gray-50 hover:border-gray-300 rounded-xl text-gray-700 gap-2">
                 <MessageCircle className="w-5 h-5" />
@@ -249,7 +361,6 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               </Button>
             </div>
 
-            {/* Description */}
             <div className="space-y-4">
               <h3 className="text-lg font-bold text-gray-900">Məhsul haqqında</h3>
               <p className="text-gray-600 leading-relaxed text-sm lg:text-base">
@@ -264,7 +375,6 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               </div>
             </div>
 
-            {/* Price History */}
             {product.priceHistory && product.priceHistory.length > 0 && (
               <div className="space-y-3">
                 <h3 className="text-lg font-bold text-gray-900">Qiymət tarixçəsi</h3>
@@ -288,7 +398,6 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               </div>
             )}
 
-            {/* Protection Badges */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
               <div className="flex items-center gap-3 p-3 rounded-xl bg-blue-50/50 text-blue-900">
                 <ShieldCheck className="w-8 h-8 text-blue-600 shrink-0" />
@@ -308,7 +417,6 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           </div>
         </div>
 
-        {/* Similar Products Section */}
         <div className="mt-24 mb-12">
           <h2 className="text-2xl font-bold mb-8">Bənzər məhsullar</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">

@@ -9,6 +9,7 @@ export interface CartItem {
   price: number;
   image: string;
   size: string;
+  color?: string;
   quantity: number;
   seller?: {
     name: string;
@@ -42,6 +43,7 @@ export const fetchCart = createAsyncThunk(
         price: item.product.price,
         image: item.product.images[0],
         size: item.variants?.size || '',
+        color: item.variants?.color || '',
         quantity: item.quantity,
         seller: { name: 'Memix' }
       }));
@@ -64,7 +66,7 @@ export const addToCartAsync = createAsyncThunk(
       await cartService.addToCart(
         Number(item.id),
         1,
-        { size: item.size }
+        { size: item.size, color: item.color }
       );
       return { ...item, quantity: 1, isGuest: false };
     } catch (error: any) {

@@ -7,6 +7,7 @@ export const categorySchema = z.object({
   order: z.preprocess((val) => Number(val), z.number()).default(0),
   isActive: z.boolean().default(true),
   showOnHome: z.boolean().default(false),
+  sizeType: z.string().optional().or(z.literal('')),
 });
 
 export type CategoryFormValues = z.infer<typeof categorySchema>;

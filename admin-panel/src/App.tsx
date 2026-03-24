@@ -16,6 +16,7 @@ import Badges from "./pages/UiElements/Badges";
 import Avatars from "./pages/UiElements/Avatars";
 import Buttons from "./pages/UiElements/Buttons";
 import Categories from "./pages/Categories";
+import CategoryForm from "./pages/Categories/CategoryForm";
 import Branches from "./pages/Branches";
 import CreateBranch from "./pages/Branches/CreateBranch";
 import Banners from "./pages/Marketing/Banners";
@@ -36,6 +37,7 @@ import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import Orders from "./pages/Orders";
 
 export default function App() {
   return (
@@ -54,9 +56,11 @@ export default function App() {
               <Route path="/products/create" element={<AddProduct />} />
               <Route path="/products/edit/:id" element={<EditProduct />} />
               <Route path="/categories" element={<Categories />} />
+              <Route path="/categories/create" element={<CategoryForm />} />
+              <Route path="/categories/edit/:id" element={<CategoryForm />} />
               <Route path="/branches" element={<Branches />} />
               <Route path="/branches/create" element={<CreateBranch />} />
-              <Route path="/orders" element={<PlaceholderPage title="Sifarişlər" />} />
+              <Route path="/orders" element={<Orders />} />
               <Route path="/orders/returns" element={<PlaceholderPage title="Geri Qaytarılanlar" />} />
               <Route path="/users" element={<Users />} />
 

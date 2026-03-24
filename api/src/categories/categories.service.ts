@@ -324,7 +324,8 @@ export class CategoriesService {
     const categoryIds = this.getIdsFromTree(category);
 
     const products = await this.categoriesRepository.manager.getRepository(Product).find({
-      where: { category: { id: In(categoryIds) } }
+      where: { category: { id: In(categoryIds) } },
+      relations: ['stocks'],
     });
 
     if (!products || products.length === 0) {
@@ -337,6 +338,7 @@ export class CategoriesService {
     const dynamicFilters: Record<string, any[]> = {};
 
     products.forEach(product => {
+      // Extract from variants JSON
       if (product.variants && typeof product.variants === 'object') {
         Object.entries(product.variants).forEach(([key, value]) => {
           if (!dynamicFilters[key]) {
@@ -351,6 +353,20 @@ export class CategoriesService {
             } else {
               dynamicFilters[key].push(value);
             }
+          }
+        });
+      }
+
+      // Extract from ProductStock (Trendyol model)
+      if (product.stocks && Array.isArray(product.stocks)) {
+        product.stocks.forEach(stock => {
+          if (stock.color) {
+            if (!dynamicFilters['color']) dynamicFilters['color'] = [];
+            dynamicFilters['color'].push(stock.color);
+          }
+          if (stock.size) {
+            if (!dynamicFilters['size']) dynamicFilters['size'] = [];
+            dynamicFilters['size'].push(stock.size);
           }
         });
       }

@@ -1,11 +1,61 @@
+'use client';
+
+import { useState, useEffect } from "react"
 import { Separator } from "@/components/ui/separator"
 import { Shield, FileText, Lock, Scale } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 export default function TermsPage() {
+  const [activeSection, setActiveSection] = useState("general");
+
+  const navItems = [
+    { id: "general", label: "1. Ümumi Müddəalar", icon: FileText },
+    { id: "privacy", label: "2. Məxfilik Siyasəti", icon: Lock },
+    { id: "products", label: "3. Məhsul Öhdəlikləri", icon: Shield },
+    { id: "payment", label: "4. Ödəniş və Çatdırılma", icon: Scale },
+  ];
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    navItems.forEach((item) => {
+      const el = document.getElementById(item.id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault();
+    setActiveSection(id);
+    const el = document.getElementById(id);
+    if (el) {
+      const offset = 100; // Sticky header offset
+      const bodyRect = document.body.getBoundingClientRect().top;
+      const elementRect = el.getBoundingClientRect().top;
+      const elementPosition = elementRect - bodyRect;
+      const offsetPosition = elementPosition - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-zinc-50/50 py-16 px-4">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-16">
           <span className="text-zinc-500 font-medium tracking-widest text-sm uppercase mb-3 block">Hüquqi Məlumat</span>
           <h1 className="text-4xl md:text-5xl font-bold text-zinc-900 tracking-tight mb-6">
@@ -20,25 +70,28 @@ export default function TermsPage() {
           {/* Sidebar Navigation - Sticky */}
           <div className="hidden lg:block lg:col-span-3">
             <div className="sticky top-28 space-y-2">
-              <a href="#general" className="block px-4 py-3 text-sm font-medium text-zinc-900 bg-white rounded-xl shadow-sm border border-zinc-200 hover:border-zinc-300 transition-colors">
-                1. Ümumi Müddəalar
-              </a>
-              <a href="#privacy" className="block px-4 py-3 text-sm font-medium text-zinc-500 hover:text-zinc-900 hover:bg-white/50 rounded-xl transition-colors">
-                2. Məxfilik Siyasəti
-              </a>
-              <a href="#products" className="block px-4 py-3 text-sm font-medium text-zinc-500 hover:text-zinc-900 hover:bg-white/50 rounded-xl transition-colors">
-                3. Məhsul Öhdəlikləri
-              </a>
-              <a href="#payment" className="block px-4 py-3 text-sm font-medium text-zinc-500 hover:text-zinc-900 hover:bg-white/50 rounded-xl transition-colors">
-                4. Ödəniş və Çatdırılma
-              </a>
+              {navItems.map((item) => (
+                <a
+                  key={item.id}
+                  href={`#${item.id}`}
+                  onClick={(e) => handleClick(e, item.id)}
+                  className={cn(
+                    "block px-4 py-3 text-sm font-medium transition-all duration-300 rounded-xl border mb-2",
+                    activeSection === item.id
+                      ? "text-zinc-900 bg-white shadow-sm border-zinc-200 scale-[1.02]"
+                      : "text-zinc-500 border-transparent hover:text-zinc-900 hover:bg-white/50"
+                  )}
+                >
+                  {item.label}
+                </a>
+              ))}
             </div>
           </div>
 
           {/* Content */}
           <div className="lg:col-span-9 space-y-8">
             {/* Section 1 */}
-            <div id="general" className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-zinc-100">
+            <div id="general" className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-zinc-100 min-h-[400px]">
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-12 h-12 rounded-2xl bg-zinc-100 flex items-center justify-center">
                   <FileText className="w-6 h-6 text-zinc-900" />
@@ -57,7 +110,7 @@ export default function TermsPage() {
             </div>
 
             {/* Section 2 */}
-            <div id="privacy" className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-zinc-100">
+            <div id="privacy" className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-zinc-100 min-h-[400px]">
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-12 h-12 rounded-2xl bg-zinc-100 flex items-center justify-center">
                   <Lock className="w-6 h-6 text-zinc-900" />
@@ -80,7 +133,7 @@ export default function TermsPage() {
             </div>
 
             {/* Section 3 */}
-            <div id="products" className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-zinc-100">
+            <div id="products" className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-zinc-100 min-h-[400px]">
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-12 h-12 rounded-2xl bg-zinc-100 flex items-center justify-center">
                   <Shield className="w-6 h-6 text-zinc-900" />
@@ -109,7 +162,7 @@ export default function TermsPage() {
             </div>
 
             {/* Section 4 */}
-            <div id="payment" className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-zinc-100">
+            <div id="payment" className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-zinc-100 min-h-[400px]">
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-12 h-12 rounded-2xl bg-zinc-100 flex items-center justify-center">
                   <Scale className="w-6 h-6 text-zinc-900" />

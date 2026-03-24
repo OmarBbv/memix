@@ -6,6 +6,7 @@ export interface Category {
   order: number;
   isActive: boolean;
   showOnHome: boolean;
+  sizeType?: string | null;
   productsCount?: number;
   children?: Category[];
   parent?: Category;

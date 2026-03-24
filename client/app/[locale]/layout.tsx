@@ -14,6 +14,7 @@ import StoreProvider from "@/lib/redux/StoreProvider";
 import { CartDrawer } from "@/components/shared/CartDrawer";
 import QueryProvider from "@/lib/QueryProvider";
 import { Toaster } from "sonner";
+import NextTopLoader from 'nextjs-toploader';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -55,6 +56,7 @@ export default async function LocaleLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${interTight.variable} ${interTight.className} antialiased`}
         suppressHydrationWarning={true}
       >
+        <NextTopLoader color="#52b788" height={4} showSpinner={false} crawl={false} />
         <NextIntlClientProvider messages={messages}>
           <StoreProvider>
             <QueryProvider>

@@ -67,8 +67,8 @@ export const FeaturesSection = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {features.map((feature) => (
-                        <div key={feature.id} className="group relative bg-white rounded-3xl p-8 hover:shadow-xl transition-all duration-300 border border-slate-100 hover:-translate-y-1">
-                            <div className={`w-14 h-14 ${feature.bgColor} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                        <div key={feature.id} className="group relative bg-white rounded-3xl p-8 hover:shadow-xl transition-all duration-300 border border-slate-100">
+                            <div className={`w-14 h-14 ${feature.bgColor} rounded-2xl flex items-center justify-center mb-6 transition-transform duration-300`}>
                                 {feature.icon}
                             </div>
                             <h3 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-rose-600 transition-colors">
@@ -116,7 +116,7 @@ export const FeaturesSection = () => {
                     <div className="flex justify-center">
                         <Button
                             variant="outline"
-                            className="bg-transparent border-2 border-teal-600 text-teal-700 hover:bg-teal-600 hover:text-white px-10 py-6 rounded-full text-lg font-semibold transition-all duration-300 hover:shadow-lg hover:shadow-teal-600/20"
+                            className="bg-transparent border-2 border-teal-600 text-teal-700 hover:bg-teal-600 hover:text-white px-10 py-6 rounded-full text-lg font-semibold transition-all duration-300"
                         >
                             Haqqımızda Daha Çox
                         </Button>

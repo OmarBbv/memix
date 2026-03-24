@@ -184,22 +184,22 @@ export default function Footer() {
                     </div>
 
                     <div className="flex flex-wrap gap-x-4 gap-y-2 text-gray-600">
-                        <Link href="#" className="hover:text-black transition-colors whitespace-nowrap">
+                        <Link href="/terms" className="hover:text-black transition-colors whitespace-nowrap">
                             İstifadə şərtləri
                         </Link>
-                        <Link href="#" className="hover:text-black transition-colors whitespace-nowrap">
+                        <Link href="/terms#general" className="hover:text-black transition-colors whitespace-nowrap">
                             Hüquqi məlumat
                         </Link>
-                        <Link href="#" className="hover:text-black transition-colors whitespace-nowrap">
+                        <Link href="/faq" className="hover:text-black transition-colors whitespace-nowrap">
                             AB onlayn mübahisə həlli platforması
                         </Link>
                         <Link href="#" className="hover:text-black transition-colors whitespace-nowrap">
-                            Sayt xəritəsi
+                            Sayt xəritəri
                         </Link>
-                        <Link href="#" className="hover:text-black transition-colors whitespace-nowrap">
+                        <Link href="/privacy" className="hover:text-black transition-colors whitespace-nowrap">
                             Məxfilik və cookie siyasəti
                         </Link>
-                        <Link href="#" className="hover:text-black transition-colors whitespace-nowrap">
+                        <Link href="/privacy" className="hover:text-black transition-colors whitespace-nowrap">
                             Cookie parametrləri
                         </Link>
                     </div>
