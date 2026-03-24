@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
@@ -430,6 +430,43 @@ export class ProductsService {
     await this.productsRepository.remove(product);
     await this.searchService.removeProduct(id);
     return product;
+  }
+
+  async findSimilar(id: number, limit: number = 4) {
+    const product = await this.productsRepository.findOne({
+      where: { id },
+      relations: ['category'],
+    });
+
+    if (!product) {
+      throw new NotFoundException(ErrorMessages.PRODUCT_NOT_FOUND);
+    }
+
+    const categoryName = product.category?.name || 'Uncategorized';
+    const tags = product.tags || [];
+
+    const similarProducts = await this.searchService.findSimilar(
+      id,
+      categoryName,
+      tags,
+      limit,
+    );
+
+    const ids = similarProducts.map((p: any) => p.id);
+    if (ids.length === 0) return [];
+
+    const fullProducts = await this.productsRepository.find({
+      where: { id: In(ids) },
+      relations: ['category', 'discount', 'priceHistory', 'stocks', 'stocks.branch'],
+    });
+
+    return fullProducts.map((product) => ({
+      ...product,
+      banner: ensureFullUrl(product.banner),
+      images: Array.isArray(product.images)
+        ? product.images.map((img) => ensureFullUrl(img)).filter(Boolean)
+        : product.images,
+    }));
   }
 
   async syncSearchIndex() {
