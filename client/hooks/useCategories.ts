@@ -1,4 +1,4 @@
-import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery, keepPreviousData } from "@tanstack/react-query";
 import { categoryService } from "@/services/category.service";
 
 export const useCategoryTree = () => {
@@ -34,6 +34,7 @@ export const useCategoryBySlug = (slug: string, filters?: Record<string, string>
     getNextPageParam: (lastPage: any) => {
       return lastPage?.pagination?.hasNextPage ? lastPage.pagination.page + 1 : undefined;
     },
+    placeholderData: keepPreviousData,
     enabled: !!slug,
   });
 };

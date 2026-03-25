@@ -1,4 +1,4 @@
-import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery, keepPreviousData } from "@tanstack/react-query";
 import { productService } from "@/services/product.service";
 
 export const useProducts = (params?: any) => {
@@ -16,6 +16,7 @@ export const useInfiniteProducts = (params?: any) => {
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.meta.hasNextPage ? lastPage.meta.page + 1 : undefined,
+    placeholderData: keepPreviousData,
   });
 };
 
@@ -24,6 +25,7 @@ export const useProductFilters = (params?: any) => {
     queryKey: ["productFilters", params],
     queryFn: () => productService.getFilters(params),
     enabled: !!params?.search || !!params?.categoryId,
+    placeholderData: keepPreviousData,
   });
 };
 
