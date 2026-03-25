@@ -27,6 +27,8 @@ import { DiscountsModule } from './discounts/discounts.module';
 import { BrandsModule } from './brands/brands.module';
 import { CampaignsModule } from './campaigns/campaigns.module';
 import { PromotionsModule } from './promotions/promotions.module';
+import { IntegrationsModule } from './integrations/integrations.module';
+
 
 @Module({
   imports: [
@@ -59,6 +61,7 @@ import { PromotionsModule } from './promotions/promotions.module';
     BrandsModule,
     CampaignsModule,
     PromotionsModule,
+    IntegrationsModule,
   ],
   controllers: [UploadsController],
   providers: [],
