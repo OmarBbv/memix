@@ -6,7 +6,6 @@ import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import ComponentCard from "../../components/common/ComponentCard";
 import Label from "../../components/form/Label";
 import Input from "../../components/form/input/InputField";
-import Select from "../../components/form/Select";
 import Checkbox from "../../components/form/input/Checkbox";
 import TextArea from "../../components/form/input/TextArea";
 import Button from "../../components/ui/button/Button";
@@ -17,6 +16,9 @@ import { productSchema, ProductFormValues } from "../../validations/productSchem
 import { ChevronLeftIcon, TrashBinIcon } from "../../icons";
 import { allowOnlyNumbers } from "../../utils/inputHelpers";
 import SearchableSelect from "../../components/ui/select/SearchableSelect";
+import { SIZE_OPTIONS } from "../../constants/sizes";
+import { COLOR_OPTIONS } from "../../constants/colors";
+import { SizeType } from "../../types/category";
 
 export default function EditProduct() {
   const { id } = useParams();
@@ -55,6 +57,10 @@ export default function EditProduct() {
         description: product.description || "",
         price: product.price,
         stock: product.stock,
+        sku: product.sku || "",
+        barcode: product.barcode || "",
+        gender: product.gender || "Qadın",
+        weight: product.weight || "" as any,
         categoryId: product.category?.id,
         isFeatured: product.isFeatured,
         tags: product.tags || [],
@@ -74,6 +80,14 @@ export default function EditProduct() {
   const [variantName, setVariantName] = useState("");
   const [variantValues, setVariantValues] = useState("");
   const variants = (watch("variants") || {}) as Record<string, string[]>;
+  const categoryId = watch("categoryId");
+
+  // Get current category size type
+  const currentCategory = categories?.find(c => c.id === categoryId);
+  const sizeType = currentCategory?.sizeType as SizeType;
+  const availableSizes = sizeType ? SIZE_OPTIONS[sizeType] : null;
+
+
 
   const handleAddVariant = () => {
     if (!variantName || !variantValues) return;
@@ -104,6 +118,10 @@ export default function EditProduct() {
 
     formData.append("name", data.name);
     if (data.description) formData.append("description", data.description);
+    if (data.sku) formData.append("sku", data.sku);
+    if (data.barcode) formData.append("barcode", data.barcode);
+    if (data.gender) formData.append("gender", data.gender);
+    if (data.weight) formData.append("weight", String(data.weight));
     formData.append("price", String(data.price));
     formData.append("stock", String(data.stock));
     if (data.categoryId) formData.append("categoryId", String(data.categoryId));
@@ -168,13 +186,113 @@ export default function EditProduct() {
           <ComponentCard title="Məhsul Məlumatları">
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="space-y-6">
-                <div>
-                  <Label htmlFor="name">Məhsulun Adı</Label>
-                  <Input type="text" id="name" {...register("name")} error={!!errors.name} hint={errors.name?.message} />
+                {/* Product Multi-Fields Grid */}
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                  {/* Name */}
+                  <div className="md:col-span-1">
+                    <Label htmlFor="name" required>Məhsulun Adı</Label>
+                    <Input
+                      type="text"
+                      id="name"
+                      placeholder="Məhsulun adını daxil edin"
+                      {...register("name")}
+                      error={!(!errors.name)}
+                      hint={errors.name?.message}
+                    />
+                  </div>
+                  {/* SKU */}
+                  <div>
+                    <Label htmlFor="sku" optional>Məhsul Kodu (SKU)</Label>
+                    <Input
+                      type="text"
+                      id="sku"
+                      placeholder="Məs: 1801292"
+                      {...register("sku")}
+                      error={!!errors.sku}
+                      hint={errors.sku?.message}
+                    />
+                  </div>
+                  {/* Barcode */}
+                  <div>
+                    <Label htmlFor="barcode" optional>Barkod</Label>
+                    <Input
+                      type="text"
+                      id="barcode"
+                      placeholder="Barkodu daxil edin və ya skan edin"
+                      {...register("barcode")}
+                      error={!!errors.barcode}
+                      hint={errors.barcode?.message}
+                    />
+                  </div>
+                </div>
+
+                {/* Price, Stock, Gender, Weight Grid */}
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
+                  {/* Price */}
+                  <div>
+                    <Label htmlFor="price" required>Qiymət</Label>
+                    <Input
+                      type="text"
+                      id="price"
+                      placeholder="0.00"
+                      {...register("price")}
+                      onInput={(e: React.FormEvent<HTMLInputElement>) => allowOnlyNumbers(e, true)}
+                      error={!!errors.price}
+                      hint={errors.price?.message}
+                    />
+                  </div>
+                  {/* Stock */}
+                  <div>
+                    <Label htmlFor="stock" optional>Ümumi Stok Sayı</Label>
+                    <Input
+                      type="text"
+                      id="stock"
+                      placeholder="0"
+                      {...register("stock")}
+                      onInput={(e: React.FormEvent<HTMLInputElement>) => allowOnlyNumbers(e)}
+                      error={!!errors.stock}
+                      hint={errors.stock?.message}
+                    />
+                  </div>
+                  {/* Gender */}
+                  <div>
+                    <Label optional>Cinsi</Label>
+                    <Controller
+                      name="gender"
+                      control={control}
+                      render={({ field }) => (
+                        <SearchableSelect
+                          options={[
+                            { label: "Qadın", value: "Qadın" },
+                            { label: "Kişi", value: "Kişi" },
+                            { label: "Uşaq", value: "Uşaq" },
+                            { label: "Unisex", value: "Unisex" },
+                          ]}
+                          placeholder="Cins seçin"
+                          onChange={field.onChange}
+                          value={field.value}
+                          error={!!errors.gender}
+                        />
+                      )}
+                    />
+                  </div>
+                  {/* Weight */}
+                  <div>
+                    <Label htmlFor="weight" optional>Çəki (Qr)</Label>
+                    <Input
+                      type="text"
+                      id="weight"
+                      placeholder="Məs: 284"
+                      {...register("weight")}
+                      onInput={(e: React.FormEvent<HTMLInputElement>) => allowOnlyNumbers(e)}
+                      error={!!errors.weight}
+                      hint={errors.weight?.message}
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <Label htmlFor="description">Təsvir</Label>
+                  <Label htmlFor="description" optional>Təsvir</Label>
                   <Controller
                     name="description"
                     control={control}
@@ -184,33 +302,29 @@ export default function EditProduct() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  <div>
-                    <Label htmlFor="price">Qiymət</Label>
-                    <Input
-                      type="text"
-                      id="price"
-                      {...register("price")}
-                      onInput={(e: React.FormEvent<HTMLInputElement>) => allowOnlyNumbers(e, true)}
-                      error={!!errors.price}
-                      hint={errors.price?.message}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="stock">Ümumi Stok Sayı (Məcburi deyil)</Label>
-                    <Input
-                      type="text"
-                      id="stock"
-                      {...register("stock")}
-                      onInput={(e: React.FormEvent<HTMLInputElement>) => allowOnlyNumbers(e)}
-                      error={!!errors.stock}
-                      hint={errors.stock?.message}
-                    />
-                  </div>
+
+                <div>
+                  <Label required>Kateqoriya</Label>
+                  <Controller
+                    name="categoryId"
+                    control={control}
+                    render={({ field }) => (
+                      <SearchableSelect
+                        options={categories?.map((cat) => ({
+                          label: cat.name,
+                          value: cat.id,
+                        })) || []}
+                        placeholder="Kateqoriya seçin"
+                        onChange={field.onChange}
+                        value={field.value as any}
+                        error={!!errors.categoryId}
+                      />
+                    )}
+                  />
                 </div>
 
                 {/* Branch-specific Stocks */}
-                <div className="rounded-xl border border-gray-200 p-5 dark:border-gray-800">
+                <div className="  ">
                   <div className="mb-4 flex items-center justify-between">
                     <div>
                       <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Filial, Rəng & Ölçü Üzrə Stok</h3>
@@ -235,32 +349,48 @@ export default function EditProduct() {
                             name={`branchStocks.${index}.branchId`}
                             control={control}
                             render={({ field }) => (
-                              <Select
-                                options={branches?.map(b => ({ value: String(b.id), label: b.name })) || []}
+                              <SearchableSelect
+                                options={branches?.map(b => ({ value: b.id, label: b.name })) || []}
                                 placeholder="Filial seçin"
                                 onChange={(val) => field.onChange(Number(val))}
-                                value={String(field.value)}
+                                value={field.value}
                               />
                             )}
                           />
                         </div>
-                        <div className="w-28">
+                        <div className="w-64">
                           <Label>Rəng</Label>
-                          <Input
-                            type="text"
-                            placeholder="Qırmızı, Mavi..."
-                            {...register(`branchStocks.${index}.color` as const)}
+                          <Controller
+                            name={`branchStocks.${index}.color`}
+                            control={control}
+                            render={({ field }) => (
+                              <SearchableSelect
+                                options={COLOR_OPTIONS}
+                                placeholder="Rəng seçin"
+                                value={field.value}
+                                onChange={field.onChange}
+                                allowCustomValue={true}
+                              />
+                            )}
                           />
                         </div>
-                        <div className="w-24">
+                        <div className="w-48">
                           <Label>Ölçü</Label>
-                          <Input
-                            type="text"
-                            placeholder="M, 32..."
-                            {...register(`branchStocks.${index}.size` as const)}
+                          <Controller
+                            name={`branchStocks.${index}.size`}
+                            control={control}
+                            render={({ field }) => (
+                              <SearchableSelect
+                                options={availableSizes ? availableSizes.map(s => ({ value: s, label: s })) : []}
+                                placeholder="Ölçü"
+                                value={field.value}
+                                onChange={field.onChange}
+                                allowCustomValue={true}
+                              />
+                            )}
                           />
                         </div>
-                        <div className="w-20">
+                        <div className="w-32">
                           <Label>Stok</Label>
                           <Input
                             type="text"
@@ -286,26 +416,6 @@ export default function EditProduct() {
                   </div>
                 </div>
 
-                <div>
-                  <Label>Kateqoriya</Label>
-                  <Controller
-                    name="categoryId"
-                    control={control}
-                    render={({ field }) => (
-                      <SearchableSelect
-                        options={categories?.map((cat) => ({
-                          label: cat.name,
-                          value: cat.id,
-                        })) || []}
-                        placeholder="Kateqoriya seçin"
-                        onChange={field.onChange}
-                        value={field.value as any}
-                        error={!!errors.categoryId}
-                      />
-                    )}
-                  />
-                </div>
-
                 {/* current Banner */}
                 <div>
                   <Label>Mövcud Vitrin Şəkli</Label>
@@ -323,7 +433,7 @@ export default function EditProduct() {
                   ) : (
                     <p className="mb-4 text-sm text-gray-500 italic">Vitrin şəkli yoxdur</p>
                   )}
-                  <Label htmlFor="bannerFile">Yeni Vitrin Şəkli Seç (Dəyişmək üçün)</Label>
+                  <Label htmlFor="bannerFile" optional>Yeni Vitrin Şəkli Seç (Dəyişmək üçün)</Label>
                   <input
                     type="file"
                     id="bannerFile"
@@ -353,7 +463,7 @@ export default function EditProduct() {
                   ) : (
                     <p className="mb-4 text-sm text-gray-500 italic">Əlavə şəkil yoxdur</p>
                   )}
-                  <Label htmlFor="additionalFiles">Yeni Şəkillər Əlavə Et</Label>
+                  <Label htmlFor="additionalFiles" optional>Yeni Şəkillər Əlavə Et</Label>
                   <input
                     type="file"
                     id="additionalFiles"
@@ -364,7 +474,7 @@ export default function EditProduct() {
                   />
                 </div>
 
-                <div className="rounded-xl border border-gray-200 p-5 dark:border-gray-800">
+                <div className="  ">
                   <h3 className="mb-4 text-sm font-medium text-gray-900 dark:text-gray-100">Variantlar</h3>
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mb-4">
                     <Input value={variantName} onChange={(e) => setVariantName(e.target.value)} placeholder="Variant Adı" />
@@ -382,7 +492,7 @@ export default function EditProduct() {
                 </div>
 
                 <div>
-                  <Label htmlFor="tags">teqlər (Vergüllə ayırın)</Label>
+                  <Label htmlFor="tags" optional>teqlər (Vergüllə ayırın)</Label>
                   <Controller
                     name="tags"
                     control={control}
