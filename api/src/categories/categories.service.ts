@@ -159,7 +159,11 @@ export class CategoriesService {
   }
 
   async findTree(all: boolean = false) {
-    if (!all && this.cachedTree && Date.now() - this.cacheTimestamp < this.CACHE_TTL) {
+    if (
+      !all &&
+      this.cachedTree &&
+      Date.now() - this.cacheTimestamp < this.CACHE_TTL
+    ) {
       return this.cachedTree;
     }
 
@@ -233,8 +237,15 @@ export class CategoriesService {
     }
 
     const categoryIds = this.getIdsFromTree(category);
-    const { subcategory, price, minPrice, maxPrice, page: pageParam, limit: limitParam, ...variantFilters } =
-      filters;
+    const {
+      subcategory,
+      price,
+      minPrice,
+      maxPrice,
+      page: pageParam,
+      limit: limitParam,
+      ...variantFilters
+    } = filters;
 
     const page = pageParam ? parseInt(pageParam, 10) : 1;
     const limit = limitParam ? parseInt(limitParam, 10) : 12;
@@ -290,20 +301,22 @@ export class CategoriesService {
 
     Object.entries(variantFilters).forEach(([key, value]) => {
       if (!value) return;
-      const values = Array.isArray(value) ? value : value.split(',').map((v) => v.trim());
+      const values = Array.isArray(value)
+        ? value
+        : value.split(',').map((v) => v.trim());
 
       if (key === 'color' || key === 'size') {
-         qb = qb.andWhere(
-           `(product.variants->>:key_${key} IN (:...valArr_${key}) OR stocks.${key} IN (:...valArr_${key}))`,
-           {
-             [`key_${key}`]: key,
-             [`valArr_${key}`]: values,
-           }
-         );
+        qb = qb.andWhere(
+          `(product.variants->>:key_${key} IN (:...valArr_${key}) OR stocks.${key} IN (:...valArr_${key}))`,
+          {
+            [`key_${key}`]: key,
+            [`valArr_${key}`]: values,
+          },
+        );
       } else {
         const conditions = values.map(
           (v, i) =>
-            `(product.variants->>:key_${key} = :val_${key}_${i} OR product.variants->:key_${key} @> :valArrJSON_${key}_${i}::jsonb)`
+            `(product.variants->>:key_${key} = :val_${key}_${i} OR product.variants->:key_${key} @> :valArrJSON_${key}_${i}::jsonb)`,
         );
         const params: Record<string, any> = { [`key_${key}`]: key };
         values.forEach((v, i) => {
@@ -342,7 +355,7 @@ export class CategoriesService {
         limit,
         totalPages: Math.ceil(total / limit),
         hasNextPage: page < Math.ceil(total / limit),
-      }
+      },
     };
 
     return responseCategory;

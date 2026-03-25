@@ -28,6 +28,9 @@ export class Product {
   @Column({ unique: true, nullable: true })
   sku: string; // Məhsulun kodu (Məsələn: 1 801 292)
 
+  @Column({ unique: true, nullable: true })
+  guid1c: string; // 1C-den gelen GUID (Identifyer)
+
   @Column({ nullable: true })
   barcode: string; // Məhsulun barkodu (Məsələn: 2001801292005)
 

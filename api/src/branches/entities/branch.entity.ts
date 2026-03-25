@@ -9,6 +9,9 @@ export class Branch {
   @Column({ unique: true })
   name: string; // Məsələn: "Gənclik Filialı"
 
+  @Column({ unique: true, nullable: true })
+  guid1c: string; // 1C-den gelen GUID (Identifyer)
+
   @Column({ nullable: true })
   address: string; // Filialın ünvanı
 

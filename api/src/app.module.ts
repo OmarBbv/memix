@@ -29,7 +29,6 @@ import { CampaignsModule } from './campaigns/campaigns.module';
 import { PromotionsModule } from './promotions/promotions.module';
 import { IntegrationsModule } from './integrations/integrations.module';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot({

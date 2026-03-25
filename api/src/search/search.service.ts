@@ -8,7 +8,7 @@ export class SearchService {
   private readonly index = 'products';
   private readonly categoryIndex = 'categories';
 
-  constructor(private readonly elasticsearchService: ElasticsearchService) { }
+  constructor(private readonly elasticsearchService: ElasticsearchService) {}
 
   async onModuleInit() {
     const indexExists = await this.elasticsearchService.indices.exists({
@@ -211,29 +211,31 @@ export class SearchService {
     return [...categories, ...products];
   }
 
-  async findSimilar(productId: number, category: string, tags: string[] = [], limit: number = 4) {
+  async findSimilar(
+    productId: number,
+    category: string,
+    tags: string[] = [],
+    limit: number = 4,
+  ) {
     try {
       const response = await this.elasticsearchService.search({
         index: this.index,
         size: limit,
         query: {
           bool: {
-            must: [
-              { match: { category: category } }
-            ],
-            should: [
-              { terms: { tags: tags } }
-            ],
-            filter: [
-              { bool: { must_not: { term: { id: productId } } } }
-            ]
-          }
-        }
+            must: [{ match: { category: category } }],
+            should: [{ terms: { tags: tags } }],
+            filter: [{ bool: { must_not: { term: { id: productId } } } }],
+          },
+        },
       });
 
       return response.hits.hits.map((hit) => hit._source);
     } catch (error) {
-      this.logger.error(`Failed to find similar products for ${productId}`, error.stack);
+      this.logger.error(
+        `Failed to find similar products for ${productId}`,
+        error.stack,
+      );
       return [];
     }
   }

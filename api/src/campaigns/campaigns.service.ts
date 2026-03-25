@@ -118,11 +118,13 @@ export class CampaignsService {
         where: { category: { id: targetId } },
       });
     } else {
-      // NOTE: Project relies on 'tags' or 'variants' if brand is not a specific relation. 
-      // If brand doesn't exist natively, it might be in tags or variants. 
+      // NOTE: Project relies on 'tags' or 'variants' if brand is not a specific relation.
+      // If brand doesn't exist natively, it might be in tags or variants.
       // But assuming there is no brand relation right now since it wasn't seen in product entity.
       // We will just support category for now, or you can expand to 'brand' if it gets added in the future.
-      throw new NotFoundException(`Bu hədəf növü (targetType: ${targetType}) dəstəklənmir`);
+      throw new NotFoundException(
+        `Bu hədəf növü (targetType: ${targetType}) dəstəklənmir`,
+      );
     }
 
     if (products.length === 0) {

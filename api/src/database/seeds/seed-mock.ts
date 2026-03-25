@@ -25,7 +25,9 @@ async function bootstrap() {
     'TRUNCATE TABLE categories, products, branches, product_stocks, order_items, orders CASCADE',
   );
   try {
-    await (searchService as any).elasticsearchService.indices.delete({ index: 'products' });
+    await (searchService as any).elasticsearchService.indices.delete({
+      index: 'products',
+    });
   } catch (e) {}
 
   const branch1: any = await branchesService.create({
@@ -42,10 +44,26 @@ async function bootstrap() {
   });
 
   const level1Names = [
-    'Geyim', 'Ayaqqabı', 'Aksessuar', 'Elektronika', 'Kosmetika',
-    'Ev və Yaşam', 'İdman', 'Kitab', 'Oyuncaq', 'Uşaq',
-    'Saat', 'Eynək', 'Çanta', 'Parfümeriya', 'Məişət Texnikası',
-    'Ofis ləvazimatları', 'Hədiyyəlik', 'Avtomobil', 'Musiqi Alətləri', 'Petshop'
+    'Geyim',
+    'Ayaqqabı',
+    'Aksessuar',
+    'Elektronika',
+    'Kosmetika',
+    'Ev və Yaşam',
+    'İdman',
+    'Kitab',
+    'Oyuncaq',
+    'Uşaq',
+    'Saat',
+    'Eynək',
+    'Çanta',
+    'Parfümeriya',
+    'Məişət Texnikası',
+    'Ofis ləvazimatları',
+    'Hədiyyəlik',
+    'Avtomobil',
+    'Musiqi Alətləri',
+    'Petshop',
   ];
 
   const level1Categories: any[] = [];
@@ -58,14 +76,57 @@ async function bootstrap() {
     level1Categories.push(cat);
   }
 
-  const level2Types = ['Kişi', 'Qadın', 'Uşaq', 'Yeni Kolleksiya', 'Endirimlər'];
+  const level2Types = [
+    'Kişi',
+    'Qadın',
+    'Uşaq',
+    'Yeni Kolleksiya',
+    'Endirimlər',
+  ];
   const level3Items: Record<string, string[]> = {
-    'Geyim': ['T-Shirt', 'Şalvar', 'Don', 'Paltar', 'Kostyum', 'Kürək', 'Jaket', 'Corab'],
-    'Ayaqqabı': ['Sneaker', 'Klassik', 'Bot', 'Sandalet', 'İdman Ayaqqabısı', 'Ev Ayaqqabısı'],
-    'Aksessuar': ['Kəmər', 'Pulqabı', 'Eynək', 'Şarf', 'Əlcək', 'Papaq', 'Bijuteriya'],
-    'Elektronika': ['Telefon', 'Kompyuter', 'Qulaqlıq', 'Smart Saat', 'Aksessuarlar', 'Kamera'],
-    'Kosmetika': ['Makiyaj', 'Dəriyə Qulluq', 'Ətir', 'Saç Qulluğu', 'Vanna və Bədən'],
-    'Default': ['Məhsul A', 'Məhsul B', 'Məhsul C', 'Xüsusi Model', 'Yeni Gələn']
+    Geyim: [
+      'T-Shirt',
+      'Şalvar',
+      'Don',
+      'Paltar',
+      'Kostyum',
+      'Kürək',
+      'Jaket',
+      'Corab',
+    ],
+    Ayaqqabı: [
+      'Sneaker',
+      'Klassik',
+      'Bot',
+      'Sandalet',
+      'İdman Ayaqqabısı',
+      'Ev Ayaqqabısı',
+    ],
+    Aksessuar: [
+      'Kəmər',
+      'Pulqabı',
+      'Eynək',
+      'Şarf',
+      'Əlcək',
+      'Papaq',
+      'Bijuteriya',
+    ],
+    Elektronika: [
+      'Telefon',
+      'Kompyuter',
+      'Qulaqlıq',
+      'Smart Saat',
+      'Aksessuarlar',
+      'Kamera',
+    ],
+    Kosmetika: [
+      'Makiyaj',
+      'Dəriyə Qulluq',
+      'Ətir',
+      'Saç Qulluğu',
+      'Vanna və Bədən',
+    ],
+    Default: ['Məhsul A', 'Məhsul B', 'Məhsul C', 'Xüsusi Model', 'Yeni Gələn'],
   };
 
   const allLevel2Categories: any[] = [];
@@ -79,7 +140,8 @@ async function bootstrap() {
         name: `${l1.name} - ${level2Types[j % level2Types.length]}`,
         isActive: true,
         parentId: l1.id,
-        sizeType: l1.name === 'Ayaqqabı' ? SizeType.AYAQQABI : SizeType.BEDEN_TEXT,
+        sizeType:
+          l1.name === 'Ayaqqabı' ? SizeType.AYAQQABI : SizeType.BEDEN_TEXT,
       });
       allLevel2Categories.push(l2);
 
@@ -103,7 +165,11 @@ async function bootstrap() {
   const cWomenShoes = allLevel3Categories[2];
   const cWomenAccessories = allLevel3Categories[3];
 
-  const allCategories = [...level1Categories, ...allLevel2Categories, ...allLevel3Categories];
+  const allCategories = [
+    ...level1Categories,
+    ...allLevel2Categories,
+    ...allLevel3Categories,
+  ];
   const productImages = [
     'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80',
     'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=800&q=80',
@@ -115,7 +181,9 @@ async function bootstrap() {
     'https://images.unsplash.com/photo-1524289286702-f07229da36f5?w=800&q=80',
   ];
 
-  console.log(`Seeding 5 products for each of the ${allCategories.length} categories (Total: ${allCategories.length * 5})...`);
+  console.log(
+    `Seeding 5 products for each of the ${allCategories.length} categories (Total: ${allCategories.length * 5})...`,
+  );
 
   for (const category of allCategories) {
     const productsToSave: any[] = [];
@@ -128,34 +196,41 @@ async function bootstrap() {
         isFeatured: i === 1,
         tags: [category.name.split(' ')[0], 'Yeni', 'Premium'],
         variants: { brand: 'Memix', material: 'Premium' },
-        images: [productImages[Math.floor(Math.random() * productImages.length)]],
+        images: [
+          productImages[Math.floor(Math.random() * productImages.length)],
+        ],
         banner: productImages[Math.floor(Math.random() * productImages.length)],
       });
       productsToSave.push(p);
     }
-    
+
     const savedProducts = await productRepo.save(productsToSave);
 
     for (const savedP of savedProducts) {
       // Add stocks for both branches
       const colors = ['Qara', 'Ağ', 'Mavi', 'Qırmızı'];
-      const sizes = category.sizeType === SizeType.AYAQQABI 
-        ? ['40', '41', '42', '43'] 
-        : (category.sizeType === SizeType.BEDEN_TEXT ? ['S', 'M', 'L', 'XL'] : ['STD']);
+      const sizes =
+        category.sizeType === SizeType.AYAQQABI
+          ? ['40', '41', '42', '43']
+          : category.sizeType === SizeType.BEDEN_TEXT
+            ? ['S', 'M', 'L', 'XL']
+            : ['STD'];
 
       const stockEntities: any[] = [];
       const branches = [branch1, branch2];
-      
+
       for (const branch of branches) {
-        stockEntities.push(stockRepo.create({
-          productId: savedP.id,
-          branchId: branch.id,
-          color: colors[Math.floor(Math.random() * colors.length)],
-          size: sizes[Math.floor(Math.random() * sizes.length)],
-          stock: Math.floor(Math.random() * 50) + 5
-        }));
+        stockEntities.push(
+          stockRepo.create({
+            productId: savedP.id,
+            branchId: branch.id,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            size: sizes[Math.floor(Math.random() * sizes.length)],
+            stock: Math.floor(Math.random() * 50) + 5,
+          }),
+        );
       }
-      
+
       await stockRepo.save(stockEntities);
       await searchService.indexProduct(savedP);
     }

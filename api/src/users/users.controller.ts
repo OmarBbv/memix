@@ -27,7 +27,7 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly addressesService: AddressesService,
-  ) { }
+  ) {}
 
   @UseGuards(AuthGuard('jwt'))
   @Get('profile')

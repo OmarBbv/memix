@@ -68,7 +68,8 @@ export class CampaignsController {
   @Post(':id/apply-bulk-discount')
   applyBulkDiscount(
     @Param('id') id: string,
-    @Body() body: {
+    @Body()
+    body: {
       targetType: 'category' | 'brand';
       targetId: number;
       discountType: 'percentage' | 'fixed';

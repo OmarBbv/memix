@@ -142,25 +142,45 @@ export class ProductsService {
           .leftJoinAndSelect('stocks.branch', 'branch');
 
         if (query.minPrice) {
-          fetchQb.andWhere('product.price >= :minPrice', { minPrice: query.minPrice });
+          fetchQb.andWhere('product.price >= :minPrice', {
+            minPrice: query.minPrice,
+          });
         }
         if (query.maxPrice) {
-          fetchQb.andWhere('product.price <= :maxPrice', { maxPrice: query.maxPrice });
+          fetchQb.andWhere('product.price <= :maxPrice', {
+            maxPrice: query.maxPrice,
+          });
         }
         if (query.brand) {
-          const brands = Array.isArray(query.brand) ? query.brand : query.brand.split(',').map((b: string) => b.trim());
-          fetchQb.andWhere(`product.variants ->> 'brand' IN (:...brands)`, { brands });
+          const brands = Array.isArray(query.brand)
+            ? query.brand
+            : query.brand.split(',').map((b: string) => b.trim());
+          fetchQb.andWhere(`product.variants ->> 'brand' IN (:...brands)`, {
+            brands,
+          });
         }
         if (query.color) {
-          const colors = Array.isArray(query.color) ? query.color : query.color.split(',').map((c: string) => c.trim());
-          fetchQb.andWhere(`(product.variants ->> 'color' IN (:...colors) OR stocks.color IN (:...colors))`, { colors });
+          const colors = Array.isArray(query.color)
+            ? query.color
+            : query.color.split(',').map((c: string) => c.trim());
+          fetchQb.andWhere(
+            `(product.variants ->> 'color' IN (:...colors) OR stocks.color IN (:...colors))`,
+            { colors },
+          );
         }
         if (query.size) {
-          const sizes = Array.isArray(query.size) ? query.size : query.size.split(',').map((s: string) => s.trim());
-          fetchQb.andWhere(`(product.variants ->> 'size' IN (:...sizes) OR stocks.size IN (:...sizes))`, { sizes });
+          const sizes = Array.isArray(query.size)
+            ? query.size
+            : query.size.split(',').map((s: string) => s.trim());
+          fetchQb.andWhere(
+            `(product.variants ->> 'size' IN (:...sizes) OR stocks.size IN (:...sizes))`,
+            { sizes },
+          );
         }
         if (query.gender) {
-          const genders = Array.isArray(query.gender) ? query.gender : query.gender.split(',').map((g: string) => g.trim());
+          const genders = Array.isArray(query.gender)
+            ? query.gender
+            : query.gender.split(',').map((g: string) => g.trim());
           fetchQb.andWhere(`product.gender IN (:...genders)`, { genders });
         }
 
@@ -203,35 +223,35 @@ export class ProductsService {
       }
 
       if (query.brand) {
-        const brands = Array.isArray(query.brand) 
-          ? query.brand 
+        const brands = Array.isArray(query.brand)
+          ? query.brand
           : query.brand.split(',').map((b: string) => b.trim());
         qb.andWhere(`product.variants ->> 'brand' IN (:...brands)`, { brands });
       }
 
       if (query.color) {
-        const colors = Array.isArray(query.color) 
-          ? query.color 
+        const colors = Array.isArray(query.color)
+          ? query.color
           : query.color.split(',').map((c: string) => c.trim());
         qb.andWhere(
           `(product.variants ->> 'color' IN (:...colors) OR stocks.color IN (:...colors))`,
-          { colors }
+          { colors },
         );
       }
 
       if (query.size) {
-        const sizes = Array.isArray(query.size) 
-          ? query.size 
+        const sizes = Array.isArray(query.size)
+          ? query.size
           : query.size.split(',').map((s: string) => s.trim());
         qb.andWhere(
           `(product.variants ->> 'size' IN (:...sizes) OR stocks.size IN (:...sizes))`,
-          { sizes }
+          { sizes },
         );
       }
 
       if (query.gender) {
-        const genders = Array.isArray(query.gender) 
-          ? query.gender 
+        const genders = Array.isArray(query.gender)
+          ? query.gender
           : query.gender.split(',').map((g: string) => g.trim());
         qb.andWhere(`product.gender IN (:...genders)`, { genders });
       }
@@ -360,7 +380,9 @@ export class ProductsService {
       {} as Record<string, any[]>,
     );
 
-    const prices = products.map((p) => Number(p.price)).filter((p) => !isNaN(p));
+    const prices = products
+      .map((p) => Number(p.price))
+      .filter((p) => !isNaN(p));
     const minPrice = prices.length ? Math.min(...prices) : 0;
     const maxPrice = prices.length ? Math.max(...prices) : 0;
 
@@ -611,7 +633,13 @@ export class ProductsService {
 
     const fullProducts = await this.productsRepository.find({
       where: { id: In(ids) },
-      relations: ['category', 'discount', 'priceHistory', 'stocks', 'stocks.branch'],
+      relations: [
+        'category',
+        'discount',
+        'priceHistory',
+        'stocks',
+        'stocks.branch',
+      ],
     });
 
     return fullProducts.map((product) => ({
