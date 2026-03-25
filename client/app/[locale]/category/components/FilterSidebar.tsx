@@ -338,7 +338,7 @@ export const FilterSidebar = ({
       {/* Subcategory links */}
       {subcategories.length > 0 && (
         <div className="space-y-1">
-          <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Kateqoriyalar</h3>
+          <h3 className="text-sm font-semibold text-gray-500 capitalize tracking-wider mb-2">Kateqoriyalar</h3>
           {subcategories.map((sub) => (
             <Link
               key={sub.id}

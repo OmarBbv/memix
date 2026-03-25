@@ -31,7 +31,6 @@ export function DesktopCategoryNav({ categories, show }: DesktopCategoryNavProps
   const [activeSidebarCat, setActiveSidebarCat] = useState<number | null>(null);
   const menuRef = useRef<HTMLLIElement>(null);
 
-  // Close menu on click outside and Escape key
   useEffect(() => {
     if (!megaMenuOpen) return;
 
@@ -99,7 +98,7 @@ export function DesktopCategoryNav({ categories, show }: DesktopCategoryNavProps
               <>
                 <div
                   className="fixed inset-0 z-90 bg-black/40"
-                  style={{ top: '135px' }}
+                  style={{ top: '118px' }}
                   onClick={(e) => {
                     e.stopPropagation();
                     setMegaMenuOpen(false);
