@@ -159,6 +159,10 @@ export class ProductsService {
           const sizes = Array.isArray(query.size) ? query.size : query.size.split(',').map((s: string) => s.trim());
           fetchQb.andWhere(`(product.variants ->> 'size' IN (:...sizes) OR stocks.size IN (:...sizes))`, { sizes });
         }
+        if (query.gender) {
+          const genders = Array.isArray(query.gender) ? query.gender : query.gender.split(',').map((g: string) => g.trim());
+          fetchQb.andWhere(`product.gender IN (:...genders)`, { genders });
+        }
 
         fetchedProducts = await fetchQb.getMany();
       }
@@ -225,8 +229,17 @@ export class ProductsService {
         );
       }
 
+      if (query.gender) {
+        const genders = Array.isArray(query.gender) 
+          ? query.gender 
+          : query.gender.split(',').map((g: string) => g.trim());
+        qb.andWhere(`product.gender IN (:...genders)`, { genders });
+      }
+
       if (query.sort === 'popular') {
         qb.orderBy('product.id', 'DESC');
+      } else {
+        qb.orderBy('product.createdAt', 'DESC');
       }
 
       total = await qb.getCount();
@@ -326,6 +339,11 @@ export class ProductsService {
             dynamicFilters['size'].push(stock.size);
           }
         });
+      }
+
+      if (product.gender) {
+        if (!dynamicFilters['gender']) dynamicFilters['gender'] = [];
+        dynamicFilters['gender'].push(product.gender);
       }
     });
 

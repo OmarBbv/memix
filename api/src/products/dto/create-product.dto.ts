@@ -15,6 +15,23 @@ export class CreateProductDto {
   @IsOptional()
   description?: string; // Təsviri (Məcburi deyil)
 
+  @IsString()
+  @IsOptional()
+  sku?: string; // Məhsulun kodu
+
+  @IsString()
+  @IsOptional()
+  barcode?: string; // Barkerodu
+
+  @IsString()
+  @IsOptional()
+  gender?: string; // Cinsi
+
+  @IsNumber()
+  @IsOptional()
+  @Type(() => Number)
+  weight?: number; // Çəki
+
   @IsNumber()
   @Type(() => Number)
   price: number; // Qiyməti

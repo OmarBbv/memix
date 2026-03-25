@@ -1,11 +1,12 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import productService from '../services/productService';
-import { CreateProductDto, UpdateProductDto } from '../types/product';
+import { CreateProductDto, ProductQueryParams, UpdateProductDto } from '../types/product';
 
-export const useProducts = () => {
+export const useProducts = (params: ProductQueryParams = {}) => {
   return useQuery({
-    queryKey: ['products'],
-    queryFn: productService.getAll,
+    queryKey: ['products', params],
+    queryFn: () => productService.getAll(params),
+    placeholderData: keepPreviousData,
   });
 };
 

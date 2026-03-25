@@ -31,8 +31,9 @@ const discountSchema = z.object({
 type DiscountFormValues = z.infer<typeof discountSchema>;
 
 const Products: React.FC = () => {
+  const [page, setPage] = useState(1);
   const navigate = useNavigate();
-  const { data: products, isLoading } = useProducts();
+  const { data: productsData, isLoading } = useProducts({ page, limit: 10 });
   const deleteMutation = useDeleteProduct();
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -159,13 +160,41 @@ const Products: React.FC = () => {
             <div className="flex h-40 items-center justify-center">
               <div className="h-10 w-10 animate-spin rounded-full border-4 border-brand-500 border-t-transparent"></div>
             </div>
-          ) : products && products.length > 0 ? (
-            <ProductTable
-              products={products}
-              onEdit={handleEdit}
-              onDelete={openDeleteDialog}
-              onDiscount={openDiscountModal}
-            />
+          ) : productsData && productsData.data && productsData.data.length > 0 ? (
+            <>
+              <ProductTable
+                products={productsData.data}
+                onEdit={handleEdit}
+                onDelete={openDeleteDialog}
+                onDiscount={openDiscountModal}
+              />
+              
+              {productsData.meta && productsData.meta.totalPages > 1 && (
+                <div className="mt-6 flex flex-col items-center justify-between gap-4 sm:flex-row pt-4 border-t border-gray-100 dark:border-gray-800">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Cəmi {productsData.meta.total} məhsul göstərilir, Səhifə {page} / {productsData.meta.totalPages}
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <Button
+                      variant="outline"
+                      className="px-4 py-2"
+                      onClick={() => setPage(p => Math.max(1, p - 1))}
+                      disabled={page === 1}
+                    >
+                      Əvvəlki
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="px-4 py-2"
+                      onClick={() => setPage(p => p + 1)}
+                      disabled={!productsData.meta.hasNextPage}
+                    >
+                      Növbəti
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
           ) : (
             <div className="py-20 text-center">
               <p className="text-gray-500 dark:text-gray-400">

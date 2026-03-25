@@ -79,6 +79,7 @@ export const ImageGallery = ({ allImages, productName, isLiked, onToggleWishlist
                       src={img}
                       alt={`Thumbnail ${idx + 1}`}
                       fill
+                      unoptimized
                       className="object-cover"
                     />
                   </button>
@@ -110,6 +111,7 @@ export const ImageGallery = ({ allImages, productName, isLiked, onToggleWishlist
                     src={img}
                     alt={`${productName} - ${idx + 1}`}
                     fill
+                    unoptimized
                     className="object-contain"
                     priority={idx === 0}
                   />
@@ -160,6 +162,7 @@ export const ImageGallery = ({ allImages, productName, isLiked, onToggleWishlist
                   src={img}
                   alt={`Thumbnail ${idx + 1}`}
                   fill
+                  unoptimized
                   className="object-cover"
                 />
               </button>

@@ -3,6 +3,10 @@ export interface Product {
   name: string;
   description: string;
   price: number;
+  sku?: string;
+  barcode?: string;
+  gender?: string;
+  weight?: number;
   imageUrl: string;
   images: string[];
   stock: number;
@@ -40,6 +44,10 @@ export interface CreateProductDto {
   name: string;
   description?: string;
   price: number;
+  sku?: string;
+  barcode?: string;
+  gender?: string;
+  weight?: number;
   imageUrl?: string;
   images?: string[];
   stock: number;
@@ -51,3 +59,16 @@ export interface CreateProductDto {
 }
 
 export interface UpdateProductDto extends Partial<CreateProductDto> { }
+
+export interface ProductQueryParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  categoryId?: number | string;
+  minPrice?: number | string;
+  maxPrice?: number | string;
+  brand?: string | string[];
+  color?: string | string[];
+  size?: string | string[];
+  sort?: 'popular' | 'newest' | string;
+}

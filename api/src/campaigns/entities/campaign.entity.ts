@@ -6,8 +6,10 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { Coupon } from '../../coupons/entities/coupon.entity';
+import { Discount } from '../../discounts/entities/discount.entity';
 
 export enum CampaignType {
   DISCOUNT = 'discount',
@@ -66,4 +68,7 @@ export class Campaign {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @OneToMany(() => Discount, (discount) => discount.campaign)
+  discounts: Discount[];
 }

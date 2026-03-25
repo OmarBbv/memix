@@ -1,8 +1,19 @@
 import axiosInstance from '../api/axiosInstance';
-import { CreateProductDto, Product, UpdateProductDto } from '../types/product';
+import { CreateProductDto, Product, ProductQueryParams, UpdateProductDto } from '../types/product';
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNextPage: boolean;
+  };
+}
 
 interface IProductService {
-  getAll(): Promise<Product[]>;
+  getAll(params?: ProductQueryParams): Promise<PaginatedResponse<Product>>;
   getById(id: number): Promise<Product>;
   create(data: CreateProductDto | FormData): Promise<Product>;
   update(id: number, data: UpdateProductDto | FormData): Promise<Product>;
@@ -10,9 +21,9 @@ interface IProductService {
 }
 
 class ProductService implements IProductService {
-  async getAll(): Promise<Product[]> {
+  async getAll(params: ProductQueryParams = {}): Promise<PaginatedResponse<Product>> {
     try {
-      const response = await axiosInstance.get('/products');
+      const response = await axiosInstance.get('/products', { params });
       return response.data;
     } catch (error) {
       console.error('Error fetching all products:', error);

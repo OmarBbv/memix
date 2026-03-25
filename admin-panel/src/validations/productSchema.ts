@@ -3,6 +3,10 @@ import { z } from 'zod';
 export const productSchema = z.object({
   name: z.string().min(3, 'Product name must be at least 3 characters'),
   description: z.string().optional(),
+  sku: z.string().optional().or(z.literal('')),
+  barcode: z.string().optional().or(z.literal('')),
+  gender: z.string().optional().or(z.literal('')),
+  weight: z.coerce.number().optional().or(z.literal(0)),
   price: z.coerce.number().positive('Price must be a positive number'),
   stock: z.coerce.number().int().nonnegative('Stock must be a non-negative integer'),
   bannerFile: z.any().optional(), // Vitrin şəkli üçün fayl

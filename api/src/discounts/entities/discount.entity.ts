@@ -5,9 +5,11 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToOne,
+  ManyToOne,
   JoinColumn,
 } from 'typeorm';
 import { Product } from '../../products/entities/product.entity';
+import { Campaign } from '../../campaigns/entities/campaign.entity';
 
 export enum DiscountType {
   PERCENTAGE = 'percentage',
@@ -49,4 +51,11 @@ export class Discount {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @ManyToOne(() => Campaign, (campaign) => campaign.discounts, {
+    nullable: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn()
+  campaign: Campaign;
 }

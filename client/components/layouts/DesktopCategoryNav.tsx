@@ -118,7 +118,7 @@ export function DesktopCategoryNav({ categories, show }: DesktopCategoryNavProps
                           onMouseEnter={() => setActiveSidebarCat(cat.id)}
                           className={cn(
                             "flex items-center justify-between px-5 py-2.5 cursor-pointer transition-colors relative",
-                            isActive ? "bg-white" : "hover:bg-white"
+                            isActive ? "bg-gray-200" : "hover:bg-gray-200"
                           )}
                         >
                           <div className={cn(

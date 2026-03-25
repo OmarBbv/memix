@@ -156,6 +156,7 @@ export default function SearchPage() {
       brand: 'Brend',
       color: 'Rəng',
       size: 'Ölçü',
+      gender: 'Cins',
       condition: 'Vəziyyət',
       material: 'Material',
     };
@@ -316,6 +317,7 @@ export default function SearchPage() {
                               src={category.imageUrl}
                               alt={category.name}
                               fill
+                              unoptimized
                               className="object-cover group-hover:scale-110 transition-transform duration-300"
                             />
                           ) : (

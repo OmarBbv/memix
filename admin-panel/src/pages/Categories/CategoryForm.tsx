@@ -125,7 +125,7 @@ export default function CategoryFormPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Category Name */}
               <div>
-                <Label>Kateqoriya Adı</Label>
+                <Label required>Kateqoriya Adı</Label>
                 <Input
                   {...register("name")}
                   type="text"
@@ -137,7 +137,7 @@ export default function CategoryFormPage() {
 
               {/* Parent Category */}
               <div>
-                <Label>Üst Kateqoriya</Label>
+                <Label optional>Üst Kateqoriya</Label>
                 <Controller
                   name="parentId"
                   control={control}
@@ -164,7 +164,7 @@ export default function CategoryFormPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
               {/* Size Type */}
               <div>
-                <Label>Ölçü Tipi</Label>
+                <Label optional>Ölçü Tipi</Label>
                 <Controller
                   name="sizeType"
                   control={control}
@@ -192,7 +192,7 @@ export default function CategoryFormPage() {
               {/* Order & Status */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>Sıralama</Label>
+                  <Label optional>Sıralama</Label>
                   <Input
                     {...register("order")}
                     type="text"
@@ -217,7 +217,7 @@ export default function CategoryFormPage() {
 
             {/* Image Upload */}
             <div className="rounded-xl border border-gray-200 p-6 dark:border-gray-800 bg-gray-50/50 dark:bg-white/5">
-              <Label>Kateqoriya Şəkli</Label>
+              <Label optional>Kateqoriya Şəkli</Label>
               <div className="mt-4 flex items-center gap-6">
                 <div className="h-32 w-32 shrink-0 overflow-hidden rounded-xl border-2 border-dashed border-gray-300 dark:border-white/10 flex items-center justify-center bg-white dark:bg-gray-900">
                   {imagePreview ? (

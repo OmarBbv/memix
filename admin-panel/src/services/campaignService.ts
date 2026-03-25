@@ -25,6 +25,24 @@ class CampaignService {
   async delete(id: number): Promise<void> {
     await axiosInstance.delete(`/campaigns/${id}`);
   }
+
+  async applyBulkDiscount(
+    id: number,
+    data: {
+      targetType: 'category' | 'brand';
+      targetId: number;
+      discountType: 'percentage' | 'fixed';
+      discountValue: number;
+    }
+  ): Promise<{ message: string; count: number }> {
+    const response = await axiosInstance.post(`/campaigns/${id}/apply-bulk-discount`, data);
+    return response.data;
+  }
+
+  async removeBulkDiscount(id: number): Promise<{ message: string; count: number }> {
+    const response = await axiosInstance.delete(`/campaigns/${id}/apply-bulk-discount`);
+    return response.data;
+  }
 }
 
 export default new CampaignService();

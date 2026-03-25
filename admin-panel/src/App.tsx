@@ -27,6 +27,7 @@ import Brands from "./pages/Marketing/Brands";
 import CreateBrand from "./pages/Marketing/Brands/CreateBrand";
 import Campaigns from "./pages/Marketing/Campaigns";
 import CreateCampaign from "./pages/Marketing/Campaigns/CreateCampaign";
+import Discounts from "./pages/Marketing/Discounts";
 import LineChart from "./pages/Charts/LineChart";
 import BarChart from "./pages/Charts/BarChart";
 import Calendar from "./pages/Calendar";
@@ -77,6 +78,7 @@ export default function App() {
               <Route path="/marketing/campaigns" element={<Campaigns />} />
               <Route path="/marketing/campaigns/create" element={<CreateCampaign />} />
               <Route path="/marketing/campaigns/edit/:id" element={<CreateCampaign />} />
+              <Route path="/marketing/discounts" element={<Discounts />} />
 
               {/* Other Routes */}
               <Route path="/analytics" element={<PlaceholderPage title="Statistika" />} />

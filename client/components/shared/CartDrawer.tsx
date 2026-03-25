@@ -7,7 +7,7 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import { useAppDispatch, useAppSelector } from '@/lib/redux/hooks';
-import { closeCart, removeFromCart, updateQuantity } from '@/lib/redux/features/cartSlice';
+import { closeCart, removeFromCart, updateQuantity, incrementQuantityAsync } from '@/lib/redux/features/cartSlice';
 import Image from 'next/image';
 import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -53,6 +53,7 @@ export const CartDrawer = () => {
                       src={item.image}
                       alt={item.title}
                       fill
+                      unoptimized
                       className="object-cover"
                     />
                   </div>
@@ -88,7 +89,7 @@ export const CartDrawer = () => {
                         </button>
                         <span className="text-xs font-semibold w-4 text-center">{item.quantity}</span>
                         <button
-                          onClick={() => dispatch(updateQuantity({ id: item.id, size: item.size, quantity: item.quantity + 1 }))}
+                          onClick={() => dispatch(incrementQuantityAsync(item))}
                           className="p-1 hover:bg-gray-100 rounded"
                         >
                           <Plus className="w-3 h-3" />

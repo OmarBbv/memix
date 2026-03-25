@@ -34,6 +34,11 @@ export default function CategoryIndexPage() {
       id: 'price',
       name: 'Qiymət',
       options: ['0 - 20 ₼', '20 - 50 ₼', '50 - 100 ₼', '100+ ₼']
+    },
+    {
+      id: 'gender',
+      name: 'Cins',
+      options: ['Kişi', 'Qadın', 'Uşaq', 'Uniseks']
     }
   ];
 

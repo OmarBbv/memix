@@ -51,3 +51,18 @@ export const useDeleteCampaign = () => {
     },
   });
 };
+
+export const useApplyBulkDiscount = () => {
+  return useMutation({
+    mutationFn: ({ id, data }: { 
+      id: number; 
+      data: { targetType: 'category' | 'brand'; targetId: number; discountType: 'percentage' | 'fixed'; discountValue: number } 
+    }) => campaignService.applyBulkDiscount(id, data),
+  });
+};
+
+export const useRemoveBulkDiscount = () => {
+  return useMutation({
+    mutationFn: (id: number) => campaignService.removeBulkDiscount(id),
+  });
+};

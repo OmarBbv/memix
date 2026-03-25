@@ -1,27 +1,23 @@
 'use client';
 
-import React, { useState, use } from 'react';
+import { useState, use } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/shared/Card';
 import { ImageGallery } from './components/ImageGallery';
 import { ContentState } from '@/components/shared/ContentState';
-
 import {
   ShieldCheck,
-  Star,
   MessageCircle,
   RotateCcw,
-  Loader2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Link } from '@/i18n/routing';
 import { Breadcrumb } from '@/components/shared/Breadcrumb';
 import { addToCartAsync } from '@/lib/redux/features/cartSlice';
 import { useAppDispatch } from '@/lib/redux/hooks';
 import { useProduct, useSimilarProducts } from '@/hooks/useProducts';
 import { baseUrl } from '@/lib/httpClient';
 import { useWishlist } from '@/hooks/useWishlist';
-import { getSizesForCategory, getSizeLabel } from '@/constants/sizes';
+import { getSizeLabel } from '@/constants/sizes';
 
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -69,7 +65,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const getImageUrl = (img: string) => {
     if (!img) return '';
     if (img.startsWith('http')) return img;
-    return `${baseUrl}${img}`;
+    const normalizedPath = img.startsWith('/') ? img : `/${img}`;
+    return `${baseUrl}${normalizedPath}`;
   };
 
   const allImages: string[] = [];
@@ -92,11 +89,13 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   }
 
   const categorySizeType = (product.category as any)?.sizeType || null;
-  const categorySizes = getSizesForCategory(categorySizeType);
-  const sizes: string[] = categorySizes
-    ? categorySizes.map(s => s.value)
-    : (product.variants?.size || ['S', 'M', 'L', 'XL']);
-  const sizeTypeTitle = categorySizes ? categorySizeType : null;
+  const sizeTypeTitle = categorySizeType;
+
+  const availableSizes: string[] = product.stocks && product.stocks.length > 0
+    ? [...new Set(product.stocks.filter((s: any) => s.size).map((s: any) => s.size))]
+    : (product.variants?.size ? (Array.isArray(product.variants.size) ? product.variants.size : [product.variants.size]) : ['S', 'M', 'L', 'XL']);
+
+  const sizes = availableSizes;
 
   // Stoklardakı mövcud rəngləri çıxarırıq
   const availableColors: string[] = product.stocks && product.stocks.length > 0
@@ -184,60 +183,52 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             onToggleWishlist={() => toggleWishlist(Number(id))}
           />
 
-          <div className="lg:col-span-6 flex flex-col gap-6 lg:gap-8">
-            <div className="space-y-4">
-              <div className="flex flex-col gap-2">
-                <div className="flex flex-wrap items-center gap-3">
-                  <div className="text-3xl font-bold text-gray-900">{currentPrice.toFixed(2)} ₼</div>
-                  {discountPercentage > 0 && (
-                    <>
-                      <div className="text-xl text-gray-400 line-through">{originalPrice.toFixed(2)} ₼</div>
-                      <div className="px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-lg leading-none">
-                        -{discountPercentage}%
-                      </div>
-                    </>
-                  )}
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="px-3 py-1 bg-green-50 rounded-full text-xs font-semibold text-green-700">
-                    {condition}
+          <div className="lg:col-span-6 flex flex-col gap-4">
+            <div className="space-y-3">
+              <div className="flex flex-col gap-1">
+                {brand && (
+                  <span className="text-zinc-400 font-bold text-xs tracking-wider uppercase">
+                    {brand}
                   </span>
-                  {selectedColor && (
-                    <span className="px-3 py-1 bg-gray-50 rounded-full text-xs font-semibold text-gray-600">
-                      {selectedColor}
-                    </span>
-                  )}
-                  {brand && (
-                    <span className="px-3 py-1 bg-blue-50 rounded-full text-xs font-semibold text-blue-700">
-                      {brand}
-                    </span>
-                  )}
-                </div>
+                )}
+                <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">
+                  {productName}
+                </h1>
               </div>
-              <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">
-                {productName}
-              </h1>
-              <div className="flex items-center gap-4 text-sm text-gray-500 overflow-x-auto scrollbar-hide whitespace-nowrap">
-                <span>Bakı, Azərbaycan</span>
-                <span>•</span>
+
+              <div className="flex items-center gap-4 text-[13px] text-gray-500">
+                <span className="flex items-center gap-1">Bakı, Azərbaycan</span>
+                <span className="w-1.5 h-1.5 bg-gray-200 rounded-full" />
                 <span>{product.createdAt ? getTimeAgo(product.createdAt) : ''}</span>
+              </div>
+
+              <div className="pt-2 flex flex-wrap items-baseline gap-3">
+                <div className="text-3xl font-black text-gray-900 tracking-tight">{currentPrice.toFixed(2)} ₼</div>
+                {discountPercentage > 0 && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg text-gray-400 line-through decoration-gray-300">{originalPrice.toFixed(2)} ₼</span>
+                    <span className="px-2 py-1 bg-red-500 text-white text-[11px] font-bold rounded-lg">
+                      -{discountPercentage}%
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
-            <hr className="border-gray-100" />
+            <div className="h-px bg-zinc-100" />
 
-            {/* Rəng Seçimi — Trendyol modeli */}
+            {/* Rəng Seçimi — Trendyol Modeli */}
             {availableColors.length > 0 && (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <h3 className="font-bold text-gray-900">
-                    Rəng seçin
+                  <h3 className="text-sm font-bold text-gray-900">
+                    Rəng
                     {selectedColor && (
-                      <span className="ml-2 text-sm font-normal text-gray-500">— {selectedColor}</span>
+                      <span className="ml-2 font-medium text-gray-500">: {selectedColor}</span>
                     )}
                   </h3>
                 </div>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-2.5">
                   {availableColors.map((colorName) => {
                     const colorStock = getColorStock(colorName);
                     const isColorOut = colorStock <= 0;
@@ -254,12 +245,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                         }}
                         disabled={isColorOut}
                         className={cn(
-                          "h-12 px-5 rounded-xl border-2 font-medium transition-all flex items-center justify-center relative",
+                          "min-w-[70px] h-11 px-4 rounded-lg border text-[13px] font-semibold transition-all duration-200",
                           isColorOut
-                            ? "border-gray-100 bg-gray-50 text-gray-300 cursor-not-allowed line-through"
+                            ? "border-zinc-100 bg-zinc-50 text-zinc-300 cursor-not-allowed line-through"
                             : isColorSelected
-                              ? "border-black bg-black text-white shadow-lg shadow-black/20 active:scale-95"
-                              : "border-gray-200 text-gray-600 hover:border-black/30 hover:bg-gray-50 active:scale-95"
+                              ? "border-black bg-black text-white shadow-lg shadow-black/10"
+                              : "border-zinc-200 text-zinc-600 hover:border-black hover:bg-zinc-50"
                         )}
                       >
                         {colorName}
@@ -270,24 +261,28 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               </div>
             )}
 
-            <hr className="border-gray-100" />
-
-            <div className="space-y-3">
+            {/* Ölçü Seçimi */}
+            <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <h3 className="font-bold text-gray-900">
-                  {sizeTypeTitle === 'ayaqqabi' ? 'Nömrə seçin' :
-                    sizeTypeTitle === 'uzuk' ? 'Üzük ölçüsü seçin' :
-                      sizeTypeTitle === 'yas-grupu' ? 'Yaş qrupu seçin' :
-                        sizeTypeTitle === 'beden-numeric' ? 'Bədən nömrəsi seçin' :
-                          'Ölçü seçin'}
+                <h3 className="text-sm font-bold text-gray-900">
+                  {sizeTypeTitle === 'ayaqqabi' ? 'Nömrə' :
+                    sizeTypeTitle === 'uzuk' ? 'Üzük ölçüsü' :
+                      sizeTypeTitle === 'yas-grupu' ? 'Yaş qrupu' :
+                        sizeTypeTitle === 'beden-numeric' ? 'Bədən nömrəsi' :
+                          'Ölçü'}
+                  {selectedSize && (
+                    <span className="ml-2 font-medium text-gray-500">: {getSizeLabel(categorySizeType, selectedSize)}</span>
+                  )}
                 </h3>
-                <button className="text-sm underline text-gray-500 hover:text-black">Ölçü cədvəli</button>
+                <button className="text-[13px] font-medium text-zinc-400 hover:text-zinc-600 flex items-center gap-1">
+                  Ölçü cədvəli
+                </button>
               </div>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-2.5">
                 {sizes.map((size: string) => {
                   const sizeStock = getSizeStock(size);
                   const isSizeOut = sizeStock <= 0;
-                  const isLowStock = sizeStock > 0 && sizeStock <= 3;
+                  const isSelected = selectedSize === size;
 
                   return (
                     <div key={size} className="relative">
@@ -295,24 +290,19 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                         onClick={() => !isSizeOut && setSelectedSize(size)}
                         disabled={isSizeOut}
                         className={cn(
-                          "h-12 min-w-16 px-3 rounded-xl border-2 font-medium transition-all flex items-center justify-center relative",
+                          "min-w-[60px] h-11 px-3 rounded-lg border text-[13px] font-semibold transition-all duration-200",
                           isSizeOut
-                            ? "border-gray-100 bg-gray-50 text-gray-300 cursor-not-allowed line-through"
-                            : selectedSize === size
-                              ? "border-black bg-black text-white shadow-lg shadow-black/20 active:scale-95"
-                              : "border-gray-200 text-gray-600 hover:border-black/30 hover:bg-gray-50 active:scale-95"
+                            ? "border-zinc-100 bg-zinc-50 text-zinc-300 cursor-not-allowed line-through"
+                            : isSelected
+                              ? "border-black bg-black text-white shadow-lg shadow-black/10"
+                              : "border-zinc-200 text-zinc-600 hover:border-black hover:bg-zinc-50"
                         )}
                       >
                         {getSizeLabel(categorySizeType, size)}
                       </button>
                       {isSizeOut && (
-                        <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none whitespace-nowrap">
+                        <span className="absolute -top-2 -right-1 bg-zinc-400 text-white text-[8px] font-black px-1 rounded-sm uppercase">
                           Bitib
-                        </span>
-                      )}
-                      {isLowStock && (
-                        <span className="absolute -top-1.5 -right-1.5 bg-orange-500 text-white text-[9px] font-bold w-5 h-5 rounded-full flex items-center justify-center leading-none">
-                          {sizeStock}
                         </span>
                       )}
                     </div>
@@ -321,98 +311,76 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               </div>
             </div>
 
-            {product.stocks && product.stocks.length > 0 && (
-              <div className="space-y-2">
-                <h3 className="font-bold text-gray-900 text-sm">Stok məlumatı</h3>
-                <div className="flex flex-wrap gap-2">
-                  {product.stocks.map((s) => (
-                    <span
-                      key={s.id}
-                      className={cn(
-                        "px-3 py-1 rounded-full text-xs font-medium",
-                        s.stock > 0
-                          ? "bg-green-50 text-green-700"
-                          : "bg-red-50 text-red-600"
-                      )}
-                    >
-                      {s.branch.name}: {s.stock > 0 ? `${s.stock} ədəd` : 'Bitib'}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="grid grid-cols-2 gap-4">
+            <div className="pt-2 grid grid-cols-1 md:grid-cols-2 gap-3">
               <Button
                 disabled={isOutOfStock || !selectedSize || (!!selectedSize && getSizeStock(selectedSize) <= 0)}
                 onClick={handleAddToCart}
                 className={cn(
-                  "h-12 lg:h-14 text-base lg:text-lg rounded-xl transition-all",
+                  "h-14 text-base font-bold rounded-xl transition-all duration-300",
                   isOutOfStock || (selectedSize && getSizeStock(selectedSize) <= 0)
-                    ? "bg-red-50 text-red-500 font-bold border border-red-200 cursor-not-allowed shadow-none hover:bg-red-50"
+                    ? "bg-zinc-100 text-zinc-400 border border-zinc-200 cursor-not-allowed"
                     : selectedSize
-                      ? "bg-black hover:bg-gray-800 shadow-xl shadow-black/10"
-                      : "bg-gray-200 text-gray-400 cursor-not-allowed shadow-none"
+                      ? "bg-black hover:bg-zinc-800 text-white shadow-xl shadow-black/10 active:scale-[0.98]"
+                      : "bg-zinc-200 text-zinc-400 cursor-not-allowed"
                 )}
               >
-                {isOutOfStock ? "İndi məhsul bitib" : (selectedSize && getSizeStock(selectedSize) <= 0) ? "Bu ölçü bitib" : "Səbətə əlavə et"}
+                {isOutOfStock ? "Məhsul Bitib" : "Səbətə əlavə et"}
               </Button>
-              <Button variant="outline" className="h-12 lg:h-14 text-base lg:text-lg border-2 border-gray-200 hover:bg-gray-50 hover:border-gray-300 rounded-xl text-gray-700 gap-2">
-                <MessageCircle className="w-5 h-5" />
+              <Button variant="outline" className="h-14 text-base border border-zinc-200 hover:bg-zinc-50 hover:border-zinc-300 rounded-xl text-zinc-700 font-bold gap-2 active:scale-[0.98] transition-all">
+                <MessageCircle className="w-5 h-5 text-zinc-400" />
                 Söhbət et
               </Button>
             </div>
 
-            <div className="space-y-4">
-              <h3 className="text-lg font-bold text-gray-900">Məhsul haqqında</h3>
-              <p className="text-gray-600 leading-relaxed text-sm lg:text-base">
+            <div className="space-y-4 pt-4">
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
+                <span className="text-[13px] font-bold text-zinc-600">Stok Məlumatı</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {product.stocks?.map((s) => (
+                  <span
+                    key={s.id}
+                    className={cn(
+                      "px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-colors",
+                      s.stock > 0
+                        ? "bg-zinc-50 text-zinc-600 border-zinc-100"
+                        : "bg-red-50 text-red-500 border-red-100 opacity-60"
+                    )}
+                  >
+                    {s.branch.name}: {s.stock > 0 ? `${s.stock} ədəd` : 'Bitib'}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-4 py-6 border-t border-zinc-100 mt-4">
+              <h3 className="text-sm font-bold text-gray-900 uppercase tracking-widest">Məhsul Təsviri</h3>
+              <p className="text-gray-500 leading-relaxed text-sm antialiased">
                 {product.description || 'Bu unikal parça qarderobunuzun əvəzolunmaz hissəsi olacaq. Həm gündəlik, həm də özəl günlər üçün uyğundur.'}
               </p>
               <div className="flex flex-wrap gap-2 pt-2">
                 {tags.map((tag, idx) => (
-                  <span key={`${tag}-${idx}`} className="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-200 cursor-pointer">
+                  <span key={`${tag}-${idx}`} className="text-[11px] font-bold text-zinc-400 hover:text-zinc-600 cursor-pointer transition-colors">
                     #{tag}
                   </span>
                 ))}
               </div>
             </div>
 
-            {product.priceHistory && product.priceHistory.length > 0 && (
-              <div className="space-y-3">
-                <h3 className="text-lg font-bold text-gray-900">Qiymət tarixçəsi</h3>
-                <div className="space-y-2">
-                  {product.priceHistory.map((ph) => (
-                    <div key={ph.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl text-sm">
-                      <span className="text-gray-500">
-                        {new Date(ph.changedAt).toLocaleDateString('az-AZ', { day: 'numeric', month: 'long', year: 'numeric' })}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        {ph.oldPrice && (
-                          <span className="text-gray-400 line-through">{parseFloat(String(ph.oldPrice)).toFixed(2)} ₼</span>
-                        )}
-                        {ph.newPrice && (
-                          <span className="text-gray-900 font-semibold">{parseFloat(String(ph.newPrice)).toFixed(2)} ₼</span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4">
+              <div className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-50/50 border border-zinc-100">
+                <ShieldCheck className="w-8 h-8 text-zinc-400" />
+                <div>
+                  <p className="font-bold text-xs text-zinc-900">Alıcı Müdafiəsi</p>
+                  <p className="text-[11px] text-zinc-500 mt-0.5">Pulunuz bizimlə güvəndədir</p>
                 </div>
               </div>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-blue-50/50 text-blue-900">
-                <ShieldCheck className="w-8 h-8 text-blue-600 shrink-0" />
+              <div className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-50/50 border border-zinc-100">
+                <RotateCcw className="w-8 h-8 text-zinc-400" />
                 <div>
-                  <p className="font-bold text-sm">Alıcı müdafiəsi</p>
-                  <p className="text-xs text-blue-700/80">Pulunuz bizimlə güvəndədir</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-purple-50/50 text-purple-900">
-                <RotateCcw className="w-8 h-8 text-purple-600 shrink-0" />
-                <div>
-                  <p className="font-bold text-sm">2 gün geri qaytarma</p>
-                  <p className="text-xs text-purple-700/80">Məhsulu bəyənməsəniz</p>
+                  <p className="font-bold text-xs text-zinc-900">Geri Qaytarma</p>
+                  <p className="text-[11px] text-zinc-500 mt-0.5">2 gün ərzində asan geri qaytarma</p>
                 </div>
               </div>
             </div>
@@ -428,14 +396,14 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               ))
             ) : (
               similarProducts?.map((p: any) => (
-                <Card 
-                  key={p.id} 
+                <Card
+                  key={p.id}
                   product={{
                     ...p,
                     title: p.name,
                     image: p.banner || p.images?.[0] || "",
                     price: Number(p.price)
-                  }} 
+                  }}
                 />
               ))
             )}

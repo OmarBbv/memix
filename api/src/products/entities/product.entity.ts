@@ -25,6 +25,18 @@ export class Product {
   @Column({ type: 'text', nullable: true })
   description: string; // Məhsulun təsviri (açıqlaması)
 
+  @Column({ unique: true, nullable: true })
+  sku: string; // Məhsulun kodu (Məsələn: 1 801 292)
+
+  @Column({ nullable: true })
+  barcode: string; // Məhsulun barkodu (Məsələn: 2001801292005)
+
+  @Column({ nullable: true })
+  gender: string; // Cinsi (Qadin, Kisi, Usaq və s.)
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  weight: number; // Çəki (Qramla)
+
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   price: number; // Məhsulun qiyməti
 

@@ -20,10 +20,10 @@ export const multerConfig = {
       'mimetype:',
       file.mimetype,
     );
-    if (!file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
+    if (!file.mimetype.match(/\/(jpg|jpeg|png|gif|webp)$/)) {
       return callback(
         new HttpException(
-          'Only image files are allowed!',
+          'Yalnız şəkil faylları (jpg, png, webp, gif) icazəlidir!',
           HttpStatus.BAD_REQUEST,
         ),
         false,

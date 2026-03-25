@@ -115,6 +115,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
             brand: 'Brend',
             color: 'Rəng',
             size: 'Ölçü',
+            gender: 'Cins',
             condition: 'Vəziyyət',
             material: 'Material',
         };

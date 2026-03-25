@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Cart } from './entities/cart.entity';
 import { CartItem } from './entities/cart-item.entity';
 import { Product } from '../products/entities/product.entity';
+import { ProductStock } from '../branches/entities/product-stock.entity';
 
 @Injectable()
 export class CartsService {
@@ -12,6 +13,10 @@ export class CartsService {
     private cartRepository: Repository<Cart>,
     @InjectRepository(CartItem)
     private cartItemRepository: Repository<CartItem>,
+    @InjectRepository(ProductStock)
+    private productStockRepository: Repository<ProductStock>,
+    @InjectRepository(Product)
+    private productRepository: Repository<Product>,
   ) {}
 
   async findOrCreateCart(userId: number): Promise<Cart> {
@@ -40,6 +45,15 @@ export class CartsService {
   ) {
     const cart = await this.findOrCreateCart(userId);
 
+    // Məhsulu yoxlayırıq
+    const product = await this.productRepository.findOne({
+      where: { id: productId },
+    });
+
+    if (!product) {
+      throw new NotFoundException('Məhsul tapılmadı');
+    }
+
     // Eyni məhsul və eyni variant varmı?
     let cartItem = cart.items.find(
       (item) =>
@@ -47,14 +61,55 @@ export class CartsService {
         JSON.stringify(item.variants) === JSON.stringify(variants),
     );
 
+    const targetQuantity = cartItem ? cartItem.quantity + quantity : quantity;
+
+    // Stok yoxlanışı (Trendyol modeli)
+    const itemSize = variants?.size || null;
+    const itemColor = variants?.color || null;
+    let stockEntity: ProductStock | null = null;
+
+    // 1. Rəng + Ölçü
+    if (itemColor && itemSize) {
+      stockEntity = await this.productStockRepository.findOne({
+        where: { productId, size: itemSize, color: itemColor },
+      });
+    }
+
+    // 2. Yalnız Ölçü
+    if (!stockEntity && itemSize) {
+      stockEntity = await this.productStockRepository.findOne({
+        where: { productId, size: itemSize },
+      });
+    }
+
+    // 3. Yalnız Rəng
+    if (!stockEntity && itemColor) {
+      stockEntity = await this.productStockRepository.findOne({
+        where: { productId, color: itemColor },
+      });
+    }
+
+    // 4. Ümumi Stok
+    if (!stockEntity) {
+      stockEntity = await this.productStockRepository.findOne({
+        where: { productId },
+      });
+    }
+
+    if (!stockEntity || stockEntity.stock < targetQuantity) {
+      throw new BadRequestException(
+        `${product.name} üçün kifayət qədər stok yoxdur (Mövcud: ${stockEntity?.stock || 0})`,
+      );
+    }
+
     if (cartItem) {
-      cartItem.quantity += quantity;
+      cartItem.quantity = targetQuantity;
       await this.cartItemRepository.save(cartItem);
     } else {
       cartItem = this.cartItemRepository.create({
         cart,
         product: { id: productId } as Product,
-        quantity,
+        quantity: targetQuantity,
         variants,
       });
       await this.cartItemRepository.save(cartItem);

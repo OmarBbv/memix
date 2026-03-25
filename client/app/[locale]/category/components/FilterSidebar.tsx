@@ -301,7 +301,22 @@ export const FilterSidebar = ({
   );
   const totalActiveCount = activeCount + (isPriceActive ? 1 : 0);
 
-  const nonPriceFilters = filters.filter(f => f.id !== 'price');
+  const filterPriority = ['gender', 'brand', 'color', 'size', 'condition', 'material'];
+  const nonPriceFilters = [...filters]
+    .filter(f => f.id !== 'price')
+    .sort((a, b) => {
+      const indexA = filterPriority.indexOf(a.id);
+      const indexB = filterPriority.indexOf(b.id);
+      if (indexA === -1 && indexB === -1) return a.name.localeCompare(b.name);
+      if (indexA === -1) return 1;
+      if (indexB === -1) return -1;
+      return indexA - indexB;
+    });
+
+  const allFilterIds = [
+    ...nonPriceFilters.map(f => f.id),
+    ...(hasPriceFilter ? ['price-range'] : [])
+  ];
 
   return (
     <div className={`w-full space-y-6 ${className}`}>
@@ -354,8 +369,9 @@ export const FilterSidebar = ({
       )}
 
       <Accordion
+        key={allFilterIds.join(',')}
         type="multiple"
-        defaultValue={[...nonPriceFilters.map(f => f.id), ...(hasPriceFilter ? ['price-range'] : [])]}
+        defaultValue={allFilterIds}
         className="w-full"
       >
         {/* Price Range Slider */}
@@ -405,7 +421,7 @@ export const FilterSidebar = ({
                     filter.options.length > 6 && "max-h-[220px] overflow-y-auto"
                   )}
                 >
-                  {filter.options.map((option) => {
+                  {[...filter.options].sort((a,b) => a.localeCompare(b)).map((option) => {
                     const isChecked = selectedFilters[filter.id]?.includes(option) || false;
                     return (
                       <label

@@ -3,9 +3,33 @@ import { ApexOptions } from "apexcharts";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { MoreDotIcon } from "../../icons";
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useMonthlySales } from "../../hooks/useAnalytics";
 
 export default function MonthlySalesChart() {
+  const { data: salesData, isLoading } = useMonthlySales(12);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const chartData = useMemo(() => {
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const salesArray = new Array(12).fill(0);
+    
+    if (salesData) {
+      salesData.forEach(item => {
+        const monthIndex = new Date(item.month + "-01").getMonth();
+        salesArray[monthIndex] = item.sales;
+      });
+    }
+    
+    return {
+      categories: months,
+      series: [{
+        name: "Satışlar",
+        data: salesArray
+      }]
+    };
+  }, [salesData]);
+
   const options: ApexOptions = {
     colors: ["#465fff"],
     chart: {
@@ -33,20 +57,7 @@ export default function MonthlySalesChart() {
       colors: ["transparent"],
     },
     xaxis: {
-      categories: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
+      categories: chartData.categories,
       axisBorder: {
         show: false,
       },
@@ -75,23 +86,15 @@ export default function MonthlySalesChart() {
     fill: {
       opacity: 1,
     },
-
     tooltip: {
       x: {
         show: false,
       },
       y: {
-        formatter: (val: number) => `${val}`,
+        formatter: (val: number) => `${val.toFixed(2)} AZN`,
       },
     },
   };
-  const series = [
-    {
-      name: "Sales",
-      data: [168, 385, 201, 298, 187, 195, 291, 110, 215, 390, 280, 112],
-    },
-  ];
-  const [isOpen, setIsOpen] = useState(false);
 
   function toggleDropdown() {
     setIsOpen(!isOpen);
@@ -100,11 +103,18 @@ export default function MonthlySalesChart() {
   function closeDropdown() {
     setIsOpen(false);
   }
+
+  if (isLoading) {
+    return (
+      <div className="h-[250px] w-full animate-pulse rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3"></div>
+    );
+  }
+
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
+    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 dark:border-gray-800 dark:bg-white/3 sm:px-6 sm:pt-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-          Monthly Sales
+          Aylıq Satışlar
         </h3>
         <div className="relative inline-block">
           <button className="dropdown-toggle" onClick={toggleDropdown}>
@@ -119,13 +129,7 @@ export default function MonthlySalesChart() {
               onItemClick={closeDropdown}
               className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
             >
-              View More
-            </DropdownItem>
-            <DropdownItem
-              onItemClick={closeDropdown}
-              className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-            >
-              Delete
+              Daha çox
             </DropdownItem>
           </Dropdown>
         </div>
@@ -133,7 +137,7 @@ export default function MonthlySalesChart() {
 
       <div className="max-w-full overflow-x-auto custom-scrollbar">
         <div className="-ml-5 min-w-[650px] xl:min-w-full pl-2">
-          <Chart options={options} series={series} type="bar" height={180} />
+          <Chart options={options} series={chartData.series} type="bar" height={180} />
         </div>
       </div>
     </div>

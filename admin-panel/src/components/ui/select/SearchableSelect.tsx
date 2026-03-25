@@ -13,6 +13,7 @@ interface SearchableSelectProps {
   searchPlaceholder?: string;
   className?: string;
   error?: boolean;
+  allowCustomValue?: boolean;
 }
 
 const SearchableSelect: React.FC<SearchableSelectProps> = ({
@@ -23,6 +24,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
   searchPlaceholder = "Axtar...",
   className = "",
   error = false,
+  allowCustomValue = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -30,8 +32,8 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const selectedOption = useMemo(
-    () => options.find((opt) => opt.value === value),
-    [options, value]
+    () => options.find((opt) => String(opt.value) === String(value)) || (allowCustomValue && value ? { label: String(value), value } : null),
+    [options, value, allowCustomValue]
   );
 
   const filteredOptions = useMemo(() => {
@@ -39,6 +41,11 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
       opt.label.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [options, searchTerm]);
+
+  const showCustomOption = useMemo(() => {
+    if (!allowCustomValue || !searchTerm.trim()) return false;
+    return !options.some(opt => opt.label.toLowerCase() === searchTerm.toLowerCase());
+  }, [allowCustomValue, searchTerm, options]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -64,6 +71,11 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     setIsOpen(false);
   };
 
+  const handleCustomSelect = () => {
+    onChange(searchTerm.trim());
+    setIsOpen(false);
+  };
+
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
     onChange(null);
@@ -83,10 +95,10 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
         `}
       >
         <span className={!selectedOption ? "text-gray-400" : "text-gray-900 dark:text-gray-200"}>
-          {selectedOption ? selectedOption.label : placeholder}
+          {selectedOption ? (selectedOption as any).label : placeholder}
         </span>
         <div className="flex items-center gap-2">
-          {value && (
+          {!!value && (
             <button
               onClick={handleClear}
               className="p-1 hover:text-red-500 text-gray-400 transition-colors"
@@ -130,6 +142,14 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
             </div>
           </div>
           <div className="max-h-[200px] overflow-y-auto p-1.5 custom-scrollbar">
+            {showCustomOption && (
+              <div
+                onClick={handleCustomSelect}
+                className="cursor-pointer border-b border-gray-100 dark:border-white/5 rounded-lg px-3 py-2.5 text-sm text-brand-600 hover:bg-brand-50 dark:text-brand-400 dark:hover:bg-white/5"
+              >
+                Əllə daxil et: <span className="font-bold">"{searchTerm}"</span>
+              </div>
+            )}
             {filteredOptions.length > 0 ? (
               filteredOptions.map((option) => (
                 <div
@@ -137,7 +157,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
                   onClick={() => handleSelect(option)}
                   className={`
                     cursor-pointer rounded-lg px-3 py-2.5 text-sm transition-all duration-200
-                    ${value === option.value
+                    ${String(value) === String(option.value)
                       ? "bg-brand-50 text-brand-600 dark:bg-brand-500 dark:text-white"
                       : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/10"
                     }
@@ -146,7 +166,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
                   {option.label}
                 </div>
               ))
-            ) : (
+            ) : !showCustomOption && (
               <div className="px-3 py-6 text-center text-sm text-gray-500 italic">
                 Nəticə tapılmadı
               </div>

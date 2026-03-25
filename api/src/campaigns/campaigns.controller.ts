@@ -62,4 +62,32 @@ export class CampaignsController {
   remove(@Param('id') id: string) {
     return this.campaignsService.remove(+id);
   }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @Post(':id/apply-bulk-discount')
+  applyBulkDiscount(
+    @Param('id') id: string,
+    @Body() body: {
+      targetType: 'category' | 'brand';
+      targetId: number;
+      discountType: 'percentage' | 'fixed';
+      discountValue: number;
+    },
+  ) {
+    return this.campaignsService.applyBulkDiscount(
+      +id,
+      body.targetType,
+      body.targetId,
+      body.discountType,
+      body.discountValue,
+    );
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @Delete(':id/apply-bulk-discount')
+  removeBulkDiscount(@Param('id') id: string) {
+    return this.campaignsService.removeBulkDiscount(+id);
+  }
 }

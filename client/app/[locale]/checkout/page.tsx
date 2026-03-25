@@ -540,6 +540,7 @@ export default function CheckoutPage() {
                       src={item.image}
                       alt={item.title}
                       fill
+                      unoptimized
                       className="object-cover"
                     />
                   </div>

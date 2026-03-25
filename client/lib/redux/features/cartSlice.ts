@@ -94,6 +94,28 @@ export const removeFromCartAsync = createAsyncThunk(
     }
   }
 );
+export const incrementQuantityAsync = createAsyncThunk(
+  'cart/incrementQuantityAsync',
+  async (item: CartItem, { getState, rejectWithValue }) => {
+    const { auth } = getState() as any;
+    const productId = item.productId || item.id;
+
+    if (!auth.isAuthenticated) {
+      return { ...item, isGuest: true };
+    }
+
+    try {
+      await cartService.addToCart(
+        Number(productId),
+        1,
+        { size: item.size, color: item.color }
+      );
+      return { ...item, isGuest: false };
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
 
 export const cartSlice = createSlice({
   name: 'cart',
@@ -186,7 +208,28 @@ export const cartSlice = createSlice({
         if (existingItem.quantity > 1) existingItem.quantity -= 1;
         else state.items = state.items.filter(i => i !== existingItem);
       }
-      toast.error('Səbətə əlavə edilərkən xəta baş verdi');
+
+      const errorMessage = (action.payload as any)?.message || 'Səbətə əlavə edilərkən xəta baş verdi';
+      toast.error(errorMessage);
+    });
+
+    // Increment Quantity
+    builder.addCase(incrementQuantityAsync.pending, (state, action) => {
+      const { id, size } = action.meta.arg;
+      const item = state.items.find((i) => i.id === id && i.size === size);
+      if (item) {
+        item.quantity += 1;
+      }
+    });
+
+    builder.addCase(incrementQuantityAsync.rejected, (state, action) => {
+      const { id, size } = action.meta.arg;
+      const item = state.items.find((i) => i.id === id && i.size === size);
+      if (item) {
+        item.quantity -= 1;
+      }
+      const errorMessage = (action.payload as any)?.message || 'Stok yoxlanışı zamanı xəta baş verdi';
+      toast.error(errorMessage);
     });
 
     // Remove From Cart

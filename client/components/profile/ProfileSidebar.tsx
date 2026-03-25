@@ -24,10 +24,10 @@ export function ProfileSidebar() {
   ];
 
   return (
-    <div className="w-full md:w-64 space-y-6">
+    <div className="w-full md:w-64 space-y-6 select-none">
       <div className="bg-white border border-zinc-200 rounded-2xl p-4 flex items-center gap-4 shadow-sm">
         <div className="w-12 h-12 rounded-full bg-zinc-100 flex items-center justify-center border border-zinc-200">
-          {profile?.avatar ? <Image src={profile.avatar} alt={profile.name + ' ' + profile.surname} width={48} height={48} className="w-full h-full rounded-full" /> : <User className="w-6 h-6 text-zinc-500" />}
+          {profile?.avatar ? <Image src={profile.avatar} alt={profile.name + ' ' + profile.surname} width={48} height={48} unoptimized className="w-full h-full rounded-full" /> : <User className="w-6 h-6 text-zinc-500" />}
         </div>
         <div className="overflow-hidden">
           <p className="text-xs text-zinc-500 font-medium truncate">Xoş gəldin,</p>
