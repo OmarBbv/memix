@@ -21,7 +21,6 @@ describe('Add Product Page (Real API)', () => {
       }
       const token = response.body.access_token;
 
-      // Visit the page with the real token
       cy.visit('/products/create', {
         onBeforeLoad: (win) => {
           win.localStorage.setItem('token', token);
@@ -32,7 +31,6 @@ describe('Add Product Page (Real API)', () => {
 
   context('Positive Scenarios', () => {
     it('should successfully create a product with ALL fields valid (Slow Mode)', () => {
-      // Intercept the real network request
       cy.intercept('POST', '**/products').as('createProductSuccess');
 
       const waitTime = 1000; // 1 second delay between actions

@@ -32,10 +32,10 @@ export class Discount {
   value: number; // Endirim dəyəri
 
   @Column({ type: 'timestamp', nullable: true })
-  startDate: Date;
+  startDate: Date | null;
 
   @Column({ type: 'timestamp', nullable: true })
-  endDate: Date;
+  endDate: Date | null;
 
   @Column({ default: true })
   isActive: boolean;

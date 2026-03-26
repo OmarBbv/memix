@@ -480,11 +480,11 @@ export default function AddProduct() {
 
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mb-4">
                     <div>
-                      <Label>Variant Adı (məs: Rəng)</Label>
+                      <Label>Variant Adı (məs: Material)</Label>
                       <Input
                         value={variantName}
                         onChange={(e) => setVariantName(e.target.value)}
-                        placeholder="Rəng"
+                        placeholder="Material"
                       />
                     </div>
                     <div>
@@ -492,7 +492,7 @@ export default function AddProduct() {
                       <Input
                         value={variantValues}
                         onChange={(e) => setVariantValues(e.target.value)}
-                        placeholder="Qırmızı, Yaşıl, Mavi"
+                        placeholder="Pambıq, Poliester, Dəri"
                       />
                     </div>
                   </div>

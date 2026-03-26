@@ -477,10 +477,32 @@ export default function EditProduct() {
                 <div className="  ">
                   <h3 className="mb-4 text-sm font-medium text-gray-900 dark:text-gray-100">Variantlar</h3>
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mb-4">
-                    <Input value={variantName} onChange={(e) => setVariantName(e.target.value)} placeholder="Variant Adı" />
-                    <Input value={variantValues} onChange={(e) => setVariantValues(e.target.value)} placeholder="Dəyərlər (vergüllə)" />
+                    <div>
+                      <Label>Variant Adı (məs: Material)</Label>
+                      <Input
+                        value={variantName}
+                        onChange={(e) => setVariantName(e.target.value)}
+                        placeholder="Material"
+                      />
+                    </div>
+                    <div>
+                      <Label>Dəyərlər (Vergüllə ayırın)</Label>
+                      <Input
+                        value={variantValues}
+                        onChange={(e) => setVariantValues(e.target.value)}
+                        placeholder="Pambıq, Poliester, Dəri"
+                      />
+                    </div>
                   </div>
-                  <Button type="button" size="sm" onClick={handleAddVariant} disabled={!variantName || !variantValues}>Əlavə et</Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={handleAddVariant}
+                    disabled={!variantName || !variantValues}
+                    className="mb-4"
+                  >
+                    Variant Əlavə Et
+                  </Button>
                   <div className="mt-4 space-y-2">
                     {Object.entries(variants).map(([k, v]) => (
                       <div key={k} className="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800">

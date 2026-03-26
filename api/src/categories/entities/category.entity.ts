@@ -22,6 +22,9 @@ export class Category {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ type: 'varchar', nullable: true, unique: true })
+  guid1c: string | null;
+
   @Column()
   name: string;
 

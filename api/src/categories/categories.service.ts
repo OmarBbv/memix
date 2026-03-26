@@ -18,15 +18,15 @@ import { SearchService } from '../search/search.service';
 export class CategoriesService {
   private cachedTree: Category[] | null = null;
   private cacheTimestamp: number = 0;
-  private readonly CACHE_TTL = 1000 * 60 * 60; // 1 hour
+  private readonly CACHE_TTL = 1000 * 60 * 60;
 
   constructor(
     @InjectRepository(Category)
     private categoriesRepository: Repository<Category>,
     private readonly searchService: SearchService,
-  ) {}
+  ) { }
 
-  private clearCache() {
+  public clearCache() {
     this.cachedTree = null;
     this.cacheTimestamp = 0;
   }
@@ -340,8 +340,8 @@ export class CategoriesService {
           banner: ensureFullUrl(product.banner),
           images: Array.isArray(product.images)
             ? (product.images
-                .map((img) => ensureFullUrl(img))
-                .filter(Boolean) as string[])
+              .map((img) => ensureFullUrl(img))
+              .filter(Boolean) as string[])
             : product.images,
         }) as any,
     );

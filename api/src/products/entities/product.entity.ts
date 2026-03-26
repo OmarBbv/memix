@@ -64,6 +64,9 @@ export class Product {
   @Column({ type: 'simple-array', nullable: true })
   tags: string[]; // Məhsulun tagları (array formasında)
 
+  @Column({ default: true })
+  isActive: boolean; // Məhsulun aktivliyi
+
   @Column({ default: false })
   isFeatured: boolean; // Öne çıxan məhsul (Vitrin məhsulu)
 

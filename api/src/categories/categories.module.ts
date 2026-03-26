@@ -10,5 +10,6 @@ import { SearchModule } from '../search/search.module';
   imports: [TypeOrmModule.forFeature([Category]), SearchModule],
   controllers: [CategoriesController],
   providers: [CategoriesService],
+  exports: [CategoriesService],
 })
 export class CategoriesModule {}

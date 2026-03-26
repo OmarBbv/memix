@@ -43,7 +43,7 @@ import Orders from "./pages/Orders";
 export default function App() {
   return (
     <>
-      <Router>
+      <Router basename="/admin">
         <ScrollToTop />
         <Toaster position="top-right" />
         <Routes>

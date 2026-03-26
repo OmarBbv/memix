@@ -20,7 +20,7 @@ export class ProductsService {
     @InjectRepository(ProductStock)
     private productStockRepository: Repository<ProductStock>,
     private readonly searchService: SearchService,
-  ) {}
+  ) { }
 
   async create(
     createProductDto: CreateProductDto,
@@ -437,8 +437,8 @@ export class ProductsService {
       banner: ensureFullUrl(product.banner),
       images: Array.isArray(product.images)
         ? (product.images
-            .map((img) => ensureFullUrl(img))
-            .filter(Boolean) as string[])
+          .map((img) => ensureFullUrl(img))
+          .filter(Boolean) as string[])
         : product.images,
     } as any;
   }
@@ -592,8 +592,8 @@ export class ProductsService {
         banner: ensureFullUrl(updatedProduct.banner),
         images: Array.isArray(updatedProduct.images)
           ? updatedProduct.images
-              .map((img) => ensureFullUrl(img))
-              .filter(Boolean)
+            .map((img) => ensureFullUrl(img))
+            .filter(Boolean)
           : updatedProduct.images,
       };
     } catch (e) {

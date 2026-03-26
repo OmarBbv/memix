@@ -4,6 +4,8 @@ import { Product } from '../products/entities/product.entity';
 import { ProductStock } from '../branches/entities/product-stock.entity';
 import { Branch } from '../branches/entities/branch.entity';
 import { Category } from '../categories/entities/category.entity';
+import { Discount } from '../discounts/entities/discount.entity';
+import { CategoriesModule } from '../categories/categories.module';
 import { ProductsService } from '../products/products.service';
 import { PriceHistory } from '../products/entities/price-history.entity';
 import { SearchModule } from '../search/search.module';
@@ -18,7 +20,9 @@ import { IntegrationsService } from './integrations.service';
       Branch,
       Category,
       PriceHistory,
+      Discount,
     ]),
+    CategoriesModule,
     SearchModule,
   ],
   controllers: [IntegrationsController],
