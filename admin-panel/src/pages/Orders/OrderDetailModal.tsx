@@ -1,4 +1,3 @@
-import React from "react";
 import { Modal } from "../../components/ui/modal";
 import { Order, OrderStatus } from "../../types/order";
 import { useUpdateOrderStatus } from "../../hooks/useOrders";
