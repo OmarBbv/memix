@@ -299,16 +299,7 @@ export default function EditProduct() {
                   </div>
                 </div>
 
-                <div>
-                  <Label htmlFor="description" optional>Təsvir</Label>
-                  <Controller
-                    name="description"
-                    control={control}
-                    render={({ field }) => (
-                      <TextArea {...field} rows={6} error={!!errors.description} hint={errors.description?.message} />
-                    )}
-                  />
-                </div>
+
 
 
                 {/* Category & Brand */}
@@ -361,6 +352,17 @@ export default function EditProduct() {
                       )}
                     />
                   </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="description" optional>Təsvir</Label>
+                  <Controller
+                    name="description"
+                    control={control}
+                    render={({ field }) => (
+                      <TextArea {...field} rows={6} error={!!errors.description} hint={errors.description?.message} />
+                    )}
+                  />
                 </div>
 
                 {/* Branch-specific Stocks */}

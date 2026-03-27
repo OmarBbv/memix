@@ -280,23 +280,7 @@ export default function AddProduct() {
                   </div>
                 </div>
 
-                {/* Description */}
-                <div>
-                  <Label htmlFor="description" optional>Təsvir</Label>
-                  <Controller
-                    name="description"
-                    control={control}
-                    render={({ field }) => (
-                      <TextArea
-                        {...field}
-                        rows={6}
-                        placeholder="Məhsul haqqında ətraflı məlumat"
-                        error={!!errors.description}
-                        hint={errors.description?.message}
-                      />
-                    )}
-                  />
-                </div>
+
 
 
                 {/* Category & Brand */}
@@ -447,6 +431,24 @@ export default function AddProduct() {
                       </p>
                     )}
                   </div>
+                </div>
+
+                {/* Description */}
+                <div>
+                  <Label htmlFor="description" optional>Təsvir</Label>
+                  <Controller
+                    name="description"
+                    control={control}
+                    render={({ field }) => (
+                      <TextArea
+                        {...field}
+                        rows={6}
+                        placeholder="Məhsul haqqında ətraflı məlumat"
+                        error={!!errors.description}
+                        hint={errors.description?.message}
+                      />
+                    )}
+                  />
                 </div>
 
                 {/* Banner Image (Single) */}
