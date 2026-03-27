@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import userService from '../services/userService';
 
 export const useUsers = (page: number = 1, limit: number = 10, search: string = '') => {
@@ -13,5 +13,16 @@ export const useUser = (id: number) => {
     queryKey: ['user', id],
     queryFn: () => userService.getById(id),
     enabled: !!id,
+  });
+};
+
+export const useToggleUserStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => userService.toggleStatus(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
   });
 };

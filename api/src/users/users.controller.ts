@@ -106,6 +106,13 @@ export class UsersController {
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(UserRole.ADMIN)
+  @Patch(':id/toggle-status')
+  async toggleStatus(@Param('id') id: string): Promise<User> {
+    return this.usersService.toggleStatus(+id);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.ADMIN)
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<User | null> {
     return this.usersService.findOne(+id);

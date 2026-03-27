@@ -1,26 +1,24 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import { useUsers } from "../../hooks/useUsers";
-import { useDebounce } from "../../hooks/useDebounce";
 import UserTable from "./UserTable";
-import Input from "../../components/form/input/InputField";
+import SearchInput from "../../components/common/SearchInput";
 import Button from "../../components/ui/button/Button";
 
 export default function Users() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const debouncedSearch = useDebounce(search, 500);
   const limit = 10;
 
-  const { data, isLoading } = useUsers(page, limit, debouncedSearch);
+  const { data, isLoading } = useUsers(page, limit, search);
 
   const users = data?.data || [];
   const totalPages = data?.totalPages || 1;
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value);
-    setPage(1); // Reset page on search
+  const handleSearch = (value: string) => {
+    setSearch(value);
+    setPage(1);
   };
 
   const handlePrevPage = () => {
@@ -41,14 +39,11 @@ export default function Users() {
       <div className="min-h-screen rounded-2xl border border-gray-200 bg-white px-5 py-7 dark:border-gray-800 dark:bg-white/3 xl:px-10 xl:py-12">
         <div className="flex w-full flex-col gap-6">
           <div className="flex items-center justify-between">
-            <div className="w-full max-w-sm">
-              <Input
-                type="text"
-                placeholder="İstifadəçi axtar (ad, email, id)..."
-                value={search}
-                onChange={handleSearchChange}
-              />
-            </div>
+            <SearchInput
+              onSearch={handleSearch}
+              placeholder="İstifadəçi axtar (ad, email, id)..."
+              className="w-full max-w-sm"
+            />
           </div>
 
           {isLoading ? (

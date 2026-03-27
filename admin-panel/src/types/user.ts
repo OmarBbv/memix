@@ -19,4 +19,5 @@ export interface User {
   birthday?: string;
   gender?: UserGender;
   role: UserRole;
+  isActive: boolean;
 }

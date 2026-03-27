@@ -13,6 +13,11 @@ class UserService {
     const response = await axiosInstance.get(`/users/${id}`);
     return response.data;
   }
+
+  async toggleStatus(id: number): Promise<User> {
+    const response = await axiosInstance.patch(`/users/${id}/toggle-status`);
+    return response.data;
+  }
 }
 
 export default new UserService();

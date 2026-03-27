@@ -55,6 +55,9 @@ export class User {
   @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
   role: UserRole;
 
+  @Column({ default: true })
+  isActive: boolean;
+
   @OneToMany(() => Address, (address) => address.user)
   addresses: Address[];
 
