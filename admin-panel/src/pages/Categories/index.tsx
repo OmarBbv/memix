@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import { PlusIcon } from "../../icons";
@@ -6,9 +6,11 @@ import { useCategoryTree } from "../../hooks/useCategories";
 import CategoryItem from "./CategoryItem";
 import { Category } from "../../types/category";
 import { useNavigate } from "react-router";
+import SearchInput from "../../components/common/SearchInput";
 
 const Categories: React.FC = () => {
-  const { data: categories, isLoading } = useCategoryTree();
+  const [searchTerm, setSearchTerm] = useState("");
+  const { data: categories, isLoading } = useCategoryTree(searchTerm);
   const navigate = useNavigate();
 
   const handleEdit = (category: Category) => {
@@ -17,6 +19,10 @@ const Categories: React.FC = () => {
 
   const handleAdd = () => {
     navigate("/categories/create");
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
   };
 
   return (
@@ -28,10 +34,15 @@ const Categories: React.FC = () => {
       <PageBreadcrumb pageTitle="Kateqoriyalar" />
 
       <div className="flex flex-col gap-6">
-        <div className="flex items-center justify-end">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <SearchInput
+            onSearch={handleSearch}
+            placeholder="Kateqoriya adı ilə axtar..."
+            className="w-full sm:max-w-md"
+          />
           <button
             onClick={handleAdd}
-            className="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-brand-600 active:scale-95 shadow-lg shadow-brand-500/20"
+            className="flex items-center justify-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-brand-600 active:scale-95 shadow-lg shadow-brand-500/20"
           >
             <PlusIcon className="size-5" />
             <span>Yeni Kateqoriya</span>

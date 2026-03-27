@@ -158,13 +158,35 @@ export class CategoriesService {
     return category;
   }
 
-  async findTree(all: boolean = false) {
+  async findTree(all: boolean = false, search?: string) {
     if (
       !all &&
+      !search &&
       this.cachedTree &&
       Date.now() - this.cacheTimestamp < this.CACHE_TTL
     ) {
       return this.cachedTree;
+    }
+
+    if (search) {
+      const searchResults = await this.searchService.search(search);
+      const categoryIds = searchResults
+        .filter((r) => r.type === 'category')
+        .map((c) => c.id);
+
+      if (categoryIds.length === 0) return [];
+
+      const categories = await this.categoriesRepository.find({
+        where: { id: In(categoryIds) },
+        relations: ['parent', 'children'],
+        order: { order: 'ASC', id: 'ASC' },
+      });
+
+      return categories.map((cat) => ({
+        ...cat,
+        imageUrl: ensureFullUrl(cat.imageUrl),
+        name: this.formatName(cat.name),
+      }));
     }
 
     const where: any = { parent: IsNull() };
@@ -179,10 +201,10 @@ export class CategoriesService {
     });
 
     const result = trees
-      .map((tree) => this.formatCategoryTree(tree, all))
+      .map((tree) => tree ? this.formatCategoryTree(tree, all) : null)
       .filter((t): t is Category => t !== null);
 
-    if (!all) {
+    if (!all && !search) {
       this.cachedTree = result;
       this.cacheTimestamp = Date.now();
     }

@@ -3,7 +3,7 @@ import { Category, CreateCategoryDto, UpdateCategoryDto } from '../types/categor
 
 interface ICategoryService {
   getAll(): Promise<Category[]>;
-  getTree(): Promise<Category[]>;
+  getTree(search?: string): Promise<Category[]>;
   getById(id: number): Promise<Category>;
   create(data: CreateCategoryDto | FormData): Promise<Category>;
   update(id: number, data: UpdateCategoryDto | FormData): Promise<Category>;
@@ -21,9 +21,11 @@ class CategoryService implements ICategoryService {
     }
   }
 
-  async getTree(): Promise<Category[]> {
+  async getTree(search?: string): Promise<Category[]> {
     try {
-      const response = await axiosInstance.get('/categories/tree?all=true');
+      const response = await axiosInstance.get('/categories/tree?all=true', {
+        params: { search },
+      });
       return response.data;
     } catch (error) {
       console.error('Error fetching category tree:', error);

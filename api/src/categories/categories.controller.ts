@@ -52,8 +52,8 @@ export class CategoriesController {
   }
 
   @Get('tree')
-  findTree(@Query('all') all?: string) {
-    return this.categoriesService.findTree(all === 'true');
+  findTree(@Query('all') all?: string, @Query('search') search?: string) {
+    return this.categoriesService.findTree(all === 'true', search);
   }
 
   @Get('slug/:slug')

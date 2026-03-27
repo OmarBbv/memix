@@ -9,10 +9,10 @@ export const useCategories = () => {
   });
 };
 
-export const useCategoryTree = () => {
+export const useCategoryTree = (search?: string) => {
   return useQuery({
-    queryKey: ['categories', 'tree'],
-    queryFn: categoryService.getTree,
+    queryKey: ['categories', 'tree', search],
+    queryFn: () => categoryService.getTree(search),
   });
 };
 
