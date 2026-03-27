@@ -54,6 +54,11 @@ export class CreateProductDto {
   @Type(() => Number)
   categoryId?: number; // Kateqoriya ID-si (Məcburi deyil)
 
+  @IsNumber()
+  @IsOptional()
+  @Type(() => Number)
+  brandId?: number; // Brend ID-si (Zara, Nike və s.)
+
   @IsOptional()
   variants?: any; // Variantlar (JSON formatı və ya obyekt)
 

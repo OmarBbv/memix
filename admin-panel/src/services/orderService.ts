@@ -2,16 +2,19 @@ import axiosInstance from '../api/axiosInstance';
 import { Order, OrderStatus } from '../types/order';
 
 interface IOrderService {
-  getAll(): Promise<Order[]>;
+  getAll(search?: string, status?: OrderStatus): Promise<Order[]>;
   getById(id: number): Promise<Order>;
   updateStatus(id: number, status: OrderStatus): Promise<Order>;
   delete(id: number): Promise<void>;
+  downloadInvoice(id: number): Promise<void>;
 }
 
 class OrderService implements IOrderService {
-  async getAll(): Promise<Order[]> {
+  async getAll(search?: string, status?: OrderStatus): Promise<Order[]> {
     try {
-      const response = await axiosInstance.get('/orders');
+      const response = await axiosInstance.get('/orders', {
+        params: { search, status }
+      });
       return response.data;
     } catch (error) {
       console.error('Error fetching all orders:', error);
@@ -46,6 +49,19 @@ class OrderService implements IOrderService {
       console.error(`Error deleting order with id ${id}:`, error);
       throw error;
     }
+  }
+
+  async downloadInvoice(id: number): Promise<void> {
+    const response = await axiosInstance.get(`/orders/${id}/invoice`, {
+      responseType: 'blob',
+    });
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `invoice-${id}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
   }
 }
 

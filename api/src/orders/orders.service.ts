@@ -10,6 +10,7 @@ import { OrderItem } from './entities/order-item.entity';
 import { Cart } from '../carts/entities/cart.entity';
 import { ProductStock } from '../branches/entities/product-stock.entity';
 import { NotificationsService } from '../notifications/notifications.service';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class OrdersService {
@@ -24,7 +25,8 @@ export class OrdersService {
     private productStockRepository: Repository<ProductStock>,
     private dataSource: DataSource,
     private notificationsService: NotificationsService,
-  ) {}
+    private mailService: MailService,
+  ) { }
 
   async create(
     userId: number,
@@ -118,6 +120,7 @@ export class OrdersService {
         totalPrice: total,
         address,
         contactPhone: phone,
+        branchId,
         status: OrderStatus.PENDING,
       });
 
@@ -146,10 +149,26 @@ export class OrdersService {
     }
   }
 
-  async findAll() {
-    return this.orderRepository.find({
-      relations: ['items', 'items.product', 'user'],
-    });
+  async findAll(search?: string, status?: OrderStatus) {
+    const query = this.orderRepository.createQueryBuilder('order')
+      .leftJoinAndSelect('order.items', 'items')
+      .leftJoinAndSelect('items.product', 'product')
+      .leftJoinAndSelect('order.user', 'user');
+
+    if (status) {
+      query.andWhere('order.status = :status', { status });
+    }
+
+    if (search) {
+      query.andWhere(
+        '(CAST(order.id AS TEXT) ILIKE :search OR user.name ILIKE :search OR user.surname ILIKE :search)',
+        { search: `%${search}%` }
+      );
+    }
+
+    query.orderBy('order.createdAt', 'DESC');
+
+    return query.getMany();
   }
 
   async findByUserId(userId: number) {
@@ -171,8 +190,70 @@ export class OrdersService {
 
   async updateStatus(id: number, status: OrderStatus) {
     const order = await this.findOne(id);
-    order.status = status;
-    const updatedOrder = await this.orderRepository.save(order);
+    const oldStatus = order.status;
+
+    // Əgər artıq eyni statusdursa heç nə etmə
+    if (oldStatus === status) return order;
+
+    // Stokun qaytarılması loqikası (Yalnız ləğv edildikdə və əvvəl ləğv edilməmişdisə)
+    if (status === OrderStatus.CANCELLED && oldStatus !== OrderStatus.CANCELLED) {
+      const queryRunner = this.dataSource.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+
+      try {
+        for (const item of order.items) {
+          const itemSize = item.variants?.size || null;
+          const itemColor = item.variants?.color || null;
+
+          // Stok rekordunu axtarırıq (branchId, productId və variantlar üzrə)
+          let stock = await queryRunner.manager.findOne(ProductStock, {
+            where: {
+              branchId: order.branchId,
+              productId: item.product.id,
+              size: itemSize,
+              color: itemColor,
+            },
+          });
+
+          // Əgər tam eyni variant tapılmasa, daha geniş baxırıq (məsələn: yalnız ölçüvə ya yalnız məhsul üzrə)
+          if (!stock && itemSize) {
+            stock = await queryRunner.manager.findOne(ProductStock, {
+              where: { branchId: order.branchId, productId: item.product.id, size: itemSize },
+            });
+          }
+          if (!stock && itemColor) {
+            stock = await queryRunner.manager.findOne(ProductStock, {
+              where: { branchId: order.branchId, productId: item.product.id, color: itemColor },
+            });
+          }
+          if (!stock) {
+            stock = await queryRunner.manager.findOne(ProductStock, {
+              where: { branchId: order.branchId, productId: item.product.id },
+            });
+          }
+
+          if (stock) {
+            stock.stock += item.quantity;
+            await queryRunner.manager.save(stock);
+          }
+        }
+
+        order.status = status;
+        await queryRunner.manager.save(order);
+        await queryRunner.commitTransaction();
+      } catch (err) {
+        await queryRunner.rollbackTransaction();
+        throw err;
+      } finally {
+        await queryRunner.release();
+      }
+    } else {
+      order.status = status;
+      await this.orderRepository.save(order);
+    }
+
+    const updatedOrder = await this.findOne(id);
 
     // Müştəriyə real-time bildirilir
     this.notificationsService.notifyOrderStatusChange(order.user.id, {
@@ -180,6 +261,31 @@ export class OrdersService {
       status: updatedOrder.status,
     });
 
+    // Email bildirilişi
+    if (order.user?.email) {
+      try {
+        await this.mailService.sendOrderStatusUpdate(order.user.email, {
+          orderId: order.id,
+          status: this.getStatusLabel(status),
+          customerName: order.user.name,
+        });
+      } catch (error) {
+        console.error('Email göndərilərkən xəta:', error);
+      }
+    }
+
     return updatedOrder;
+  }
+
+  private getStatusLabel(status: OrderStatus): string {
+    const labels = {
+      [OrderStatus.PENDING]: 'Gözləyir',
+      [OrderStatus.PREPARING]: 'Hazırlanır',
+      [OrderStatus.READY]: 'Hazırdır',
+      [OrderStatus.ON_WAY]: 'Yoldadır',
+      [OrderStatus.DELIVERED]: 'Çatdırıldı',
+      [OrderStatus.CANCELLED]: 'Ləğv edildi',
+    };
+    return labels[status] || status;
   }
 }

@@ -21,6 +21,8 @@ import { useCreateDiscount, useUpdateDiscount, useDeleteDiscount } from "../../h
 import { DiscountType } from "../../services/discountService";
 import toast from "react-hot-toast";
 import { allowOnlyNumbers } from "../../utils/inputHelpers";
+import { useBrands } from "../../hooks/useBrands";
+import SearchableSelect from "../../components/ui/select/SearchableSelect";
 
 const discountSchema = z.object({
   type: z.nativeEnum(DiscountType),
@@ -34,8 +36,15 @@ type DiscountFormValues = z.infer<typeof discountSchema>;
 const Products: React.FC = () => {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedBrand, setSelectedBrand] = useState<string | number>("");
   const navigate = useNavigate();
-  const { data: productsData, isLoading } = useProducts({ page, limit: 10, search: searchTerm });
+  const { data: brands } = useBrands();
+  const { data: productsData, isLoading } = useProducts({ 
+    page, 
+    limit: 10, 
+    search: searchTerm,
+    brand: selectedBrand || undefined
+  });
   const deleteMutation = useDeleteProduct();
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -153,18 +162,39 @@ const Products: React.FC = () => {
 
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <SearchInput
-            onSearch={handleSearch}
-            placeholder="Məhsulun adı, kodu və ya barkodu ilə axtar..."
-            className="w-full sm:max-w-md"
-          />
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end flex-1">
+            <div className="flex-1 max-w-md">
+              <SearchInput
+                onSearch={handleSearch}
+                placeholder="Axtarış..."
+                className="w-full"
+              />
+            </div>
+            <div className="w-full sm:w-48">
+              <Label className="mb-1.5 text-xs!">Brend Filtri</Label>
+              <SearchableSelect
+                options={[
+                  { label: "Bütün Brendlər", value: "" },
+                  ...(brands?.map(b => ({ label: b.name, value: b.id })) || [])
+                ]}
+                placeholder="Brend seçin"
+                onChange={(val) => {
+                  setSelectedBrand(val as string);
+                  setPage(1);
+                }}
+                value={selectedBrand}
+              />
+            </div>
+          </div>
           <button
             onClick={handleAdd}
-            className="flex items-center justify-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-brand-600 active:scale-95"
+            className="flex items-center justify-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-brand-600 active:scale-95 shrink-0"
           >
             <PlusIcon className="size-5" />
             <span>Yeni Məhsul</span>
           </button>
+        </div>
         </div>
 
         <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-white/3 md:p-8">

@@ -6,6 +6,8 @@ import Label from "../../components/form/Label";
 import Select from "../../components/form/Select";
 import Button from "../../components/ui/button/Button";
 import toast from "react-hot-toast";
+import orderService from "../../services/orderService";
+import { DownloadIcon } from "../../icons";
 
 interface OrderDetailModalProps {
   order: Order | null;
@@ -164,10 +166,29 @@ export default function OrderDetailModal({ order, isOpen, onClose }: OrderDetail
           </div>
         </div>
 
-        <div className="flex justify-end pt-4 border-t dark:border-gray-800">
+        <div className="flex justify-end gap-3 pt-4 border-t dark:border-gray-800">
+          <Button
+            variant="outline"
+            onClick={async () => {
+              try {
+                toast.loading("PDF hazırlanır...");
+                await orderService.downloadInvoice(order.id);
+                toast.dismiss();
+                toast.success("PDF yükləndi");
+              } catch (error) {
+                toast.dismiss();
+                toast.error("PDF yüklənərkən xəta baş verdi");
+              }
+            }}
+          >
+            <DownloadIcon className="size-4 mr-2" />
+            İnvoys Yüklə (PDF)
+          </Button>
           <Button variant="outline" onClick={onClose}>Bağla</Button>
         </div>
       </div>
     </Modal>
   );
 }
+
+

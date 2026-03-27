@@ -25,6 +25,7 @@ export class SearchService {
             description: { type: 'text', analyzer: 'standard' },
             price: { type: 'float' },
             category: { type: 'keyword' },
+            brand: { type: 'keyword' },
             tags: { type: 'keyword' },
             sku: { type: 'keyword' },
             barcode: { type: 'keyword' },
@@ -66,6 +67,7 @@ export class SearchService {
           description: product.description,
           price: Number(product.price),
           category: product.category?.name || 'Uncategorized',
+          brand: product.brand?.name || 'No Brand',
           tags: product.tags,
           sku: product.sku,
           barcode: product.barcode,
@@ -88,6 +90,7 @@ export class SearchService {
         description: product.description,
         price: Number(product.price) || 0,
         category: product.category?.name || 'Uncategorized',
+        brand: product.brand?.name || 'No Brand',
         tags: product.tags || [],
         sku: product.sku || '',
         barcode: product.barcode || '',
@@ -177,7 +180,7 @@ export class SearchService {
             {
               multi_match: {
                 query: text,
-                fields: ['name^3', 'description', 'tags^2', 'category', 'sku^4', 'barcode^4'],
+                fields: ['name^3', 'description', 'tags^2', 'category', 'brand^2', 'sku^4', 'barcode^4'],
                 fuzziness: 'AUTO',
                 operator: 'and',
               },

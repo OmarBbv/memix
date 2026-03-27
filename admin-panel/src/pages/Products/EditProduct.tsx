@@ -12,6 +12,7 @@ import TextArea from "../../components/form/input/TextArea";
 import Button from "../../components/ui/button/Button";
 import { useProduct, useUpdateProduct } from "../../hooks/useProducts";
 import { useCategories } from "../../hooks/useCategories";
+import { useBrands } from "../../hooks/useBrands";
 import { useBranches } from "../../hooks/useBranches";
 import { productSchema, ProductFormValues } from "../../validations/productSchema";
 import { ChevronLeftIcon, TrashBinIcon } from "../../icons";
@@ -20,6 +21,7 @@ import SearchableSelect from "../../components/ui/select/SearchableSelect";
 import { SIZE_OPTIONS } from "../../constants/sizes";
 import { COLOR_OPTIONS } from "../../constants/colors";
 import { SizeType } from "../../types/category";
+import QuickCreateBrandModal from "../../components/brands/QuickCreateBrandModal";
 
 export default function EditProduct() {
   const { id } = useParams();
@@ -27,7 +29,9 @@ export default function EditProduct() {
   const { data: product, isLoading } = useProduct(Number(id));
   const { mutate: updateProduct, isPending } = useUpdateProduct();
   const { data: categories } = useCategories();
+  const { data: brands } = useBrands();
   const { data: branches } = useBranches();
+  const [isBrandModalOpen, setIsBrandModalOpen] = useState(false);
 
   const [existingBanner, setExistingBanner] = useState<string | null>(null);
   const [existingImages, setExistingImages] = useState<string[]>([]);
@@ -62,6 +66,7 @@ export default function EditProduct() {
         gender: product.gender || "",
         weight: product.weight || "" as any,
         categoryId: product.category?.id,
+        brandId: product.brand?.id,
         isFeatured: product.isFeatured,
         tags: product.tags || [],
         variants: product.variants || {},
@@ -124,6 +129,7 @@ export default function EditProduct() {
     formData.append("price", String(data.price));
     formData.append("stock", String(data.stock));
     if (data.categoryId) formData.append("categoryId", String(data.categoryId));
+    if (data.brandId) formData.append("brandId", String(data.brandId));
     formData.append("isFeatured", String(data.isFeatured));
 
     if (data.tags && data.tags.length > 0) {
@@ -305,24 +311,56 @@ export default function EditProduct() {
                 </div>
 
 
-                <div>
-                  <Label required>Kateqoriya</Label>
-                  <Controller
-                    name="categoryId"
-                    control={control}
-                    render={({ field }) => (
-                      <SearchableSelect
-                        options={categories?.map((cat) => ({
-                          label: cat.name,
-                          value: cat.id,
-                        })) || []}
-                        placeholder="Kateqoriya seçin"
-                        onChange={field.onChange}
-                        value={field.value as any}
-                        error={!!errors.categoryId}
-                      />
-                    )}
-                  />
+                {/* Category & Brand */}
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <div>
+                    <Label required>Kateqoriya</Label>
+                    <Controller
+                      name="categoryId"
+                      control={control}
+                      render={({ field }) => (
+                        <SearchableSelect
+                          options={categories?.map((cat) => ({
+                            label: cat.name,
+                            value: cat.id,
+                          })) || []}
+                          placeholder="Kateqoriya seçin"
+                          onChange={field.onChange}
+                          value={field.value as any}
+                          error={!!errors.categoryId}
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <Label optional>Brend (Marka)</Label>
+                      <button
+                        type="button"
+                        onClick={() => setIsBrandModalOpen(true)}
+                        className="text-xs font-semibold text-brand-500 hover:text-brand-600 transition-colors"
+                      >
+                        + Yeni Brend
+                      </button>
+                    </div>
+                    <Controller
+                      name="brandId"
+                      control={control}
+                      render={({ field }) => (
+                        <SearchableSelect
+                          options={brands?.map((brand) => ({
+                            label: brand.name,
+                            value: brand.id,
+                          })) || []}
+                          placeholder="Brend seçin"
+                          onChange={field.onChange}
+                          value={field.value as any}
+                          error={!!errors.brandId}
+                        />
+                      )}
+                    />
+                  </div>
                 </div>
 
                 {/* Branch-specific Stocks */}
@@ -550,6 +588,14 @@ export default function EditProduct() {
           </ComponentCard>
         </div>
       </div>
+
+      <QuickCreateBrandModal
+        isOpen={isBrandModalOpen}
+        onClose={() => setIsBrandModalOpen(false)}
+        onSuccess={(brandId) => {
+          setValue("brandId", brandId);
+        }}
+      />
     </>
   );
 }

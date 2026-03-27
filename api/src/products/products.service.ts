@@ -29,7 +29,7 @@ export class ProductsService {
       images?: Express.Multer.File[];
     },
   ) {
-    const { categoryId, variants, tags, branchStocks, ...productData } =
+    const { categoryId, brandId, variants, tags, branchStocks, ...productData } =
       createProductDto;
 
     const appUrl = process.env.APP_URL || 'http://localhost:4444';
@@ -72,6 +72,7 @@ export class ProductsService {
       variants: parsedVariants,
       tags: parsedTags,
       category: categoryId ? { id: Number(categoryId) } : undefined,
+      brand: brandId ? { id: Number(brandId) } : undefined,
       price: Number(productData.price),
     } as any) as unknown as Product;
 
@@ -150,6 +151,7 @@ export class ProductsService {
           .createQueryBuilder('product')
           .whereInIds(productIds)
           .leftJoinAndSelect('product.category', 'category')
+          .leftJoinAndSelect('product.brand', 'brand')
           .leftJoinAndSelect('product.discount', 'discount')
           .leftJoinAndSelect('product.priceHistory', 'priceHistory')
           .leftJoinAndSelect('product.stocks', 'stocks')
@@ -169,7 +171,7 @@ export class ProductsService {
           const brands = Array.isArray(query.brand)
             ? query.brand
             : query.brand.split(',').map((b: string) => b.trim());
-          fetchQb.andWhere(`product.variants ->> 'brand' IN (:...brands)`, {
+          fetchQb.andWhere(`brand.id IN (:...brands)`, {
             brands,
           });
         }
@@ -218,6 +220,7 @@ export class ProductsService {
       const qb = this.productsRepository.createQueryBuilder('product');
 
       qb.leftJoinAndSelect('product.category', 'category');
+      qb.leftJoinAndSelect('product.brand', 'brand');
       qb.leftJoinAndSelect('product.stocks', 'stocks');
       qb.leftJoinAndSelect('stocks.branch', 'branch');
       qb.leftJoinAndSelect('product.discount', 'discount');
@@ -240,7 +243,7 @@ export class ProductsService {
         const brands = Array.isArray(query.brand)
           ? query.brand
           : query.brand.split(',').map((b: string) => b.trim());
-        qb.andWhere(`product.variants ->> 'brand' IN (:...brands)`, { brands });
+        qb.andWhere(`brand.id IN (:...brands)`, { brands });
       }
 
       if (query.color) {
@@ -411,7 +414,7 @@ export class ProductsService {
 
   async findNewArrivals(limit: number = 8) {
     const products = await this.productsRepository.find({
-      relations: ['category', 'discount', 'priceHistory'],
+      relations: ['category', 'brand', 'discount', 'priceHistory'],
       order: { createdAt: 'DESC' },
       take: limit,
     });
@@ -430,6 +433,7 @@ export class ProductsService {
       where: { id },
       relations: [
         'category',
+        'brand',
         'discount',
         'priceHistory',
         'stocks',
@@ -468,6 +472,7 @@ export class ProductsService {
     try {
       const {
         categoryId,
+        brandId,
         variants,
         tags,
         branchStocks,
@@ -478,7 +483,7 @@ export class ProductsService {
 
       const product = await this.productsRepository.findOne({
         where: { id },
-        relations: ['category', 'discount', 'stocks', 'stocks.branch'],
+        relations: ['category', 'brand', 'discount', 'stocks', 'stocks.branch'],
         order: {
           stocks: { id: 'ASC' },
         } as any,
@@ -594,6 +599,7 @@ export class ProductsService {
         variants: parsedVariants,
         tags: parsedTags,
         category: categoryId ? { id: Number(categoryId) } : product.category,
+        brand: brandId ? { id: Number(brandId) } : product.brand,
         price: productData.price ? Number(productData.price) : product.price,
       } as any);
 
@@ -659,6 +665,7 @@ export class ProductsService {
       where: { id: In(ids) },
       relations: [
         'category',
+        'brand',
         'discount',
         'priceHistory',
         'stocks',
@@ -677,7 +684,7 @@ export class ProductsService {
 
   async syncSearchIndex() {
     const products = await this.productsRepository.find({
-      relations: ['category', 'discount', 'stocks', 'stocks.branch'],
+      relations: ['category', 'brand', 'discount', 'stocks', 'stocks.branch'],
     });
 
     const chunkSize = 100;

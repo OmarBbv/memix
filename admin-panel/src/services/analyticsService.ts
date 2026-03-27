@@ -67,6 +67,16 @@ class AnalyticsService {
       throw error;
     }
   }
+
+  async getBranchPerformance() {
+    try {
+      const response = await axiosInstance.get('/analytics/branches/performance');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching branch performance:', error);
+      throw error;
+    }
+  }
 }
 
 const analyticsService = new AnalyticsService();

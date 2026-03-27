@@ -9,6 +9,7 @@ import {
   OneToOne,
 } from 'typeorm';
 import { Category } from '../../categories/entities/category.entity';
+import { Brand } from '../../brands/entities/brand.entity';
 import { ProductStock } from '../../branches/entities/product-stock.entity';
 import { Review } from '../../reviews/entities/review.entity';
 import { Discount } from '../../discounts/entities/discount.entity';
@@ -54,6 +55,12 @@ export class Product {
     onDelete: 'SET NULL',
   })
   category: Category; // Məhsulun kateqoriyası
+
+  @ManyToOne(() => Brand, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  brand: Brand; // Məhsulun brendi (Məsələn: Zara, Nike)
 
   @Column({ type: 'jsonb', nullable: true })
   variants: Record<string, any>; // Məhsul variantları (Ölçü, Rəng və s.)

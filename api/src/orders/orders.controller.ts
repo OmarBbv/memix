@@ -7,6 +7,8 @@ import {
   Param,
   UseGuards,
   Request,
+  Res,
+  Query,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -15,10 +17,16 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '../users/entities/user.entity';
 import { OrderStatus } from './entities/order.entity';
 
+import type { Response } from 'express';
+import { InvoicesService } from './invoices.service';
+
 @Controller('orders')
 @UseGuards(AuthGuard('jwt'))
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(
+    private readonly ordersService: OrdersService,
+    private readonly invoicesService: InvoicesService,
+  ) { }
 
   @Post()
   create(
@@ -35,6 +43,22 @@ export class OrdersController {
     return this.ordersService.findByUserId(req.user.id);
   }
 
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @Get(':id/invoice')
+  async downloadInvoice(@Param('id') id: string, @Res() res: Response) {
+    const order = await this.ordersService.findOne(+id);
+    const buffer = await this.invoicesService.generateOrderInvoice(order);
+
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename=invoice-${order.id}.pdf`,
+      'Content-Length': buffer.length,
+    });
+
+    res.end(buffer);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.ordersService.findOne(+id);
@@ -43,8 +67,8 @@ export class OrdersController {
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN)
   @Get()
-  findAll() {
-    return this.ordersService.findAll();
+  findAll(@Query('search') search?: string, @Query('status') status?: OrderStatus) {
+    return this.ordersService.findAll(search, status);
   }
 
   @UseGuards(RolesGuard)

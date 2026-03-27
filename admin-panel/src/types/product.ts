@@ -23,7 +23,12 @@ export interface Product {
     id: number;
     name: string;
   };
+  brand?: {
+    id: number;
+    name: string;
+  };
   categoryId?: number;
+  brandId?: number;
   variants: Record<string, any>;
   banner: string;
   tags: string[];
@@ -67,7 +72,7 @@ export interface ProductQueryParams {
   categoryId?: number | string;
   minPrice?: number | string;
   maxPrice?: number | string;
-  brand?: string | string[];
+  brand?: string | string[] | number;
   color?: string | string[];
   size?: string | string[];
   sort?: 'popular' | 'newest' | string;

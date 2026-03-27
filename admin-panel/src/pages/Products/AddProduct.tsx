@@ -12,6 +12,7 @@ import TextArea from "../../components/form/input/TextArea";
 import Button from "../../components/ui/button/Button";
 import { useCreateProduct } from "../../hooks/useProducts";
 import { useCategories } from "../../hooks/useCategories";
+import { useBrands } from "../../hooks/useBrands";
 import { useBranches } from "../../hooks/useBranches";
 import { productSchema, ProductFormValues } from "../../validations/productSchema";
 import { ChevronLeftIcon, PlusIcon, TrashBinIcon } from "../../icons";
@@ -20,12 +21,15 @@ import SearchableSelect from "../../components/ui/select/SearchableSelect";
 import { SIZE_OPTIONS } from "../../constants/sizes";
 import { COLOR_OPTIONS } from "../../constants/colors";
 import { SizeType } from "../../types/category";
+import QuickCreateBrandModal from "../../components/brands/QuickCreateBrandModal";
 
 export default function AddProduct() {
   const navigate = useNavigate();
   const { mutate: createProduct, isPending } = useCreateProduct();
   const { data: categories } = useCategories();
+  const { data: brands } = useBrands();
   const { data: branches } = useBranches();
+  const [isBrandModalOpen, setIsBrandModalOpen] = useState(false);
 
   const {
     register,
@@ -46,6 +50,7 @@ export default function AddProduct() {
       gender: "",
       weight: "" as any,
       categoryId: undefined,
+      brandId: undefined,
       isFeatured: false,
       images: [],
       tags: [],
@@ -100,6 +105,7 @@ export default function AddProduct() {
     formData.append("price", String(data.price));
     formData.append("stock", String(data.stock));
     if (data.categoryId) formData.append("categoryId", String(data.categoryId));
+    if (data.brandId) formData.append("brandId", String(data.brandId));
     formData.append("isFeatured", String(data.isFeatured));
 
     // Tags
@@ -293,30 +299,61 @@ export default function AddProduct() {
                 </div>
 
 
-                {/* Category */}
-                <div>
-                  <Label required>Kateqoriya</Label>
-                  <Controller
-                    name="categoryId"
-                    control={control}
-                    render={({ field }) => (
-                      <SearchableSelect
-                        options={categories?.map((cat) => ({
-                          label: cat.name,
-                          value: cat.id,
-                        })) || []}
-                        placeholder="Kateqoriya seçin"
-                        onChange={field.onChange}
-                        value={field.value as any}
-                        error={!!errors.categoryId}
-                      />
+                {/* Category & Brand */}
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <div>
+                    <Label required>Kateqoriya</Label>
+                    <Controller
+                      name="categoryId"
+                      control={control}
+                      render={({ field }) => (
+                        <SearchableSelect
+                          options={categories?.map((cat) => ({
+                            label: cat.name,
+                            value: cat.id,
+                          })) || []}
+                          placeholder="Kateqoriya seçin"
+                          onChange={field.onChange}
+                          value={field.value as any}
+                          error={!!errors.categoryId}
+                        />
+                      )}
+                    />
+                    {errors.categoryId?.message && (
+                      <p className="mt-1 text-sm text-error-500">
+                        {errors.categoryId.message}
+                      </p>
                     )}
-                  />
-                  {errors.categoryId?.message && (
-                    <p className="mt-1 text-sm text-error-500">
-                      {errors.categoryId.message}
-                    </p>
-                  )}
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <Label optional>Brend (Marka)</Label>
+                      <button
+                        type="button"
+                        onClick={() => setIsBrandModalOpen(true)}
+                        className="text-xs font-semibold text-brand-500 hover:text-brand-600 transition-colors"
+                      >
+                        + Yeni Brend
+                      </button>
+                    </div>
+                    <Controller
+                      name="brandId"
+                      control={control}
+                      render={({ field }) => (
+                        <SearchableSelect
+                          options={brands?.map((brand) => ({
+                            label: brand.name,
+                            value: brand.id,
+                          })) || []}
+                          placeholder="Brend seçin"
+                          onChange={field.onChange}
+                          value={field.value as any}
+                          error={!!errors.brandId}
+                        />
+                      )}
+                    />
+                  </div>
                 </div>
 
                 <div className="">
@@ -553,6 +590,14 @@ export default function AddProduct() {
           </ComponentCard>
         </div>
       </div>
+
+      <QuickCreateBrandModal
+        isOpen={isBrandModalOpen}
+        onClose={() => setIsBrandModalOpen(false)}
+        onSuccess={(brandId) => {
+          setValue("brandId", brandId);
+        }}
+      />
     </>
   );
 }

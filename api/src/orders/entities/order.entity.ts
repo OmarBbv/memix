@@ -42,6 +42,9 @@ export class Order {
   @Column({ type: 'varchar', nullable: true })
   contactPhone: string;
 
+  @Column({ type: 'int', nullable: true })
+  branchId: number;
+
   @CreateDateColumn()
   createdAt: Date;
 

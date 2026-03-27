@@ -21,3 +21,10 @@ export const useDailySales = (days: number = 7) => {
     queryFn: () => analyticsService.getDailySales(days),
   });
 };
+
+export const useBranchPerformance = () => {
+  return useQuery({
+    queryKey: ['analytics', 'branch-performance'],
+    queryFn: () => analyticsService.getBranchPerformance(),
+  });
+};

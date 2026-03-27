@@ -13,6 +13,7 @@ export const productSchema = z.object({
   additionalFiles: z.any().optional(), // Digər şəkillər üçün fayllar
   images: z.array(z.string()).optional().default([]), // For existing image URLs if editing
   categoryId: z.coerce.number().optional(),
+  brandId: z.coerce.number().optional(),
   isFeatured: z.boolean().optional().default(false),
   tags: z.array(z.string()).optional().default([]),
   variants: z.record(z.string(), z.unknown()).optional().default({}),
