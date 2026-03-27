@@ -18,6 +18,10 @@ class UserService {
     const response = await axiosInstance.patch(`/users/${id}/toggle-status`);
     return response.data;
   }
+
+  async clearUserCart(id: number): Promise<void> {
+    await axiosInstance.delete(`/carts/admin/clear/${id}`);
+  }
 }
 
 export default new UserService();

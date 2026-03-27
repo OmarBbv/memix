@@ -26,3 +26,14 @@ export const useToggleUserStatus = () => {
     },
   });
 };
+
+export const useClearUserCart = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => userService.clearUserCart(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+  });
+};

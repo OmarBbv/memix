@@ -7,8 +7,8 @@ import {
   TableRow,
 } from "../../components/ui/table";
 import Badge from "../../components/ui/badge/Badge";
-import { useToggleUserStatus } from "../../hooks/useUsers";
-import { LockIcon, TaskIcon } from "../../icons";
+import { useToggleUserStatus, useClearUserCart } from "../../hooks/useUsers";
+import { LockIcon, TaskIcon, TrashBinIcon } from "../../icons";
 import { Link } from "react-router";
 
 interface UserTableProps {
@@ -17,6 +17,7 @@ interface UserTableProps {
 
 export default function UserTable({ users }: UserTableProps) {
   const toggleStatus = useToggleUserStatus();
+  const clearCart = useClearUserCart();
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/5 dark:bg-white/3">
@@ -135,6 +136,18 @@ export default function UserTable({ users }: UserTableProps) {
                     >
                       <TaskIcon className="size-4" />
                     </Link>
+                    <button
+                      onClick={() => {
+                        if (window.confirm("Bu istifadəçinin səbətini təmizləmək istədiyinizə əminsiniz?")) {
+                          clearCart.mutate(user.id);
+                        }
+                      }}
+                      disabled={clearCart.isPending}
+                      className="p-1.5 rounded-lg border border-gray-100 text-gray-500 hover:bg-orange-50 hover:text-orange-500 transition-colors dark:border-gray-800 dark:hover:bg-orange-500/10"
+                      title="Səbəti Təmizlə"
+                    >
+                      <TrashBinIcon className="size-4" />
+                    </button>
                   </div>
                 </TableCell>
               </TableRow>
