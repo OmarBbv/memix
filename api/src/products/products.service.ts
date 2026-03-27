@@ -117,15 +117,9 @@ export class ProductsService {
       await this.productStockRepository.save(stockEntities);
     }
 
-    await this.searchService.indexProduct(savedProduct);
-
-    return {
-      ...savedProduct,
-      banner: ensureFullUrl(savedProduct.banner),
-      images: Array.isArray(savedProduct.images)
-        ? savedProduct.images.map((img) => ensureFullUrl(img)).filter(Boolean)
-        : savedProduct.images,
-    };
+    const fullProduct = await this.findOne(savedProduct.id);
+    await this.searchService.indexProduct(fullProduct);
+    return fullProduct;
   }
 
   async findAll(query: any = {}) {
@@ -604,17 +598,9 @@ export class ProductsService {
       } as any);
 
       const updatedProduct = await this.productsRepository.save(product);
-      await this.searchService.indexProduct(updatedProduct);
-
-      return {
-        ...updatedProduct,
-        banner: ensureFullUrl(updatedProduct.banner),
-        images: Array.isArray(updatedProduct.images)
-          ? updatedProduct.images
-            .map((img) => ensureFullUrl(img))
-            .filter(Boolean)
-          : updatedProduct.images,
-      };
+      const fullProduct = await this.findOne(updatedProduct.id);
+      await this.searchService.indexProduct(fullProduct);
+      return fullProduct;
     } catch (error) {
       if (error.code === '23505') {
         if (error.detail?.includes('sku')) {
