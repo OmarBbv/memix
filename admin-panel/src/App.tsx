@@ -45,7 +45,7 @@ export default function App() {
     <>
       <Router basename="/admin">
         <ScrollToTop />
-        <Toaster position="top-right" />
+        <Toaster position="top-right" containerStyle={{ zIndex: 999999 }} />
         <Routes>
           {/* Dashboard Layout */}
           <Route element={<ProtectedRoute />}>

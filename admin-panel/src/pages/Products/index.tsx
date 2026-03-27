@@ -11,6 +11,7 @@ import { Product } from "../../types/product";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { useNavigate } from "react-router";
 import { Modal } from "../../components/ui/modal";
+import SearchInput from "../../components/common/SearchInput";
 import Label from "../../components/form/Label";
 import Input from "../../components/form/input/InputField";
 import Select from "../../components/form/Select";
@@ -32,8 +33,9 @@ type DiscountFormValues = z.infer<typeof discountSchema>;
 
 const Products: React.FC = () => {
   const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
-  const { data: productsData, isLoading } = useProducts({ page, limit: 10 });
+  const { data: productsData, isLoading } = useProducts({ page, limit: 10, search: searchTerm });
   const deleteMutation = useDeleteProduct();
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -59,6 +61,11 @@ const Products: React.FC = () => {
   const handleEdit = (product: Product) => navigate(`/products/edit/${product.id}`);
 
   const handleAdd = () => navigate("/products/create");
+
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
+    setPage(1);
+  };
 
   const openDeleteDialog = (id: number) => {
     setProductToDelete(id);
@@ -145,10 +152,15 @@ const Products: React.FC = () => {
       <PageBreadcrumb pageTitle="Məhsullar" />
 
       <div className="flex flex-col gap-6">
-        <div className="flex items-center justify-end">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <SearchInput
+            onSearch={handleSearch}
+            placeholder="Məhsulun adı, kodu və ya barkodu ilə axtar..."
+            className="w-full sm:max-w-md"
+          />
           <button
             onClick={handleAdd}
-            className="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-brand-600 active:scale-95"
+            className="flex items-center justify-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-brand-600 active:scale-95"
           >
             <PlusIcon className="size-5" />
             <span>Yeni Məhsul</span>

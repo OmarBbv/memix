@@ -43,7 +43,7 @@ export default function AddProduct() {
       stock: "" as any,
       sku: "",
       barcode: "",
-      gender: "Qadın",
+      gender: "",
       weight: "" as any,
       categoryId: undefined,
       isFeatured: false,
@@ -139,6 +139,7 @@ export default function AddProduct() {
 
     createProduct(formData as any, {
       onSuccess: () => {
+        toast.success("Məhsul uğurla yaradıldı");
         navigate("/products");
       },
       onError: (error: any) => {

@@ -5,7 +5,7 @@ export const productSchema = z.object({
   description: z.string().optional(),
   sku: z.string().optional().or(z.literal('')),
   barcode: z.string().optional().or(z.literal('')),
-  gender: z.string().optional().or(z.literal('')),
+  gender: z.string().nullish().or(z.literal('')),
   weight: z.coerce.number().optional().or(z.literal(0)),
   price: z.coerce.number().positive('Price must be a positive number'),
   stock: z.coerce.number().int().nonnegative('Stock must be a non-negative integer'),

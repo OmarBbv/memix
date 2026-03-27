@@ -17,11 +17,6 @@ interface ProductTableProps {
 }
 
 export default function ProductTable({ products, onEdit, onDelete, onDiscount }: ProductTableProps) {
-
-  const a = products.map(item => item.banner);
-
-  console.log(a)
-
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/5 dark:bg-white/3">
       <div className="max-w-full overflow-x-auto">

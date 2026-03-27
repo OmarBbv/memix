@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm, Controller, Resolver, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate, useParams } from "react-router";
+import toast from "react-hot-toast";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import ComponentCard from "../../components/common/ComponentCard";
 import Label from "../../components/form/Label";
@@ -49,7 +50,6 @@ export default function EditProduct() {
     name: "branchStocks",
   });
 
-  // Məhsul gələndə formu doldur
   useEffect(() => {
     if (product) {
       reset({
@@ -59,7 +59,7 @@ export default function EditProduct() {
         stock: product.stock,
         sku: product.sku || "",
         barcode: product.barcode || "",
-        gender: product.gender || "Qadın",
+        gender: product.gender || "",
         weight: product.weight || "" as any,
         categoryId: product.category?.id,
         isFeatured: product.isFeatured,
@@ -82,7 +82,6 @@ export default function EditProduct() {
   const variants = (watch("variants") || {}) as Record<string, string[]>;
   const categoryId = watch("categoryId");
 
-  // Get current category size type
   const currentCategory = categories?.find(c => c.id === categoryId);
   const sizeType = currentCategory?.sizeType as SizeType;
   const availableSizes = sizeType ? SIZE_OPTIONS[sizeType] : null;
@@ -158,11 +157,14 @@ export default function EditProduct() {
 
     updateProduct({ id: Number(id), data: formData as any }, {
       onSuccess: () => {
+        toast.success("Məhsul uğurla yeniləndi");
         navigate("/products");
       },
       onError: (error: any) => {
         console.error("Failed to update product", error);
-        alert("Xəta baş verdi: Məhsul yenilənə bilmədi.");
+        const serverError = error.response?.data?.message || "Məhsul yenilənə bilmədi (Network/Server xətası)";
+        const errorMsg = Array.isArray(serverError) ? serverError.join(" | ") : serverError;
+        toast.error(`Xəta: ${errorMsg}`);
       },
     });
   };
@@ -446,9 +448,9 @@ export default function EditProduct() {
                 <div>
                   <Label>Mövcud Digər Şəkillər</Label>
                   {existingImages.length > 0 ? (
-                    <div className="mb-4 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                    <div className="mb-4 flex flex-wrap items-center gap-4">
                       {existingImages.map((img, idx) => (
-                        <div key={idx} className="relative h-full overflow-hidden rounded-lg border border-gray-200">
+                        <div key={idx} className="relative h-full overflow-hidden rounded-lg border border-gray-200 max-h-52 max-w-36 ">
                           <img src={img} className="h-full w-full object-cover" alt={`Product ${idx}`} />
                           <button
                             type="button"

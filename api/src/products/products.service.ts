@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -75,7 +75,21 @@ export class ProductsService {
       price: Number(productData.price),
     } as any) as unknown as Product;
 
-    const savedProduct = await this.productsRepository.save(product);
+    let savedProduct: Product;
+    try {
+      savedProduct = await this.productsRepository.save(product);
+    } catch (error) {
+      if (error.code === "23505") {
+        if (error.detail?.includes("sku")) {
+          throw new ConflictException("Bu SKU (Məhsul Kodu) artıq istifadə olunub.");
+        }
+        if (error.detail?.includes("guid1c")) {
+          throw new ConflictException("Bu GUID artıq bazada mövcuddur.");
+        }
+        throw new ConflictException("Bu məlumat bazada təkrarlandığı üçün (Duplicate) qəbul edilmədi.");
+      }
+      throw error;
+    }
 
     // Handle Branch Stocks
     let parsedBranchStocks = branchStocks;
@@ -462,7 +476,6 @@ export class ProductsService {
         ...productData
       } = updateProductDto;
 
-      // Use specific findOne to avoid loading priceHistory relation which causes cascade delete issues
       const product = await this.productsRepository.findOne({
         where: { id },
         relations: ['category', 'discount', 'stocks', 'stocks.branch'],
@@ -570,8 +583,8 @@ export class ProductsService {
         await this.productStockRepository.save(stockEntities);
       }
 
-      // Clear stale stocks from the product object to prevent TypeORM from trying to save them
-      product.stocks = [];
+      // Remove stocks from product object so TypeORM doesn't cascade-null the productId column
+      delete (product as any).stocks;
       // product.priceHistory is not loaded, so it remains undefined, which is what we want.
 
       this.productsRepository.merge(product, {
@@ -596,8 +609,19 @@ export class ProductsService {
             .filter(Boolean)
           : updatedProduct.images,
       };
-    } catch (e) {
-      throw new NotFoundException(`UPDATE ERROR: ${e.message}`);
+    } catch (error) {
+      if (error.code === '23505') {
+        if (error.detail?.includes('sku')) {
+          throw new ConflictException('Bu SKU (Məhsul Kodu) artıq istifadə olunub.');
+        }
+        if (error.detail?.includes('guid1c')) {
+          throw new ConflictException('Bu GUID artıq bazada mövcuddur.');
+        }
+        throw new ConflictException(
+          'Bu məlumat bazada təkrarlandığı üçün (Duplicate) qəbul edilmədi.',
+        );
+      }
+      throw error;
     }
   }
 
