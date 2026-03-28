@@ -96,7 +96,7 @@ export const Card = ({ className, index = 0, category, product: propProduct }: C
               fill
               unoptimized
               sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-              className="object-cover transition-transform duration-500"
+              className="object-cover"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-gray-200 text-gray-400">

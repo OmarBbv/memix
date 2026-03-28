@@ -121,10 +121,10 @@ export const ImageGallery = ({ allImages, productName, isLiked, onToggleWishlist
           </Swiper>
 
           {/* Custom Navigation Buttons (Desktop Only) */}
-          <button className="custom-prev-button hidden lg:flex absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-white hover:scale-110 disabled:opacity-0 disabled:cursor-not-allowed">
+          <button className="custom-prev-button hidden lg:flex absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-white disabled:opacity-0 disabled:cursor-not-allowed">
             <ChevronLeft className="w-6 h-6 text-gray-800" />
           </button>
-          <button className="custom-next-button hidden lg:flex absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-white hover:scale-110 disabled:opacity-0 disabled:cursor-not-allowed">
+          <button className="custom-next-button hidden lg:flex absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-white disabled:opacity-0 disabled:cursor-not-allowed">
             <ChevronRight className="w-6 h-6 text-gray-800" />
           </button>
 
@@ -132,13 +132,13 @@ export const ImageGallery = ({ allImages, productName, isLiked, onToggleWishlist
           <div className="absolute top-4 right-4 flex flex-col gap-3 z-10">
             <button
               onClick={onToggleWishlist}
-              className="p-3 bg-white/80 backdrop-blur-sm rounded-full shadow-lg hover:scale-110 transition-transform active:scale-95"
+              className="p-3 bg-white/80 backdrop-blur-sm rounded-full shadow-lg transition-all hover:bg-white text-gray-700"
             >
               <Heart
                 className={cn("w-6 h-6", isLiked ? "fill-red-500 text-red-500" : "text-gray-700")}
               />
             </button>
-            <button className="p-3 bg-white/80 backdrop-blur-sm rounded-full shadow-lg hover:scale-110 transition-transform active:scale-95 text-gray-700">
+            <button className="p-3 bg-white/80 backdrop-blur-sm rounded-full shadow-lg transition-all hover:bg-white text-gray-700">
               <Share2 className="w-6 h-6" />
             </button>
           </div>

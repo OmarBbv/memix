@@ -1,6 +1,14 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { cartService } from '@/services/cart.service';
 import { toast } from 'sonner';
+import { baseUrl } from '@/lib/httpClient';
+
+const getFullImageUrl = (img: string) => {
+  if (!img) return '';
+  if (img.startsWith('http')) return img;
+  const normalizedPath = img.startsWith('/') ? img : `/${img}`;
+  return `${baseUrl}${normalizedPath}`;
+};
 
 export interface CartItem {
   id: string | number;
@@ -41,7 +49,7 @@ export const fetchCart = createAsyncThunk(
         productId: item.productId,
         title: item.product.name,
         price: item.product.price,
-        image: item.product.images[0],
+        image: getFullImageUrl(item.product.banner || (item.product.images?.length > 0 ? item.product.images[0] : '')),
         size: item.variants?.size || '',
         color: item.variants?.color || '',
         quantity: item.quantity,

@@ -14,6 +14,7 @@ export interface CartItem {
       isActive: boolean;
     };
     images: string[];
+    banner?: string;
   };
 }
 

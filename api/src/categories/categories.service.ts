@@ -337,6 +337,10 @@ export class CategoriesService {
           `(product.variants->>'size' IN (:...valArr_${key}) OR stocks.size IN (:...valArr_${key}))`,
           { [`valArr_${key}`]: values },
         );
+      } else if (key === 'brand') {
+        const brands = values.map((brand: string) => brand.trim());
+        qb = qb.leftJoin('product.brand', 'brandRel')
+               .andWhere('brandRel.name IN (:...brands)', { brands });
       } else {
         const conditions = values.map(
           (v, i) =>
@@ -464,7 +468,7 @@ export class CategoriesService {
       .getRepository(Product)
       .find({
         where: { category: { id: In(categoryIds) } },
-        relations: ['stocks', 'colorVariants'],
+        relations: ['stocks', 'colorVariants', 'brand'],
       });
 
     if (!products || products.length === 0) {
@@ -477,6 +481,12 @@ export class CategoriesService {
     const dynamicFilters: Record<string, any[]> = {};
 
     products.forEach((product) => {
+      // Extract Brand
+      if (product.brand && product.brand.name) {
+        if (!dynamicFilters['brand']) dynamicFilters['brand'] = [];
+        dynamicFilters['brand'].push(product.brand.name);
+      }
+
       // Extract from variants JSON
       if (product.variants && typeof product.variants === 'object') {
         Object.entries(product.variants).forEach(([key, value]) => {

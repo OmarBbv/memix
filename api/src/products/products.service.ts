@@ -178,7 +178,7 @@ export class ProductsService {
           const brands = Array.isArray(query.brand)
             ? query.brand
             : query.brand.split(',').map((b: string) => b.trim());
-          fetchQb.andWhere(`brand.id IN (:...brands)`, {
+          fetchQb.andWhere(`brand.name IN (:...brands)`, {
             brands,
           });
         }
@@ -250,7 +250,7 @@ export class ProductsService {
         const brands = Array.isArray(query.brand)
           ? query.brand
           : query.brand.split(',').map((b: string) => b.trim());
-        qb.andWhere(`brand.id IN (:...brands)`, { brands });
+        qb.andWhere(`brand.name IN (:...brands)`, { brands });
       }
 
       if (query.color) {
@@ -322,12 +322,14 @@ export class ProductsService {
           .whereInIds(productIds)
           .leftJoinAndSelect('product.stocks', 'stocks')
           .leftJoinAndSelect('product.colorVariants', 'colorVariants')
+          .leftJoinAndSelect('product.brand', 'brand')
           .getMany();
       }
     } else {
       const qb = this.productsRepository.createQueryBuilder('product');
       qb.leftJoinAndSelect('product.stocks', 'stocks');
       qb.leftJoinAndSelect('product.colorVariants', 'colorVariants');
+      qb.leftJoinAndSelect('product.brand', 'brand');
 
       if (query.categoryId) {
         qb.leftJoin('product.category', 'category');
@@ -348,6 +350,12 @@ export class ProductsService {
     const dynamicFilters: Record<string, any[]> = {};
 
     products.forEach((product) => {
+      // Extract Brand
+      if (product.brand && product.brand.name) {
+        if (!dynamicFilters['brand']) dynamicFilters['brand'] = [];
+        dynamicFilters['brand'].push(product.brand.name);
+      }
+
       // Extract from variants JSON
       if (product.variants && typeof product.variants === 'object') {
         Object.entries(product.variants).forEach(([key, value]) => {

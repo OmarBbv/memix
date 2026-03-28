@@ -11,7 +11,8 @@ import {
   Star,
   Truck,
   MapPin,
-  Heart
+  Heart,
+  Info
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Breadcrumb } from '@/components/shared/Breadcrumb';
@@ -74,7 +75,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
   // Available Colors
   const availableColors = product.colorVariants.map((cv: any) => cv.color) || [];
-  
+
   // Selected Variant
   const selectedVariant = product.colorVariants.find((cv: any) => cv.color === selectedColor) || product.colorVariants[0];
 
@@ -93,9 +94,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const productName = product.name || '';
   const tags = product.tags || [];
 
-  const totalStock = product.colorVariants.reduce((acc: number, cv: any) => 
+  const totalStock = product.colorVariants.reduce((acc: number, cv: any) =>
     acc + (cv.stocks?.reduce((sAcc: number, s: any) => sAcc + s.stock, 0) || 0)
-  , 0);
+    , 0);
   const isOutOfStock = totalStock <= 0;
 
   const getSizeStock = (size: string): number => {
@@ -139,19 +140,13 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           <div className="lg:col-span-6 flex flex-col gap-6 lg:pl-4">
             <div className="space-y-4">
               <div className="flex flex-col gap-1">
-                <h1 className="text-2xl lg:text-3xl font-black text-gray-900 tracking-tight leading-tight">
-                  {brand && <span className="text-brand-500 mr-2 uppercase">{brand}</span>}
-                  {productName}
+                <h1 className="text-xl lg:text-2xl text-gray-900 tracking-tight leading-tight">
+                  <span className="font-bold mr-2">{brand}</span>
+                  <span className="font-normal">{productName}</span>
                 </h1>
               </div>
 
-              <div className="flex items-center gap-6">
-                <div className="flex items-center gap-2 text-[11px] font-bold text-gray-400 uppercase tracking-widest bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100">
-                  <MapPin className="w-3.5 h-3.5" />
-                  <span>Stokda: {totalStock} ədəd</span>
-                </div>
-              </div>
-
+              {/* Price Section */}
               <div className="pt-2">
                 <div className="flex items-baseline gap-4">
                   <span className="text-4xl font-black text-gray-900 tracking-tighter">
@@ -169,22 +164,27 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   )}
                 </div>
               </div>
+
+              {totalStock > 0 && totalStock <= 5 && (
+                <div className="flex items-center gap-2 text-xs font-bold text-red-500 uppercase tracking-widest bg-red-50 px-3 py-1.5 rounded-full border border-red-100 w-fit">
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Son {totalStock} məhsul!</span>
+                </div>
+              )}
             </div>
-
-
             <div className="h-px bg-zinc-100" />
 
             {/* Seçimlər Bölməsi */}
             <div className="space-y-8 py-8 border-y border-gray-100">
-              {/* Rəng Seçimi */}
               {availableColors.length > 0 && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-[11px] font-black tracking-[0.2em] text-gray-400 uppercase">
-                      Rəng: <span className="text-gray-900 ml-2">{selectedColor || selectedVariant?.color || 'Seçin'}</span>
+                    <h3 className="text-xs font-bold text-gray-900 group">
+                      Rəng: <span className="text-gray-500 font-normal ml-1">{selectedColor || selectedVariant?.color || 'Seçin'}</span>
+                      <Info className="inline-block w-3.5 h-3.5 ml-1.5 text-gray-400 cursor-help" />
                     </h3>
                   </div>
-                  <div className="flex flex-wrap gap-3">
+                  <div className="flex flex-wrap gap-2.5">
                     {product.colorVariants.map((cv: any) => {
                       const variantStock = cv.stocks?.reduce((acc: number, s: any) => acc + s.stock, 0) || 0;
                       const isOut = variantStock <= 0;
@@ -202,19 +202,21 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                           }}
                           disabled={isOut}
                           className={cn(
-                            "group relative w-16 h-20 rounded-xl border-2 transition-all duration-300",
-                            isSelected 
-                              ? "border-brand-500 shadow-xl shadow-brand-500/10 scale-105" 
-                              : "border-gray-100 hover:border-gray-300 hover:scale-102"
+                            "group relative w-16 h-20 rounded-lg border-2 transition-all duration-300 p-0.5",
+                            isSelected
+                              ? "border-orange-500 shadow-md z-10"
+                              : "border-gray-100 hover:border-gray-300"
                           )}
                         >
-                          {thumb ? (
-                            <img src={getImageUrl(thumb)} className="w-full h-full object-cover rounded-lg" alt={cv.color} />
-                          ) : (
-                            <div className="w-full h-full bg-gray-50 flex items-center justify-center text-[9px] text-gray-500 px-1 text-center font-black uppercase">
-                              {cv.color}
-                            </div>
-                          )}
+                          <div className="w-full h-full rounded-md overflow-hidden bg-gray-50">
+                            {thumb ? (
+                              <img src={getImageUrl(thumb)} className="w-full h-full object-cover" alt={cv.color} />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-[9px] text-gray-500 px-1 text-center font-black uppercase">
+                                {cv.color}
+                              </div>
+                            )}
+                          </div>
                           {isOut && (
                             <div className="absolute inset-0 bg-white/40 flex items-center justify-center backdrop-blur-[1px]">
                               <div className="w-full h-0.5 bg-red-400/50 -rotate-45" />
@@ -249,15 +251,20 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                         onClick={() => !isSizeOut && setSelectedSize(size)}
                         disabled={isSizeOut}
                         className={cn(
-                          "min-w-[64px] h-12 flex items-center justify-center rounded-xl border-2 text-xs font-black transition-all duration-300",
+                          "min-w-[70px] h-14 flex flex-col items-center justify-center rounded-xl border-2 transition-all duration-300",
                           isSizeOut
                             ? "border-gray-50 bg-gray-50 text-gray-300 cursor-not-allowed opacity-50"
                             : isSelected
-                              ? "border-brand-500 text-brand-500 bg-brand-50/30 shadow-lg shadow-brand-500/5 scale-105"
+                              ? "border-gray-900 text-gray-900 bg-gray-50 shadow-md z-10"
                               : "border-gray-100 text-gray-700 hover:border-gray-900 hover:bg-gray-50"
                         )}
                       >
-                        {getSizeLabel(categorySizeType, size)}
+                        <span className="text-xs font-black">{getSizeLabel(categorySizeType, size)}</span>
+                        {!isSizeOut && (
+                          <span className="text-[9px] font-bold text-gray-400 mt-0.5 uppercase tracking-tighter">
+                            {sizeStock} ədəd
+                          </span>
+                        )}
                       </button>
                     );
                   })}
@@ -265,30 +272,19 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               </div>
             </div>
 
-            <div className="flex items-center gap-4 pt-4">
+            <div className="pt-4">
               <Button
                 disabled={isOutOfStock || !selectedSize || (!!selectedSize && getSizeStock(selectedSize) <= 0)}
                 onClick={handleAddToCart}
                 className={cn(
-                  "flex-1 h-16 text-md font-black rounded-2xl transition-all shadow-2xl shadow-brand-500/10 uppercase tracking-widest",
-                  isOutOfStock 
-                    ? "bg-gray-100 text-gray-400 cursor-not-allowed" 
-                    : "bg-gray-900 hover:bg-black text-white active:scale-95"
+                  "w-full h-14 text-sm font-black rounded-2xl transition-all shadow-xl shadow-brand-100 uppercase tracking-widest",
+                  isOutOfStock
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    : "bg-gray-900 hover:bg-black text-white"
                 )}
               >
                 {isOutOfStock ? "Tükəndi" : "Səbətə Əlavə Et"}
               </Button>
-              <button
-                onClick={() => toggleWishlist(Number(id))}
-                className={cn(
-                  "w-16 h-16 flex items-center justify-center rounded-2xl border-2 transition-all duration-300",
-                  isLiked 
-                    ? "border-red-500 bg-red-50 text-red-500 shadow-lg shadow-red-500/5 rotate-12" 
-                    : "border-gray-100 hover:border-gray-900 text-gray-400"
-                )}
-              >
-                <Heart className={cn("w-7 h-7 transition-transform", isLiked && "fill-current animate-pulse")} />
-              </button>
             </div>
 
             <div className="space-y-6 pt-10">
@@ -299,7 +295,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 </p>
                 <div className="flex flex-wrap gap-3 pt-2">
                   {tags.map((tag: string, idx: number) => (
-                    <span key={`${tag}-${idx}`} className="px-3 py-1.5 bg-gray-50 border border-gray-100 rounded-lg text-[10px] font-black text-gray-400 hover:text-brand-500 cursor-pointer transition-all hover:-translate-y-0.5 uppercase tracking-tighter">
+                    <span key={`${tag}-${idx}`} className="px-3 py-1.5 bg-gray-50 border border-gray-100 rounded-lg text-[10px] font-black text-gray-400 hover:text-brand-500 cursor-pointer transition-all uppercase tracking-tighter">
                       #{tag}
                     </span>
                   ))}

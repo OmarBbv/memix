@@ -99,20 +99,20 @@ export class AnalyticsService {
       .leftJoin('item.product', 'product')
       .select('product.id', 'productId')
       .addSelect('product.name', 'productName')
-      .addSelect('SUM(item.quantity)', 'totalSold')
-      .addSelect('SUM(item.quantity * item.price)', 'totalRevenue')
+      .addSelect('SUM(item.quantity)', 'total_sold')
+      .addSelect('SUM(item.quantity * item.price)', 'total_revenue')
       .where('order.status = :status', { status: OrderStatus.DELIVERED })
       .groupBy('product.id')
       .addGroupBy('product.name')
-      .orderBy('totalSold', 'DESC')
+      .orderBy('total_sold', 'DESC')
       .limit(limit)
       .getRawMany();
 
     return result.map((item) => ({
       productId: item.productId,
       productName: item.productName,
-      totalSold: parseInt(item.totalSold),
-      totalRevenue: parseFloat(item.totalRevenue),
+      totalSold: parseInt(item.total_sold),
+      totalRevenue: parseFloat(item.total_revenue),
     }));
   }
 
