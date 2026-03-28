@@ -9,7 +9,6 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ProductsModule } from './products/products.module';
 import { CategoriesModule } from './categories/categories.module';
-import { BranchesModule } from './branches/branches.module';
 
 import { UploadsController } from './common/uploads.controller';
 import { CartsModule } from './carts/carts.module';
@@ -28,6 +27,7 @@ import { BrandsModule } from './brands/brands.module';
 import { CampaignsModule } from './campaigns/campaigns.module';
 import { PromotionsModule } from './promotions/promotions.module';
 import { IntegrationsModule } from './integrations/integrations.module';
+import { AttributesModule } from './attributes/attributes.module';
 
 @Module({
   imports: [
@@ -40,7 +40,6 @@ import { IntegrationsModule } from './integrations/integrations.module';
     AuthModule,
     ProductsModule,
     CategoriesModule,
-    BranchesModule,
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'uploads'),
       serveRoot: '/uploads',
@@ -61,6 +60,7 @@ import { IntegrationsModule } from './integrations/integrations.module';
     CampaignsModule,
     PromotionsModule,
     IntegrationsModule,
+    AttributesModule,
   ],
   controllers: [UploadsController],
   providers: [],

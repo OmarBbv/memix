@@ -3,7 +3,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import { Heart, Info, Store } from 'lucide-react';
+import { Heart, Info } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { useAppDispatch, useAppSelector } from '@/lib/redux/hooks';
 // import { toggleWishlist } from '@/lib/redux/features/wishlistSlice';
@@ -22,7 +22,6 @@ export const Card = ({ className, index = 0, category, product: propProduct }: C
   /* const dispatch = useAppDispatch();
   const wishlistItems = useAppSelector((state) => state.wishlist.items); */
   const { isInWishlist, toggleWishlist } = useWishlist();
-
   const productData = propProduct;
 
   if (!productData) return null;
@@ -30,7 +29,8 @@ export const Card = ({ className, index = 0, category, product: propProduct }: C
   const { id, discount, priceHistory } = productData;
   const title = productData.title || productData.name || '';
   const imageSrc = productData.image || productData.banner || '';
-  const brand = productData.variants?.brand || productData.brand || '';
+  const brandValue = productData.variants?.brand || productData.brand || '';
+  const brand = (brandValue && typeof brandValue === 'object') ? (brandValue as any).name : brandValue;
 
   const basePrice = typeof productData.price === 'string' ? parseFloat(productData.price) : productData.price;
 
@@ -197,13 +197,14 @@ export const Card = ({ className, index = 0, category, product: propProduct }: C
             )}
           </div>
           <div className="flex flex-col items-start sm:items-end shrink-0">
-            <span className="text-[10px] sm:text-xs font-semibold text-gray-900">{brand}</span>
+
             <span className="text-[9px] sm:text-[10px] text-gray-500">{condition}</span>
           </div>
         </div>
 
         <Link href={`/product/${id}`} className="block">
           <p className="text-xs sm:text-sm text-gray-700 line-clamp-1 font-medium group-hover:text-black transition-colors">
+            {brand && <span className="font-bold text-black mr-1">{brand}</span>}
             {title}
           </p>
         </Link>
@@ -216,17 +217,6 @@ export const Card = ({ className, index = 0, category, product: propProduct }: C
             </>
           )}
           {city && <span className="text-[9px] sm:text-[10px] text-gray-500">{city}</span>}
-          {productObj.stocks && productObj.stocks.length > 0 && (
-            <div className="flex items-center gap-1 text-gray-500">
-              <Store className="h-3 w-3" />
-              <span className="text-[9px] sm:text-[10px] line-clamp-1">
-                {productObj.stocks
-                  .filter((s) => s.stock > 0 && s.branch)
-                  .map((s) => s.branch?.name)
-                  .join(", ")}
-              </span>
-            </div>
-          )}
         </div>
       </div>
     </div>

@@ -132,7 +132,7 @@ export class CategoriesService {
 
     const categories = await this.categoriesRepository.find({
       where,
-      relations: ['parent', 'products'],
+      relations: ['parent', 'products', 'attributes', 'attributes.options'],
       order: { order: 'ASC', id: 'ASC' },
     });
     return categories.map((cat) => ({
@@ -279,7 +279,6 @@ export class CategoriesService {
       .leftJoinAndSelect('product.category', 'category')
       .leftJoinAndSelect('product.discount', 'discount')
       .leftJoinAndSelect('product.stocks', 'stocks')
-      .leftJoinAndSelect('stocks.branch', 'branch')
       .where('product.categoryId IN (:...categoryIds)', { categoryIds })
       .orderBy('product.createdAt', 'DESC');
 
@@ -462,7 +461,7 @@ export class CategoriesService {
       .getRepository(Product)
       .find({
         where: { category: { id: In(categoryIds) } },
-        relations: ['stocks'],
+        relations: ['stocks', 'colorVariants'],
       });
 
     if (!products || products.length === 0) {
@@ -494,13 +493,19 @@ export class CategoriesService {
         });
       }
 
+      // Extract from ProductColorVariant
+      if (product.colorVariants && Array.isArray(product.colorVariants)) {
+        product.colorVariants.forEach((cv) => {
+          if (cv.color) {
+            if (!dynamicFilters['color']) dynamicFilters['color'] = [];
+            dynamicFilters['color'].push(cv.color);
+          }
+        });
+      }
+
       // Extract from ProductStock (Trendyol model)
       if (product.stocks && Array.isArray(product.stocks)) {
         product.stocks.forEach((stock) => {
-          if (stock.color) {
-            if (!dynamicFilters['color']) dynamicFilters['color'] = [];
-            dynamicFilters['color'].push(stock.color);
-          }
           if (stock.size) {
             if (!dynamicFilters['size']) dynamicFilters['size'] = [];
             dynamicFilters['size'].push(stock.size);

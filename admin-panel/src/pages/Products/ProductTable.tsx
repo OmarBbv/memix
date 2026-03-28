@@ -30,6 +30,9 @@ export default function ProductTable({ products, onEdit, onDelete, onDiscount }:
                 Kateqoriya
               </TableCell>
               <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                Brend
+              </TableCell>
+              <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                 Qiymət
               </TableCell>
               <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
@@ -62,11 +65,6 @@ export default function ProductTable({ products, onEdit, onDelete, onDiscount }:
                       <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
                         {product.name}
                       </span>
-                      {product.brand && (
-                        <span className="block text-brand-500 font-bold text-[10px] uppercase">
-                          {product.brand.name}
-                        </span>
-                      )}
                       <span className="block text-gray-500 text-theme-xs dark:text-gray-400">
                         ID: #{product.id}
                       </span>
@@ -75,6 +73,15 @@ export default function ProductTable({ products, onEdit, onDelete, onDiscount }:
                 </TableCell>
                 <TableCell className="px-5 py-4 text-start text-gray-500 text-theme-sm dark:text-gray-400">
                   {product.category?.name || "Yoxdur"}
+                </TableCell>
+                <TableCell className="px-5 py-4 text-start text-gray-500 text-theme-sm dark:text-gray-400">
+                  {product.brand ? (
+                    <Badge size="sm" color="light">
+                      {product.brand.name}
+                    </Badge>
+                  ) : (
+                    "Yoxdur"
+                  )}
                 </TableCell>
                 <TableCell className="px-5 py-4 text-start font-medium text-gray-800 text-theme-sm dark:text-white/90">
                   <div className="flex flex-col">

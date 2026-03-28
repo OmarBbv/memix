@@ -8,7 +8,7 @@ import { Repository } from 'typeorm';
 import { Cart } from './entities/cart.entity';
 import { CartItem } from './entities/cart-item.entity';
 import { Product } from '../products/entities/product.entity';
-import { ProductStock } from '../branches/entities/product-stock.entity';
+import { ProductStock } from '../products/entities/product-stock.entity';
 
 @Injectable()
 export class CartsService {
@@ -75,7 +75,7 @@ export class CartsService {
     // 1. Rəng + Ölçü
     if (itemColor && itemSize) {
       stockEntity = await this.productStockRepository.findOne({
-        where: { productId, size: itemSize, color: itemColor },
+        where: { productId, size: itemSize, colorVariant: { color: itemColor } },
       });
     }
 
@@ -89,7 +89,7 @@ export class CartsService {
     // 3. Yalnız Rəng
     if (!stockEntity && itemColor) {
       stockEntity = await this.productStockRepository.findOne({
-        where: { productId, color: itemColor },
+        where: { productId, colorVariant: { color: itemColor } },
       });
     }
 

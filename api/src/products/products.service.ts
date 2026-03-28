@@ -8,7 +8,8 @@ import { ErrorMessages } from '../common/constants/error-messages';
 import { SearchService } from '../search/search.service';
 import { ensureFullUrl } from '../common/utils/file-url.util';
 import { PriceHistory } from './entities/price-history.entity';
-import { ProductStock } from '../branches/entities/product-stock.entity';
+import { ProductStock } from './entities/product-stock.entity';
+import { ProductColorVariant } from './entities/product-color-variant.entity';
 
 @Injectable()
 export class ProductsService {
@@ -19,32 +20,31 @@ export class ProductsService {
     private priceHistoryRepository: Repository<PriceHistory>,
     @InjectRepository(ProductStock)
     private productStockRepository: Repository<ProductStock>,
+    @InjectRepository(ProductColorVariant)
+    private productColorVariantRepository: Repository<ProductColorVariant>,
     private readonly searchService: SearchService,
   ) { }
 
   async create(
-    createProductDto: CreateProductDto,
-    files?: {
-      banner?: Express.Multer.File[];
-      images?: Express.Multer.File[];
-    },
+    createProductDto: any,
+    files?: Express.Multer.File[],
   ) {
-    const { categoryId, brandId, variants, tags, branchStocks, ...productData } =
+    const { categoryId, brandId, variants, tags, colorVariants, ...productData } =
       createProductDto;
 
     const appUrl = process.env.APP_URL || 'http://localhost:4444';
 
     let bannerUrl: string | null = null;
-    if (files?.banner && files.banner.length > 0) {
-      bannerUrl = `${appUrl}/uploads/${files.banner[0].filename}`;
+    const bannerFile = files?.find(f => f.fieldname === 'banner');
+    if (bannerFile) {
+      bannerUrl = `${appUrl}/uploads/${bannerFile.filename}`;
     }
 
     const imageUrls: string[] = [];
-    if (files?.images) {
-      files.images.forEach((file) => {
-        imageUrls.push(`${appUrl}/uploads/${file.filename}`);
-      });
-    }
+    const generalImages = files?.filter(f => f.fieldname === 'images') || [];
+    generalImages.forEach((file) => {
+      imageUrls.push(`${appUrl}/uploads/${file.filename}`);
+    });
 
     let parsedVariants = variants;
     if (typeof variants === 'string') {
@@ -92,29 +92,42 @@ export class ProductsService {
       throw error;
     }
 
-    // Handle Branch Stocks
-    let parsedBranchStocks = branchStocks;
-    if (typeof branchStocks === 'string') {
+    // Handle Color-based Variants & Stocks (Sustainable Version)
+    let parsedColorVariants = colorVariants;
+    if (typeof colorVariants === 'string') {
       try {
-        parsedBranchStocks = JSON.parse(branchStocks);
+        parsedColorVariants = JSON.parse(colorVariants);
       } catch (e) {
-        parsedBranchStocks = [];
+        parsedColorVariants = [];
       }
     }
 
-    if (Array.isArray(parsedBranchStocks)) {
-      const stockEntities = parsedBranchStocks.map((bs) =>
-        this.productStockRepository.create({
-          product: { id: savedProduct.id } as any,
-          productId: savedProduct.id,
-          branch: { id: Number(bs.branchId) } as any,
-          branchId: Number(bs.branchId),
-          stock: Number(bs.stock) || 0,
-          size: bs.size || undefined,
-          color: bs.color || undefined,
-        }),
-      );
-      await this.productStockRepository.save(stockEntities);
+    if (Array.isArray(parsedColorVariants)) {
+      for (const [vIndex, cv] of parsedColorVariants.entries()) {
+        const variantImages = files
+          ?.filter(f => f.fieldname === `variantImages_${vIndex}`)
+          .map(f => `${appUrl}/uploads/${f.filename}`) || [];
+
+        const colorVariant = await this.productColorVariantRepository.save(
+          this.productColorVariantRepository.create({
+            productId: savedProduct.id,
+            color: cv.color,
+            images: variantImages,
+          })
+        );
+
+        if (Array.isArray(cv.stocks)) {
+          const stockEntities = cv.stocks.map((s: any) => 
+            this.productStockRepository.create({
+              productId: savedProduct.id,
+              colorVariantId: colorVariant.id,
+              size: s.size,
+              stock: Number(s.stock) || 0,
+            })
+          );
+          await this.productStockRepository.save(stockEntities);
+        }
+      }
     }
 
     const fullProduct = await this.findOne(savedProduct.id);
@@ -148,8 +161,8 @@ export class ProductsService {
           .leftJoinAndSelect('product.brand', 'brand')
           .leftJoinAndSelect('product.discount', 'discount')
           .leftJoinAndSelect('product.priceHistory', 'priceHistory')
-          .leftJoinAndSelect('product.stocks', 'stocks')
-          .leftJoinAndSelect('stocks.branch', 'branch');
+          .leftJoinAndSelect('product.colorVariants', 'colorVariants')
+          .leftJoinAndSelect('colorVariants.stocks', 'stocks');
 
         if (query.minPrice) {
           fetchQb.andWhere('product.price >= :minPrice', {
@@ -174,7 +187,7 @@ export class ProductsService {
             ? query.color
             : query.color.split(',').map((c: string) => c.trim());
           fetchQb.andWhere(
-            `(product.variants ->> 'color' IN (:...colors) OR stocks.color IN (:...colors))`,
+            `(product.variants ->> 'color' IN (:...colors) OR colorVariants.color IN (:...colors))`,
             { colors },
           );
         }
@@ -215,8 +228,8 @@ export class ProductsService {
 
       qb.leftJoinAndSelect('product.category', 'category');
       qb.leftJoinAndSelect('product.brand', 'brand');
-      qb.leftJoinAndSelect('product.stocks', 'stocks');
-      qb.leftJoinAndSelect('stocks.branch', 'branch');
+      qb.leftJoinAndSelect('product.colorVariants', 'colorVariants');
+      qb.leftJoinAndSelect('colorVariants.stocks', 'stocks');
       qb.leftJoinAndSelect('product.discount', 'discount');
       qb.leftJoinAndSelect('product.priceHistory', 'priceHistory');
 
@@ -245,7 +258,7 @@ export class ProductsService {
           ? query.color
           : query.color.split(',').map((c: string) => c.trim());
         qb.andWhere(
-          `(product.variants ->> 'color' IN (:...colors) OR stocks.color IN (:...colors))`,
+          `(product.variants ->> 'color' IN (:...colors) OR colorVariants.color IN (:...colors))`,
           { colors },
         );
       }
@@ -278,13 +291,7 @@ export class ProductsService {
       products = await qb.getMany();
     }
 
-    const mappedProducts = products.map((product) => ({
-      ...product,
-      banner: ensureFullUrl(product.banner),
-      images: Array.isArray(product.images)
-        ? product.images.map((img) => ensureFullUrl(img)).filter(Boolean)
-        : product.images,
-    }));
+    const mappedProducts = products.map((product) => this.mapProduct(product));
 
     const totalPages = Math.ceil(total / limit);
 
@@ -314,11 +321,13 @@ export class ProductsService {
           .createQueryBuilder('product')
           .whereInIds(productIds)
           .leftJoinAndSelect('product.stocks', 'stocks')
+          .leftJoinAndSelect('product.colorVariants', 'colorVariants')
           .getMany();
       }
     } else {
       const qb = this.productsRepository.createQueryBuilder('product');
       qb.leftJoinAndSelect('product.stocks', 'stocks');
+      qb.leftJoinAndSelect('product.colorVariants', 'colorVariants');
 
       if (query.categoryId) {
         qb.leftJoin('product.category', 'category');
@@ -358,13 +367,19 @@ export class ProductsService {
         });
       }
 
+      // Extract from ProductColorVariant
+      if (product.colorVariants && Array.isArray(product.colorVariants)) {
+        product.colorVariants.forEach((cv) => {
+          if (cv.color) {
+            if (!dynamicFilters['color']) dynamicFilters['color'] = [];
+            dynamicFilters['color'].push(cv.color);
+          }
+        });
+      }
+
       // Extract from ProductStock (Trendyol model)
       if (product.stocks && Array.isArray(product.stocks)) {
         product.stocks.forEach((stock) => {
-          if (stock.color) {
-            if (!dynamicFilters['color']) dynamicFilters['color'] = [];
-            dynamicFilters['color'].push(stock.color);
-          }
           if (stock.size) {
             if (!dynamicFilters['size']) dynamicFilters['size'] = [];
             dynamicFilters['size'].push(stock.size);
@@ -408,18 +423,12 @@ export class ProductsService {
 
   async findNewArrivals(limit: number = 8) {
     const products = await this.productsRepository.find({
-      relations: ['category', 'brand', 'discount', 'priceHistory'],
+      relations: ['category', 'brand', 'discount', 'priceHistory', 'colorVariants', 'colorVariants.stocks'],
       order: { createdAt: 'DESC' },
       take: limit,
     });
 
-    return products.map((product) => ({
-      ...product,
-      banner: ensureFullUrl(product.banner),
-      images: Array.isArray(product.images)
-        ? product.images.map((img) => ensureFullUrl(img)).filter(Boolean)
-        : product.images,
-    }));
+    return products.map((product) => this.mapProduct(product));
   }
 
   async findOne(id: number) {
@@ -428,10 +437,9 @@ export class ProductsService {
       relations: [
         'category',
         'brand',
-        'discount',
         'priceHistory',
-        'stocks',
-        'stocks.branch',
+        'colorVariants',
+        'colorVariants.stocks',
       ],
       order: {
         priceHistory: {
@@ -444,43 +452,64 @@ export class ProductsService {
       throw new NotFoundException(ErrorMessages.PRODUCT_NOT_FOUND);
     }
 
+    return this.mapProduct(product);
+  }
+
+  private mapProduct(product: Product) {
+    const colorVariants = product.colorVariants?.map(cv => ({
+      ...cv,
+      images: Array.isArray(cv.images) ? cv.images.map(img => ensureFullUrl(img)) : [],
+      stocks: cv.stocks?.map(s => ({
+        ...s,
+      }))
+    })) || [];
+
+    // Flat stocks for some frontend parts that might still expect it
+    const allStocks = colorVariants.flatMap(cv => 
+      (cv.stocks || []).map(s => ({
+        ...s,
+        color: cv.color,
+        images: cv.images
+      }))
+    );
+
     return {
       ...product,
+      colorVariants,
       banner: ensureFullUrl(product.banner),
       images: Array.isArray(product.images)
         ? (product.images
           .map((img) => ensureFullUrl(img))
           .filter(Boolean) as string[])
         : product.images,
+      stocks: allStocks,
     } as any;
   }
 
   async update(
     id: number,
-    updateProductDto: UpdateProductDto,
-    files?: {
-      banner?: Express.Multer.File[];
-      images?: Express.Multer.File[];
-    },
+    updateProductDto: any,
+    files?: Express.Multer.File[],
   ) {
-    try {
-      const {
-        categoryId,
-        brandId,
-        variants,
-        tags,
-        branchStocks,
-        existingBanner,
-        existingImages,
-        ...productData
-      } = updateProductDto;
+    const {
+      categoryId,
+      brandId,
+      variants,
+      tags,
+      colorVariants,
+      existingImages,
+      existingBanner,
+      ...productData
+    } = updateProductDto;
 
-      const product = await this.productsRepository.findOne({
+    const queryRunner = this.productsRepository.metadata.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const product = await queryRunner.manager.findOne(Product, {
         where: { id },
-        relations: ['category', 'brand', 'discount', 'stocks', 'stocks.branch'],
-        order: {
-          stocks: { id: 'ASC' },
-        } as any,
+        relations: ['stocks'],
       });
 
       if (!product) {
@@ -490,8 +519,9 @@ export class ProductsService {
       const appUrl = process.env.APP_URL || 'http://localhost:4444';
 
       let bannerUrl = product.banner;
-      if (files?.banner && files.banner.length > 0) {
-        bannerUrl = `${appUrl}/uploads/${files.banner[0].filename}`;
+      const bannerFile = files?.find(f => f.fieldname === 'banner');
+      if (bannerFile) {
+        bannerUrl = `${appUrl}/uploads/${bannerFile.filename}`;
       } else if (existingBanner === undefined) {
         bannerUrl = null;
       } else {
@@ -499,7 +529,6 @@ export class ProductsService {
       }
 
       let finalImages: string[] = [];
-
       if (existingImages) {
         if (Array.isArray(existingImages)) {
           finalImages = [...existingImages];
@@ -508,11 +537,10 @@ export class ProductsService {
         }
       }
 
-      if (files?.images) {
-        files.images.forEach((file) => {
-          finalImages.push(`${appUrl}/uploads/${file.filename}`);
-        });
-      }
+      const additionalImages = files?.filter(f => f.fieldname === 'images') || [];
+      additionalImages.forEach((file) => {
+        finalImages.push(`${appUrl}/uploads/${file.filename}`);
+      });
 
       let parsedVariants = variants;
       if (typeof variants === 'string') {
@@ -553,38 +581,61 @@ export class ProductsService {
           }
         }
       }
-      // Handle Branch Stocks
-      let parsedBranchStocks = branchStocks;
-      if (typeof branchStocks === 'string') {
+      // Handle Color-based Variants & Stocks (Sustainable Version)
+      let parsedColorVariants = colorVariants;
+      if (typeof colorVariants === 'string') {
         try {
-          parsedBranchStocks = JSON.parse(branchStocks);
+          parsedColorVariants = JSON.parse(colorVariants);
         } catch (e) {
-          parsedBranchStocks = [];
+          parsedColorVariants = [];
         }
       }
 
-      if (Array.isArray(parsedBranchStocks)) {
-        // Clear existing stocks or update selectively? Simple way: clear and recreate
-        await this.productStockRepository.delete({ productId: product.id });
-        const stockEntities = parsedBranchStocks
-          .filter((bs) => Number(bs.branchId) > 0)
-          .map((bs) =>
-            this.productStockRepository.create({
-              product: { id: product.id } as any,
+      if (Array.isArray(parsedColorVariants)) {
+        // Clear existing variants and stocks
+        await queryRunner.manager.delete(ProductStock, { productId: product.id });
+        await queryRunner.manager.delete(ProductColorVariant, { productId: product.id });
+
+        for (const [vIndex, cv] of parsedColorVariants.entries()) {
+          const variantImages = files
+            ?.filter(f => f.fieldname === `variantImages_${vIndex}`)
+            .map(f => `${appUrl}/uploads/${f.filename}`) || [];
+
+          // Combine with existing images if they come in the DTO
+          const existingVariantImages = Array.isArray(cv.images) ? cv.images : [];
+          const combinedImages = [...existingVariantImages, ...variantImages];
+
+          const colorVariant = await queryRunner.manager.save(
+            queryRunner.manager.create(ProductColorVariant, {
               productId: product.id,
-              branch: { id: Number(bs.branchId) } as any,
-              branchId: Number(bs.branchId),
-              stock: Number(bs.stock) || 0,
-              size: bs.size || undefined,
-              color: bs.color || undefined,
-            }),
+              color: cv.color,
+              images: combinedImages,
+            })
           );
-        await this.productStockRepository.save(stockEntities);
+
+          if (Array.isArray(cv.stocks)) {
+            const stockEntities = cv.stocks.map((s: any) => 
+              queryRunner.manager.create(ProductStock, {
+                productId: product.id,
+                colorVariantId: colorVariant.id,
+                size: s.size,
+                stock: Number(s.stock) || 0,
+              })
+            );
+            await queryRunner.manager.save(ProductStock, stockEntities);
+          }
+        }
       }
 
-      // Remove stocks from product object so TypeORM doesn't cascade-null the productId column
       delete (product as any).stocks;
-      // product.priceHistory is not loaded, so it remains undefined, which is what we want.
+      delete (product as any).colorVariants;
+
+      if (categoryId && !isNaN(Number(categoryId)) && Number(categoryId) > 0) {
+        product.category = { id: Number(categoryId) } as any;
+      }
+      if (brandId) {
+        product.brand = { id: Number(brandId) } as any;
+      }
 
       this.productsRepository.merge(product, {
         ...productData,
@@ -592,16 +643,18 @@ export class ProductsService {
         images: finalImages,
         variants: parsedVariants,
         tags: parsedTags,
-        category: categoryId ? { id: Number(categoryId) } : product.category,
-        brand: brandId ? { id: Number(brandId) } : product.brand,
         price: productData.price ? Number(productData.price) : product.price,
       } as any);
 
-      const updatedProduct = await this.productsRepository.save(product);
-      const fullProduct = await this.findOne(updatedProduct.id);
+      const savedProduct = await queryRunner.manager.save(product);
+      await queryRunner.commitTransaction();
+
+      // Refresh product with relations for return and indexing
+      const fullProduct = await this.findOne(savedProduct.id);
       await this.searchService.indexProduct(fullProduct);
       return fullProduct;
     } catch (error) {
+      await queryRunner.rollbackTransaction();
       if (error.code === '23505') {
         if (error.detail?.includes('sku')) {
           throw new ConflictException('Bu SKU (Məhsul Kodu) artıq istifadə olunub.');
@@ -614,6 +667,8 @@ export class ProductsService {
         );
       }
       throw error;
+    } finally {
+      await queryRunner.release();
     }
   }
 
@@ -659,18 +714,12 @@ export class ProductsService {
       ],
     });
 
-    return fullProducts.map((product) => ({
-      ...product,
-      banner: ensureFullUrl(product.banner),
-      images: Array.isArray(product.images)
-        ? product.images.map((img) => ensureFullUrl(img)).filter(Boolean)
-        : product.images,
-    }));
+    return fullProducts.map((product) => this.mapProduct(product));
   }
 
   async syncSearchIndex() {
     const products = await this.productsRepository.find({
-      relations: ['category', 'brand', 'discount', 'stocks', 'stocks.branch'],
+      relations: ['category', 'brand', 'discount', 'stocks'],
     });
 
     const chunkSize = 100;

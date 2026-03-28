@@ -36,9 +36,23 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
     [options, value, allowCustomValue]
   );
 
+  const normalize = (text: string) => {
+    return text
+      .toLowerCase()
+      .replace(/ə/g, "e")
+      .replace(/ü/g, "u")
+      .replace(/ö/g, "o")
+      .replace(/ı/g, "i")
+      .replace(/ş/g, "s")
+      .replace(/ç/g, "c")
+      .replace(/ğ/g, "g")
+      .replace(/\s+/g, ""); // Remove all spaces
+  };
+
   const filteredOptions = useMemo(() => {
+    const normalizedSearch = normalize(searchTerm);
     return options.filter((opt) =>
-      opt.label.toLowerCase().includes(searchTerm.toLowerCase())
+      normalize(opt.label).includes(normalizedSearch)
     );
   }, [options, searchTerm]);
 
@@ -86,7 +100,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
       <div
         onClick={() => setIsOpen(!isOpen)}
         className={`
-          flex w-full cursor-pointer items-center justify-between rounded-xl border px-4 py-3 text-sm transition-all duration-200
+          flex w-full cursor-pointer items-center justify-between rounded-xl border px-4 py-2 text-sm transition-all duration-200 min-h-[44px]
           ${error
             ? "border-red-500 bg-red-50/50 focus:ring-4 focus:ring-red-500/10 dark:bg-red-500/5"
             : "border-gray-200 bg-gray-50 hover:bg-white focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 dark:border-white/10 dark:bg-white/5 dark:text-white dark:focus:border-brand-500"

@@ -2,10 +2,10 @@ import { NestFactory } from '@nestjs/core';
 import { DataSource } from 'typeorm';
 import { AppModule } from '../../app.module';
 import { CategoriesService } from '../../categories/categories.service';
-import { BranchesService } from '../../branches/branches.service';
 import { SearchService } from '../../search/search.service';
 import { Product } from '../../products/entities/product.entity';
-import { ProductStock } from '../../branches/entities/product-stock.entity';
+import { ProductStock } from '../../products/entities/product-stock.entity';
+import { ProductColorVariant } from '../../products/entities/product-color-variant.entity';
 import { SizeType } from '../../categories/entities/category.entity';
 
 async function bootstrap() {
@@ -13,16 +13,16 @@ async function bootstrap() {
 
   const dataSource = app.get(DataSource);
   const categoriesService = app.get(CategoriesService);
-  const branchesService = app.get(BranchesService);
   const searchService = app.get(SearchService);
 
   const productRepo = dataSource.getRepository(Product);
   const stockRepo = dataSource.getRepository(ProductStock);
+  const colorVariantRepo = dataSource.getRepository(ProductColorVariant);
 
   console.log('Seeding mock data...');
 
   await dataSource.query(
-    'TRUNCATE TABLE categories, products, branches, product_stocks, order_items, orders CASCADE',
+    'TRUNCATE TABLE categories, products, product_color_variants, product_stocks, order_items, orders CASCADE',
   );
   try {
     await (searchService as any).elasticsearchService.indices.delete({
@@ -30,18 +30,7 @@ async function bootstrap() {
     });
   } catch (e) {}
 
-  const branch1: any = await branchesService.create({
-    name: 'Gənclik Mall',
-    address: 'Fətəli Xan Xoyski',
-    phoneNumber: '012-345-67-89',
-    isActive: true,
-  });
-  const branch2: any = await branchesService.create({
-    name: 'Nizami küçəsi (Torqovı)',
-    address: 'Nizami 12',
-    phoneNumber: '012-111-22-33',
-    isActive: true,
-  });
+
 
   const level1Names = [
     'Geyim',
@@ -217,21 +206,32 @@ async function bootstrap() {
             : ['STD'];
 
       const stockEntities: any[] = [];
-      const branches = [branch1, branch2];
-
-      for (const branch of branches) {
-        stockEntities.push(
-          stockRepo.create({
+      
+      // Add 2-3 variants for each product
+      const variantCount = 2 + Math.floor(Math.random() * 2);
+      for (let v = 0; v < variantCount; v++) {
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        
+        // Create Color Variant
+        const colorVariant = await colorVariantRepo.save(
+          colorVariantRepo.create({
             productId: savedP.id,
-            branchId: branch.id,
-            color: colors[Math.floor(Math.random() * colors.length)],
-            size: sizes[Math.floor(Math.random() * sizes.length)],
-            stock: Math.floor(Math.random() * 50) + 5,
-          }),
+            color,
+            images: [productImages[Math.floor(Math.random() * productImages.length)]]
+          })
         );
+
+        // Create Stocks for this color
+        const size = sizes[Math.floor(Math.random() * sizes.length)];
+        const stock = stockRepo.create({
+          productId: savedP.id,
+          colorVariantId: colorVariant.id,
+          size,
+          stock: Math.floor(Math.random() * 50) + 5,
+        });
+        await stockRepo.save(stock);
       }
 
-      await stockRepo.save(stockEntities);
       await searchService.indexProduct(savedP);
     }
     console.log(`- Finished category: ${category.name}`);

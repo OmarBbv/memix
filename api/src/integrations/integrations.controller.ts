@@ -38,17 +38,6 @@ export class IntegrationsController {
     return this.integrationsService.syncCategories(categoryData);
   }
 
-  @Post('sync/branches')
-  @HttpCode(HttpStatus.OK)
-  async syncBranches(@Body() branchData: any) {
-    return this.integrationsService.syncBranches(branchData);
-  }
-
-  @Get('sync/branches')
-  async getBranches() {
-    return this.integrationsService.getBranches();
-  }
-
   @Get('sync/products')
   async getProducts() {
     return this.integrationsService.getProducts();

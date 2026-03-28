@@ -19,6 +19,16 @@ export interface Product {
       name: string;
     };
   }[];
+  colorVariants?: {
+    id: number;
+    color: string;
+    images: string[];
+    stocks: {
+      id: number;
+      size: string;
+      stock: number;
+    }[];
+  }[];
   category?: {
     id: number;
     name: string;

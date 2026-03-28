@@ -10,7 +10,8 @@ import {
 } from 'typeorm';
 import { Category } from '../../categories/entities/category.entity';
 import { Brand } from '../../brands/entities/brand.entity';
-import { ProductStock } from '../../branches/entities/product-stock.entity';
+import { ProductStock } from './product-stock.entity';
+import { ProductColorVariant } from './product-color-variant.entity';
 import { Review } from '../../reviews/entities/review.entity';
 import { Discount } from '../../discounts/entities/discount.entity';
 import { PriceHistory } from './price-history.entity';
@@ -50,6 +51,9 @@ export class Product {
   @OneToMany(() => ProductStock, (stock) => stock.product)
   stocks: ProductStock[];
 
+  @OneToMany(() => ProductColorVariant, (variant) => variant.product)
+  colorVariants: ProductColorVariant[];
+
   @ManyToOne(() => Category, (category) => category.products, {
     nullable: true,
     onDelete: 'SET NULL',
@@ -64,6 +68,12 @@ export class Product {
 
   @Column({ type: 'jsonb', nullable: true })
   variants: Record<string, any>; // Məhsul variantları (Ölçü, Rəng və s.)
+
+  @Column({ type: 'jsonb', nullable: true })
+  attributes: Record<string, any>; // Dinamik xüsusiyyətlər (Məsələn: Materyal: Pambıq, Kalıp: Slim Fit)
+
+  @Column({ nullable: true })
+  variantGroupId: string; // Eyni məhsulun fərqli rənglərini qruplaşdırmaq üçün (məs: "TREND-123")
 
   @Column({ type: 'text', nullable: true })
   banner: string | null; // Vitrin şəkili

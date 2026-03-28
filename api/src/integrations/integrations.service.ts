@@ -2,8 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Product } from '../products/entities/product.entity';
-import { ProductStock } from '../branches/entities/product-stock.entity';
-import { Branch } from '../branches/entities/branch.entity';
+import { ProductStock } from '../products/entities/product-stock.entity';
 import {
   Discount,
   DiscountType,
@@ -12,12 +11,11 @@ import { PriceHistory } from '../products/entities/price-history.entity';
 import { SearchService } from '../search/search.service';
 import { Category, SizeType } from '../categories/entities/category.entity';
 import { CategoriesService } from '../categories/categories.service';
+import { Brand } from '../brands/entities/brand.entity';
+import { ProductColorVariant } from '../products/entities/product-color-variant.entity';
 
 // 1C inteqrasiyası üçün giriş tipləri
 export interface StockInfo {
-  branchId?: number;
-  branchName?: string;
-  branchGuid?: string; // 1C-den gelen GUID
   stock: number;
   size?: string;
   color?: string;
@@ -32,6 +30,7 @@ export interface ProductSyncItem {
   weight?: number | string;
   barcode?: string;
   category?: string; // Kateqoriya adı və ya GUID
+  brand?: string; // Brend adı və ya GUID
   variants?: Record<string, unknown>;
   stocks?: StockInfo[];
   isActive?: boolean;
@@ -43,12 +42,7 @@ export interface ProductSyncItem {
   };
 }
 
-export interface BranchSyncItem {
-  guid1c: string;
-  name: string;
-  address?: string;
-  phone?: string;
-}
+
 
 export interface CategorySyncItem {
   guid1c?: string; // 1C tərəfindəki ID (mütləq olması tövsiyə edilir)
@@ -77,14 +71,16 @@ export class IntegrationsService {
     private productsRepository: Repository<Product>,
     @InjectRepository(ProductStock)
     private productStockRepository: Repository<ProductStock>,
-    @InjectRepository(Branch)
-    private branchRepository: Repository<Branch>,
     @InjectRepository(PriceHistory)
     private priceHistoryRepository: Repository<PriceHistory>,
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
     @InjectRepository(Discount)
     private discountRepository: Repository<Discount>,
+    @InjectRepository(Brand)
+    private brandRepository: Repository<Brand>,
+    @InjectRepository(ProductColorVariant)
+    private productColorVariantRepository: Repository<ProductColorVariant>,
     private readonly categoriesService: CategoriesService,
     private readonly searchService: SearchService,
   ) { }
@@ -103,7 +99,7 @@ export class IntegrationsService {
         // 3. Mehsulu axirinci melumatlar (stoklar ve s.) ile reload edib indexe gonder
         const reloadedProduct = await this.productsRepository.findOne({
           where: { id: product.id },
-          relations: ['stocks', 'stocks.branch', 'category'],
+          relations: ['stocks', 'category'],
         });
 
         if (reloadedProduct) {
@@ -204,57 +200,56 @@ export class IntegrationsService {
       );
     }
 
+    if (item.brand) {
+      const brand = await this.getOrCreateBrand(item.brand);
+      product.brand = brand;
+      this.logger.log(
+        `Məhsul (${product.sku}) brendə bağlandı: ${brand.name} (ID: ${brand.id})`,
+      );
+    }
+
     product = await this.productsRepository.save(product);
 
     if (item.stocks && Array.isArray(item.stocks)) {
       for (const stockInfo of item.stocks) {
-        let branch: Branch | null = null;
-        if (stockInfo.branchGuid) {
-          branch = await this.branchRepository.findOne({
-            where: { guid1c: stockInfo.branchGuid },
+        // Find or create color variant
+        let colorVariantId: number | undefined = undefined;
+        if (stockInfo.color) {
+          let colorVariant = await this.productColorVariantRepository.findOne({
+            where: { productId: product.id, color: stockInfo.color },
           });
+
+          if (!colorVariant) {
+            colorVariant = await this.productColorVariantRepository.save(
+              this.productColorVariantRepository.create({
+                productId: product.id,
+                color: stockInfo.color,
+              }),
+            );
+          }
+          colorVariantId = colorVariant.id;
         }
 
-        if (!branch && (stockInfo.branchGuid || stockInfo.branchName)) {
-          // Filial tapilmadi, yeni yarat
-          branch = this.branchRepository.create({
-            guid1c: stockInfo.branchGuid,
-            name: stockInfo.branchName || `Filial-${stockInfo.branchGuid || Date.now()}`,
+        // Find existing stock (variant) or create new
+        let stock = await this.productStockRepository.findOne({
+          where: {
+            productId: product.id,
+            size: stockInfo.size ?? undefined,
+            colorVariantId: colorVariantId ?? undefined,
+          },
+        });
+
+        if (stock) {
+          stock.stock = Number(stockInfo.stock);
+          await this.productStockRepository.save(stock);
+        } else {
+          stock = this.productStockRepository.create({
+            productId: product.id,
+            stock: Number(stockInfo.stock),
+            size: stockInfo.size,
+            colorVariantId: colorVariantId,
           });
-          branch = await this.branchRepository.save(branch);
-          this.logger.log(`Yeni filial yaradıldı: ${branch.name} (${branch.guid1c})`);
-        }
-
-        if (branch) {
-          // Filialin GUID-i yoxdursa yenile
-          if (stockInfo.branchGuid && !branch.guid1c) {
-            branch.guid1c = stockInfo.branchGuid;
-            await this.branchRepository.save(branch);
-          }
-
-          // Mevcud stoku tap ve ya yenisini yarat
-          let stock = await this.productStockRepository.findOne({
-            where: {
-              productId: product.id,
-              branchId: branch.id,
-              size: stockInfo.size ?? undefined,
-              color: stockInfo.color ?? undefined,
-            },
-          });
-
-          if (stock) {
-            stock.stock = Number(stockInfo.stock);
-            await this.productStockRepository.save(stock);
-          } else {
-            stock = this.productStockRepository.create({
-              productId: product.id,
-              branchId: branch.id,
-              stock: Number(stockInfo.stock),
-              size: stockInfo.size,
-              color: stockInfo.color,
-            });
-            await this.productStockRepository.save(stock);
-          }
+          await this.productStockRepository.save(stock);
         }
       }
     }
@@ -388,62 +383,14 @@ export class IntegrationsService {
     return { results, timestamp: new Date() };
   }
 
-  /**
-   * Filialları (Branch) sinxronizə et
-   */
-  async syncBranches(data: BranchSyncItem | BranchSyncItem[]) {
-    const branches = Array.isArray(data) ? data : [data];
-    const results: any[] = [];
 
-    for (const item of branches) {
-      try {
-        let branch = await this.branchRepository.findOne({
-          where: { guid1c: item.guid1c },
-        });
-
-        if (!branch) {
-          branch = await this.branchRepository.findOne({
-            where: { name: item.name },
-          });
-        }
-
-        if (!branch) {
-          branch = this.branchRepository.create({
-            guid1c: item.guid1c,
-            name: item.name,
-          });
-        }
-
-        branch.name = item.name;
-        branch.guid1c = item.guid1c;
-        if (item.address) branch.address = item.address;
-        if (item.phone) branch.phone = item.phone;
-
-        await this.branchRepository.save(branch);
-        results.push({ name: item.name, status: 'success', id: branch.id });
-      } catch (error) {
-        results.push({ name: item.name, status: 'error', message: error.message });
-      }
-    }
-
-    return { results, timestamp: new Date().toISOString() };
-  }
-
-  /**
-   * Bütün filialları gətir
-   */
-  async getBranches() {
-    return this.branchRepository.find({
-      order: { name: 'ASC' },
-    });
-  }
 
   /**
    * Bütün məhsulları 1C üçün gətir
    */
   async getProducts() {
     return this.productsRepository.find({
-      relations: ['stocks', 'stocks.branch', 'category'],
+      relations: ['stocks', 'category'],
       order: { createdAt: 'DESC' },
     });
   }
@@ -528,5 +475,30 @@ export class IntegrationsService {
     }
 
     return category;
+  }
+
+  private async getOrCreateBrand(nameOrGuid: string): Promise<Brand> {
+    let brand = await this.brandRepository.findOne({
+      where: [{ guid1c: nameOrGuid }, { name: nameOrGuid }],
+    });
+
+    if (!brand) {
+      const slug = nameOrGuid
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/[\s_-]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+      brand = this.brandRepository.create({
+        name: nameOrGuid,
+        guid1c: nameOrGuid,
+        slug: slug || `brand-${Date.now()}`,
+      });
+      brand = await this.brandRepository.save(brand);
+      this.logger.log(`Yeni brend yaradıldı: ${brand.name} (ID: ${brand.id})`);
+    }
+
+    return brand;
   }
 }

@@ -3,10 +3,12 @@ import {
   Entity,
   OneToMany,
   ManyToOne,
+  ManyToMany,
   PrimaryGeneratedColumn,
   JoinColumn,
 } from 'typeorm';
 import { Product } from '../../products/entities/product.entity';
+import { Attribute } from '../../attributes/entities/attribute.entity';
 
 export enum SizeType {
   BEDEN_TEXT = 'beden-text', // XS, S, M, L, XL, XXL, 3XL
@@ -62,4 +64,7 @@ export class Category {
 
   @OneToMany(() => Product, (product) => product.category)
   products: Product[];
+
+  @ManyToMany(() => Attribute, (attribute) => attribute.categories)
+  attributes: Attribute[];
 }

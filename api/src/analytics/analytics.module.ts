@@ -5,10 +5,9 @@ import { AnalyticsController } from './analytics.controller';
 import { Order } from '../orders/entities/order.entity';
 import { User } from '../users/entities/user.entity';
 import { Product } from '../products/entities/product.entity';
-import { Branch } from '../branches/entities/branch.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Order, User, Product, Branch])],
+  imports: [TypeOrmModule.forFeature([Order, User, Product])],
   controllers: [AnalyticsController],
   providers: [AnalyticsService],
 })

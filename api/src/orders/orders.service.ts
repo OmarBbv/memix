@@ -8,7 +8,7 @@ import { Repository, DataSource } from 'typeorm';
 import { Order, OrderStatus } from './entities/order.entity';
 import { OrderItem } from './entities/order-item.entity';
 import { Cart } from '../carts/entities/cart.entity';
-import { ProductStock } from '../branches/entities/product-stock.entity';
+import { ProductStock } from '../products/entities/product-stock.entity';
 import { NotificationsService } from '../notifications/notifications.service';
 import { MailService } from '../mail/mail.service';
 
@@ -32,7 +32,6 @@ export class OrdersService {
     userId: number,
     address: string,
     phone: string,
-    branchId: number,
   ) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -63,10 +62,9 @@ export class OrdersService {
         if (itemColor && itemSize) {
           stock = await this.productStockRepository.findOne({
             where: {
-              branchId,
               productId: item.product.id,
               size: itemSize,
-              color: itemColor,
+              colorVariant: { color: itemColor },
             },
           });
         }
@@ -74,21 +72,21 @@ export class OrdersService {
         // 2. Yalnız ölçüyə görə
         if (!stock && itemSize) {
           stock = await this.productStockRepository.findOne({
-            where: { branchId, productId: item.product.id, size: itemSize },
+            where: { productId: item.product.id, size: itemSize },
           });
         }
 
         // 3. Yalnız rəngə görə
         if (!stock && itemColor) {
           stock = await this.productStockRepository.findOne({
-            where: { branchId, productId: item.product.id, color: itemColor },
+            where: { productId: item.product.id, colorVariant: { color: itemColor } },
           });
         }
 
         // 4. Ümumi stoku yoxlayırıq
         if (!stock) {
           stock = await this.productStockRepository.findOne({
-            where: { branchId, productId: item.product.id },
+            where: { productId: item.product.id },
           });
         }
 
@@ -120,7 +118,6 @@ export class OrdersService {
         totalPrice: total,
         address,
         contactPhone: phone,
-        branchId,
         status: OrderStatus.PENDING,
       });
 
@@ -133,11 +130,11 @@ export class OrdersService {
 
       // 5. Admin-ə real-time bildirilir
       this.notificationsService.notifyNewOrder({
-        id: savedOrder.id,
-        user: { name: 'Müştəri' }, // Real user data əlavə ediləcək
-        totalPrice: savedOrder.totalPrice,
+        id: (savedOrder as Order).id,
+        user: { name: 'Müştəri' },
+        totalPrice: (savedOrder as Order).totalPrice,
         items: orderItems,
-        createdAt: savedOrder.createdAt,
+        createdAt: (savedOrder as Order).createdAt,
       });
 
       return savedOrder;
@@ -206,30 +203,29 @@ export class OrdersService {
           const itemSize = item.variants?.size || null;
           const itemColor = item.variants?.color || null;
 
-          // Stok rekordunu axtarırıq (branchId, productId və variantlar üzrə)
+          // Stok rekordunu axtarırıq (productId və variantlar üzrə)
           let stock = await queryRunner.manager.findOne(ProductStock, {
             where: {
-              branchId: order.branchId,
               productId: item.product.id,
               size: itemSize,
-              color: itemColor,
+              colorVariant: { color: itemColor },
             },
           });
 
-          // Əgər tam eyni variant tapılmasa, daha geniş baxırıq (məsələn: yalnız ölçüvə ya yalnız məhsul üzrə)
+          // Əgər tam eyni variant tapılmasa, daha geniş baxırıq
           if (!stock && itemSize) {
             stock = await queryRunner.manager.findOne(ProductStock, {
-              where: { branchId: order.branchId, productId: item.product.id, size: itemSize },
+              where: { productId: item.product.id, size: itemSize },
             });
           }
           if (!stock && itemColor) {
             stock = await queryRunner.manager.findOne(ProductStock, {
-              where: { branchId: order.branchId, productId: item.product.id, color: itemColor },
+              where: { productId: item.product.id, colorVariant: { color: itemColor } },
             });
           }
           if (!stock) {
             stock = await queryRunner.manager.findOne(ProductStock, {
-              where: { branchId: order.branchId, productId: item.product.id },
+              where: { productId: item.product.id },
             });
           }
 

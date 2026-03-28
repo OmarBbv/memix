@@ -5,12 +5,17 @@ import { ProductsController } from './products.controller';
 import { Product } from './entities/product.entity';
 import { SearchModule } from '../search/search.module';
 import { PriceHistory } from './entities/price-history.entity';
-import { ProductStock } from '../branches/entities/product-stock.entity';
-import { Branch } from '../branches/entities/branch.entity';
+import { ProductStock } from './entities/product-stock.entity';
+import { ProductColorVariant } from './entities/product-color-variant.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Product, PriceHistory, ProductStock, Branch]),
+    TypeOrmModule.forFeature([
+      Product,
+      PriceHistory,
+      ProductStock,
+      ProductColorVariant,
+    ]),
     SearchModule,
   ],
   controllers: [ProductsController],

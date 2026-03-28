@@ -38,11 +38,6 @@ const navItems: NavItem[] = [
     ],
   },
   {
-    icon: <BoxIcon />,
-    name: "Filiallar",
-    path: "/branches",
-  },
-  {
     icon: <ListIcon />,
     name: "Sifarişlər",
     subItems: [

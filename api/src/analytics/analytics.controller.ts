@@ -57,9 +57,4 @@ export class AnalyticsController {
   getUserActivity() {
     return this.analyticsService.getUserActivity();
   }
-
-  @Get('branches/performance')
-  getBranchPerformance() {
-    return this.analyticsService.getBranchPerformance();
-  }
 }

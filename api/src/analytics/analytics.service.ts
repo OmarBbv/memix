@@ -4,7 +4,6 @@ import { Repository, Between } from 'typeorm';
 import { Order, OrderStatus } from '../orders/entities/order.entity';
 import { User } from '../users/entities/user.entity';
 import { Product } from '../products/entities/product.entity';
-import { Branch } from '../branches/entities/branch.entity';
 
 @Injectable()
 export class AnalyticsService {
@@ -15,8 +14,6 @@ export class AnalyticsService {
     private userRepository: Repository<User>,
     @InjectRepository(Product)
     private productRepository: Repository<Product>,
-    @InjectRepository(Branch)
-    private branchRepository: Repository<Branch>,
   ) {}
 
   async getSalesStats(startDate?: Date, endDate?: Date) {
@@ -173,32 +170,7 @@ export class AnalyticsService {
     };
   }
 
-  async getBranchPerformance() {
-    const branches = await this.branchRepository.find({
-      relations: ['stocks'],
-    });
 
-    const performance = await Promise.all(
-      branches.map(async (branch) => {
-        // Filialın məhsullarının satışlarını hesablayırıq
-        const totalStock = branch.stocks.reduce(
-          (sum, stock) => sum + stock.stock,
-          0,
-        );
-        const productCount = branch.stocks.length;
-
-        return {
-          branchId: branch.id,
-          branchName: branch.name,
-          totalProducts: productCount,
-          totalStock,
-          address: branch.address,
-        };
-      }),
-    );
-
-    return performance;
-  }
 
   async getDashboardOverview() {
     const [sales, topProducts, userActivity, revenue] = await Promise.all([

@@ -33,9 +33,8 @@ export class OrdersController {
     @Request() req: any,
     @Body('address') address: string,
     @Body('phone') phone: string,
-    @Body('branchId') branchId: number,
   ) {
-    return this.ordersService.create(req.user.id, address, phone, branchId);
+    return this.ordersService.create(req.user.id, address, phone);
   }
 
   @Get('my')

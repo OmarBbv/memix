@@ -59,6 +59,14 @@ export class CreateProductDto {
   @Type(() => Number)
   brandId?: number; // Brend ID-si (Zara, Nike və s.)
 
+  @IsString()
+  @IsOptional()
+  variantGroupId?: string; // Variant qruplaşdırma ID-si
+
+  @IsString()
+  @IsOptional()
+  guid1c?: string; // 1C-dən gələn GUID
+
   @IsOptional()
   variants?: any; // Variantlar (JSON formatı və ya obyekt)
 
@@ -76,6 +84,9 @@ export class CreateProductDto {
 
   @IsOptional()
   branchStocks?: any; // { branchId: number, stock: number }[] (JSON format if multipart)
+
+  @IsOptional()
+  colorVariants?: any; // Rəng variantları (JSON formatı)
 
   @IsOptional()
   existingBanner?: string;

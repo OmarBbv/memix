@@ -19,9 +19,22 @@ export interface Category {
   parentId?: number;
   parent?: Category;
   children?: Category[];
+  attributes?: Attribute[];
   createdAt: string;
   updatedAt: string;
 }
+
+export interface Attribute {
+  id: number;
+  name: string;
+  options: AttributeOption[];
+}
+
+export interface AttributeOption {
+  id: number;
+  value: string;
+}
+
 
 export interface CreateCategoryDto {
   name: string;

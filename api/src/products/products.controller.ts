@@ -18,7 +18,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '../users/entities/user.entity';
-import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { multerConfig } from '../common/utils/multer.config';
 
 @Controller('products')
@@ -28,22 +28,10 @@ export class ProductsController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(UserRole.ADMIN)
   @Post()
-  @UseInterceptors(
-    FileFieldsInterceptor(
-      [
-        { name: 'banner', maxCount: 1 },
-        { name: 'images', maxCount: 10 },
-      ],
-      multerConfig,
-    ),
-  )
+  @UseInterceptors(AnyFilesInterceptor(multerConfig))
   create(
     @Body() createProductDto: CreateProductDto,
-    @UploadedFiles()
-    files: {
-      banner?: Express.Multer.File[];
-      images?: Express.Multer.File[];
-    },
+    @UploadedFiles() files: Express.Multer.File[],
   ) {
     return this.productsService.create(createProductDto, files);
   }
@@ -85,26 +73,12 @@ export class ProductsController {
     return this.productsService.findSimilar(+id, limit ? +limit : 8);
   }
 
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserRole.ADMIN)
   @Patch(':id')
-  @UseInterceptors(
-    FileFieldsInterceptor(
-      [
-        { name: 'banner', maxCount: 1 },
-        { name: 'images', maxCount: 10 },
-      ],
-      multerConfig,
-    ),
-  )
+  @UseInterceptors(AnyFilesInterceptor(multerConfig))
   update(
     @Param('id') id: string,
     @Body() updateProductDto: UpdateProductDto,
-    @UploadedFiles()
-    files: {
-      banner?: Express.Multer.File[];
-      images?: Express.Multer.File[];
-    },
+    @UploadedFiles() files: Express.Multer.File[],
   ) {
     return this.productsService.update(+id, updateProductDto, files);
   }

@@ -5,8 +5,8 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { Product } from '../../products/entities/product.entity';
-import { Branch } from './branch.entity';
+import { Product } from './product.entity';
+import { ProductColorVariant } from './product-color-variant.entity';
 
 @Entity('product_stocks')
 export class ProductStock {
@@ -22,19 +22,19 @@ export class ProductStock {
   @Column()
   productId: number;
 
-  @ManyToOne(() => Branch, (branch) => branch.stocks, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'branchId' })
-  branch: Branch;
+  @ManyToOne(() => ProductColorVariant, (variant) => variant.stocks, {
+    onDelete: 'CASCADE',
+    nullable: true,
+  })
+  @JoinColumn({ name: 'colorVariantId' })
+  colorVariant: ProductColorVariant;
 
-  @Column()
-  branchId: number;
+  @Column({ nullable: true })
+  colorVariantId: number;
 
   @Column({ default: 0 })
-  stock: number; // Bu filialda bu məhsuldan neçə dənə var?
+  stock: number; // Bu məhsuldan neçə dənə var?
 
   @Column({ nullable: true })
   size: string; // Ölçü (S, M, L, XL, 30, 32 və s.)
-
-  @Column({ nullable: true })
-  color: string; // Rəng (Qırmızı, Mavi, Qara və s.)
 }

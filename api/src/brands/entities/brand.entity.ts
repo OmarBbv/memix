@@ -19,6 +19,9 @@ export class Brand {
   @Column({ unique: true })
   slug: string;
 
+  @Column({ unique: true, nullable: true })
+  guid1c?: string; // 1C-den gelen GUID (Identityer)
+
   @Column({ nullable: true })
   logoUrl?: string;
 

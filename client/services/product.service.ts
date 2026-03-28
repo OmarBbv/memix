@@ -10,7 +10,17 @@ export type Product = {
   image?: string;
   images?: string[];
   banner?: string;
-  brand?: string;
+  brand?: string | {
+    id: number;
+    name: string;
+    slug?: string;
+    logoUrl?: string;
+    isActive?: boolean;
+    showOnHome?: boolean;
+    order?: number;
+    createdAt?: string;
+    updatedAt?: string;
+  };
   size?: string | string[];
   condition?: string;
   city?: string;
@@ -23,7 +33,11 @@ export type Product = {
   };
   variants?: {
     size?: string[];
-    brand?: string;
+    brand?: string | {
+    id: number;
+    name: string;
+    slug?: string;
+  };
     color?: string;
     condition?: string;
     city?: string;
@@ -49,10 +63,23 @@ export type Product = {
   stocks?: {
     id: number;
     stock: number;
-    branch: {
+    color?: string;
+    size?: string;
+    images?: string[];
+    branch?: {
       id: number;
       name: string;
     };
+  }[];
+  colorVariants?: {
+    id: number;
+    color: string;
+    images: string[];
+    stocks: {
+      id: number;
+      size: string;
+      stock: number;
+    }[];
   }[];
   createdAt?: string;
   updatedAt?: string;

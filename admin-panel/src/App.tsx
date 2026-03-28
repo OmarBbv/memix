@@ -17,8 +17,6 @@ import Avatars from "./pages/UiElements/Avatars";
 import Buttons from "./pages/UiElements/Buttons";
 import Categories from "./pages/Categories";
 import CategoryForm from "./pages/Categories/CategoryForm";
-import Branches from "./pages/Branches";
-import CreateBranch from "./pages/Branches/CreateBranch";
 import Banners from "./pages/Marketing/Banners";
 import CreateBanner from "./pages/Marketing/Banners/CreateBanner";
 import Coupons from "./pages/Marketing/Coupons";
@@ -59,8 +57,6 @@ export default function App() {
               <Route path="/categories" element={<Categories />} />
               <Route path="/categories/create" element={<CategoryForm />} />
               <Route path="/categories/edit/:id" element={<CategoryForm />} />
-              <Route path="/branches" element={<Branches />} />
-              <Route path="/branches/create" element={<CreateBranch />} />
               <Route path="/orders" element={<Orders />} />
               <Route path="/orders/returns" element={<PlaceholderPage title="Geri Qaytarılanlar" />} />
               <Route path="/users" element={<Users />} />
