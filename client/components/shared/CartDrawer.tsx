@@ -7,7 +7,7 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import { useAppDispatch, useAppSelector } from '@/lib/redux/hooks';
-import { closeCart, removeFromCart, updateQuantity, incrementQuantityAsync } from '@/lib/redux/features/cartSlice';
+import { closeCart, removeFromCart, updateQuantity, incrementQuantityAsync, removeFromCartAsync, decrementQuantityAsync, clearCartAsync } from '@/lib/redux/features/cartSlice';
 import Image from 'next/image';
 import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -29,10 +29,20 @@ export const CartDrawer = () => {
     <Sheet open={isOpen} onOpenChange={(open) => !open && dispatch(closeCart())}>
       <SheetContent className="w-full sm:max-w-md flex flex-col p-0 h-full">
         <SheetHeader className="px-6 py-4 border-b">
-          <SheetTitle className="flex items-center gap-2">
-            <ShoppingBag className="w-5 h-5" />
-            Səbət ({items.length})
-          </SheetTitle>
+          <div className="flex items-center justify-between pr-10">
+            <SheetTitle className="flex items-center gap-2">
+              <ShoppingBag className="w-5 h-5" />
+              Səbət ({items.length})
+            </SheetTitle>
+            {items.length > 0 && (
+              <button 
+                onClick={() => dispatch(clearCartAsync())}
+                className="text-xs font-semibold text-red-500 hover:text-red-600 transition-colors uppercase tracking-tighter"
+              >
+                Təmizlə
+              </button>
+            )}
+          </div>
         </SheetHeader>
 
         <div className="flex-1 overflow-y-auto px-6 py-4">
@@ -47,7 +57,7 @@ export const CartDrawer = () => {
           ) : (
             <div className="flex flex-col gap-6">
               {items.map((item) => (
-                <div key={`${item.id}-${item.size}`} className="flex gap-4">
+                <div key={`${item.id}-${item.size}-${item.color || ''}`} className="flex gap-4">
                   <div className="relative w-20 h-28 shrink-0 rounded-lg overflow-hidden bg-gray-100 border">
                     <Image
                       src={item.image}
@@ -66,7 +76,7 @@ export const CartDrawer = () => {
                           </h4>
                         </Link>
                         <button
-                          onClick={() => dispatch(removeFromCart({ id: item.id, size: item.size }))}
+                          onClick={() => dispatch(removeFromCartAsync({ id: item.id, size: item.size, color: item.color }))}
                           className="text-gray-400 hover:text-red-500 transition-colors p-1"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -81,7 +91,7 @@ export const CartDrawer = () => {
                     <div className="flex items-center justify-between mt-2">
                       <div className="flex items-center gap-2 border rounded-lg p-1">
                         <button
-                          onClick={() => dispatch(updateQuantity({ id: item.id, size: item.size, quantity: item.quantity - 1 }))}
+                          onClick={() => dispatch(decrementQuantityAsync(item))}
                           className="p-1 hover:bg-gray-100 rounded disabled:opacity-50"
                           disabled={item.quantity <= 1}
                         >

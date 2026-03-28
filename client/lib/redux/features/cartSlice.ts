@@ -85,7 +85,7 @@ export const addToCartAsync = createAsyncThunk(
 
 export const removeFromCartAsync = createAsyncThunk(
   'cart/removeFromCartAsync',
-  async ({ id, size }: { id: string | number; size: string }, { getState, rejectWithValue }) => {
+  async ({ id, size, color }: { id: string | number; size: string; color?: string }, { getState, rejectWithValue }) => {
     const { auth } = getState() as any;
     if (!auth.isAuthenticated) {
       return { id, size, isGuest: true };
@@ -125,6 +125,43 @@ export const incrementQuantityAsync = createAsyncThunk(
   }
 );
 
+export const decrementQuantityAsync = createAsyncThunk(
+  'cart/decrementQuantityAsync',
+  async (item: CartItem, { getState, rejectWithValue }) => {
+    const { auth } = getState() as any;
+    const productId = item.productId || item.id;
+
+    if (!auth.isAuthenticated) {
+      return { ...item, isGuest: true };
+    }
+
+    try {
+      await cartService.addToCart(
+        Number(productId),
+        -1,
+        { size: item.size, color: item.color }
+      );
+      return { ...item, isGuest: false };
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
+
+export const clearCartAsync = createAsyncThunk(
+  'cart/clearCartAsync',
+  async (_, { getState, rejectWithValue }) => {
+    const { auth } = getState() as any;
+    if (!auth.isAuthenticated) return;
+
+    try {
+      await cartService.clearCart();
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data);
+    }
+  }
+);
+
 export const cartSlice = createSlice({
   name: 'cart',
   initialState,
@@ -143,9 +180,11 @@ export const cartSlice = createSlice({
     clearCart: (state) => {
       state.items = [];
     },
-    updateQuantity: (state, action: PayloadAction<{ id: string | number; size: string; quantity: number }>) => {
+    updateQuantity: (state, action: PayloadAction<{ id: string | number; size: string; color?: string; quantity: number }>) => {
       const item = state.items.find(
-        (i) => i.id === action.payload.id && i.size === action.payload.size
+        (i) => String(i.id) === String(action.payload.id) && 
+               i.size === action.payload.size &&
+               i.color === action.payload.color
       );
       if (item) {
         item.quantity = Math.max(1, action.payload.quantity);
@@ -155,7 +194,9 @@ export const cartSlice = createSlice({
     addToCart: (state, action: PayloadAction<Omit<CartItem, 'quantity'>>) => {
       // This legacy reducer can be kept if needed, but we are moving to async thunk
       const existingItem = state.items.find(
-        (item) => item.id === action.payload.id && item.size === action.payload.size
+        (item) => String(item.id) === String(action.payload.id) && 
+                 item.size === action.payload.size &&
+                 item.color === action.payload.color
       );
 
       if (existingItem) {
@@ -165,9 +206,13 @@ export const cartSlice = createSlice({
       }
       state.isOpen = true;
     },
-    removeFromCart: (state, action: PayloadAction<{ id: string | number; size: string }>) => {
+    removeFromCart: (state, action: PayloadAction<{ id: string | number; size: string; color?: string }>) => {
       state.items = state.items.filter(
-        (item) => !(item.id === action.payload.id && item.size === action.payload.size)
+        (item) => !(
+          String(item.id) === String(action.payload.id) && 
+          item.size === action.payload.size &&
+          item.color === action.payload.color
+        )
       );
     }
   },
@@ -186,7 +231,9 @@ export const cartSlice = createSlice({
       // Optimistic Update
       const newItem = action.meta.arg;
       const existingItem = state.items.find(
-        (item) => item.id === newItem.id && item.size === newItem.size
+        (item) => String(item.id) === String(newItem.id) && 
+                 item.size === newItem.size &&
+                 item.color === newItem.color
       );
 
       if (existingItem) {
@@ -210,7 +257,9 @@ export const cartSlice = createSlice({
       // Rollback
       const newItem = action.meta.arg;
       const existingItem = state.items.find(
-        (item) => item.id === newItem.id && item.size === newItem.size
+        (item) => String(item.id) === String(newItem.id) && 
+                 item.size === newItem.size &&
+                 item.color === newItem.color
       );
       if (existingItem) {
         if (existingItem.quantity > 1) existingItem.quantity -= 1;
@@ -223,16 +272,24 @@ export const cartSlice = createSlice({
 
     // Increment Quantity
     builder.addCase(incrementQuantityAsync.pending, (state, action) => {
-      const { id, size } = action.meta.arg;
-      const item = state.items.find((i) => i.id === id && i.size === size);
+      const { id, size, color } = action.meta.arg;
+      const item = state.items.find((i) => 
+        String(i.id) === String(id) && 
+        i.size === size &&
+        i.color === color
+      );
       if (item) {
         item.quantity += 1;
       }
     });
 
     builder.addCase(incrementQuantityAsync.rejected, (state, action) => {
-      const { id, size } = action.meta.arg;
-      const item = state.items.find((i) => i.id === id && i.size === size);
+      const { id, size, color } = action.meta.arg;
+      const item = state.items.find((i) => 
+        String(i.id) === String(id) && 
+        i.size === size &&
+        i.color === color
+      );
       if (item) {
         item.quantity -= 1;
       }
@@ -240,13 +297,54 @@ export const cartSlice = createSlice({
       toast.error(errorMessage);
     });
 
+    // Decrement Quantity
+    builder.addCase(decrementQuantityAsync.pending, (state, action) => {
+      const { id, size, color } = action.meta.arg;
+      const item = state.items.find((i) => 
+        String(i.id) === String(id) && 
+        i.size === size &&
+        i.color === color
+      );
+      if (item && item.quantity > 1) {
+        item.quantity -= 1;
+      }
+    });
+
+    builder.addCase(decrementQuantityAsync.rejected, (state, action) => {
+      const { id, size, color } = action.meta.arg;
+      const item = state.items.find((i) => 
+        String(i.id) === String(id) && 
+        i.size === size &&
+        i.color === color
+      );
+      if (item) {
+        item.quantity += 1;
+      }
+      const errorMessage = (action.payload as any)?.message || 'Yenilənmə zamanı xəta baş verdi';
+      toast.error(errorMessage);
+    });
+
+    // Clear Cart
+    builder.addCase(clearCartAsync.pending, (state) => {
+      state.items = [];
+    });
+
+    builder.addCase(clearCartAsync.rejected, (state) => {
+      // Refresh might be needed here
+      toast.error('Səbət təmizlənərkən xəta baş verdi');
+    });
+
     // Remove From Cart
     builder.addCase(removeFromCartAsync.pending, (state, action) => {
       // Optimistic Remove
-      const { id, size } = action.meta.arg;
+      const { id, size, color } = action.meta.arg;
       // We keep the removed item in a temp store if we wanted to rollback perfectly
       state.items = state.items.filter(
-        (item) => !(item.id === id && item.size === size)
+        (item) => !(
+          String(item.id) === String(id) && 
+          item.size === size &&
+          item.color === color
+        )
       );
     });
 

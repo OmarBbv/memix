@@ -9,6 +9,7 @@ import { Plus, Loader2, CheckCircle, AlertCircle, CreditCard } from 'lucide-reac
 import Image from 'next/image';
 import { clearCart } from '@/lib/redux/features/cartSlice';
 import { Link, useRouter } from '@/i18n/routing';
+import { useQueryClient } from '@tanstack/react-query';
 import { orderService } from '@/services/order.service';
 import { cartService } from '@/services/cart.service';
 import { addressService } from '@/services/address.service';
@@ -18,6 +19,7 @@ import { Card } from '@/types/card.types';
 import { toast } from 'sonner';
 
 export default function CheckoutPage() {
+  const queryClient = useQueryClient();
   const { items } = useAppSelector((state) => state.cart);
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
@@ -107,6 +109,23 @@ export default function CheckoutPage() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const formatCardNumber = (value: string) => {
+    const v = value.replace(/\D/g, '').slice(0, 16);
+    const matches = v.match(/\d{4,16}/g);
+    const match = matches && matches[0] || '';
+    const parts = [];
+
+    for (let i = 0, len = match.length; i < len; i += 4) {
+      parts.push(match.substring(i, i + 4));
+    }
+
+    if (parts.length) {
+      return parts.join(' ');
+    } else {
+      return v;
+    }
+  };
+
   const handleConfirmOrder = async () => {
     if (!isAuthenticated) {
       toast.error("Zəhmət olmasa sifariş üçün daxil olun");
@@ -129,7 +148,12 @@ export default function CheckoutPage() {
     }
 
     if (paymentTab === 'new') {
-      if (!cardData.cardNumber || !cardData.expMonth || !cardData.expYear || !cardData.cvv) {
+      const cleanCard = cardData.cardNumber.replace(/\s/g, '');
+      if (cleanCard.length !== 16) {
+        setError("Kart nömrəsi 16 rəqəmdən ibarət olmalıdır.");
+        return;
+      }
+      if (!cardData.expMonth || !cardData.expYear || !cardData.cvv) {
         setError("Zəhmət olmasa yeni kart məlumatlarını tam doldurun.");
         return;
       }
@@ -153,13 +177,16 @@ export default function CheckoutPage() {
       // 2) If New Card, Save it to Backend
       try {
         if (paymentTab === 'new') {
-           await cardsService.create({
-             holderName: cardData.holderName || "Müştəri",
-             cardNumber: cardData.cardNumber.replace(/\s/g, ''),
-             expMonth: Number(cardData.expMonth),
-             expYear: Number(cardData.expYear),
-             cvv: cardData.cvv,
-             color: 'black'
+            const year = Number(cardData.expYear);
+            const fullYear = year < 100 ? 2000 + year : year;
+
+            await cardsService.create({
+              holderName: cardData.holderName || "Müştəri",
+              cardNumber: cardData.cardNumber.replace(/\s/g, ''),
+              expMonth: Number(cardData.expMonth),
+              expYear: fullYear,
+              cvv: cardData.cvv,
+              color: 'black'
            });
         }
       } catch (cardError) {
@@ -174,6 +201,9 @@ export default function CheckoutPage() {
         branchId: 1,
       });
 
+      // Refresh orders cache
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+
       dispatch(clearCart());
       try {
         await cartService.clearCart();
@@ -184,9 +214,9 @@ export default function CheckoutPage() {
       setIsLoading(false);
       setIsSuccess(true);
 
-      // Redirect after delay
+      // Redirect to orders page after delay
       setTimeout(() => {
-        router.push('/');
+        router.push('/profile/orders');
       }, 5000);
     } catch (err: any) {
       console.error("Order creation failed:", err);
@@ -463,7 +493,7 @@ export default function CheckoutPage() {
                      <label className="text-sm font-semibold text-zinc-700 ml-1">Kartın nömrəsi</label>
                      <Input 
                         value={cardData.cardNumber} 
-                        onChange={e => setCardData({...cardData, cardNumber: e.target.value})} 
+                        onChange={e => setCardData({...cardData, cardNumber: formatCardNumber(e.target.value)})} 
                         placeholder="0000 0000 0000 0000" 
                         maxLength={19}
                         className="rounded-xl h-12 border-zinc-200 focus:border-zinc-900 shadow-sm font-medium tracking-wide" 

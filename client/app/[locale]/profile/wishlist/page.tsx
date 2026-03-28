@@ -17,7 +17,8 @@ export default function ProfileWishlistPage() {
   const getImageUrl = (img: string) => {
     if (!img) return '';
     if (img.startsWith('http')) return img;
-    return `${baseUrl}${img}`;
+    const normalizedPath = img.startsWith('/') ? img : `/${img}`;
+    return `${baseUrl}${normalizedPath}`;
   };
 
   if (isLoading) {
@@ -87,6 +88,7 @@ export default function ProfileWishlistPage() {
                   src={imageSrc}
                   alt={product.name || ''}
                   fill
+                  unoptimized
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 {/* Assuming inStock is calculated based on stocks array if needed, for now ignoring */}
@@ -104,9 +106,11 @@ export default function ProfileWishlistPage() {
                 <div>
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="text-xs font-semibold text-zinc-500 mb-1">{product.brand || product.variants?.brand}</p>
+                      <p className="text-xs font-semibold text-zinc-500 mb-1">
+                        {typeof product.brand === 'object' ? product.brand?.name : (product.brand || 'Memix')}
+                      </p>
                       <Link href={`/product/${product.id}`} className="font-medium text-zinc-900 line-clamp-2 hover:underline">
-                        {product.name || product.title}
+                        {typeof product.name === 'object' ? (product.name as any)?.name : (product.name || (product as any).title)}
                       </Link>
                     </div>
                     <button
@@ -129,11 +133,11 @@ export default function ProfileWishlistPage() {
                   <Button
                     onClick={() => dispatch(addToCart({
                       id: String(product.id),
-                      title: product.name || product.title || '',
+                      title: typeof product.name === 'object' ? (product.name as any)?.name : (product.name || (product as any).title || ''),
                       price: currentPrice,
                       image: imageSrc,
-                      size: Array.isArray(product.size) ? product.size[0] : (product.size || 'M'), // Default size logic
-                      seller: { name: product.brand || 'Satıcı' }
+                      size: Array.isArray(product.size) ? product.size[0] : (product.size || 'M'),
+                      seller: { name: typeof product.brand === 'object' ? product.brand?.name : (product.brand || 'Satıcı') }
                     }))}
                     className={`rounded-lg h-10 px-4 gap-2 transition-all bg-zinc-900 hover:bg-zinc-800 text-white shadow-lg shadow-zinc-900/10`}
                   >
