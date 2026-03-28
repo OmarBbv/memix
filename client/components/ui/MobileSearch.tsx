@@ -91,7 +91,7 @@ export function MobileSearch({ isOpen, onClose }: MobileSearchProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] bg-white flex flex-col animate-in slide-in-from-right duration-200">
+    <div className="fixed inset-0 z-100 bg-white flex flex-col animate-in slide-in-from-right duration-200">
       {/* Header */}
       <div className="flex items-center gap-2 p-3 border-b border-gray-100">
         <button
@@ -140,9 +140,9 @@ export function MobileSearch({ isOpen, onClose }: MobileSearchProps) {
         ) : uniqueSuggestions.length > 0 ? (
           <div className="divide-y divide-gray-50">
             {uniqueSuggestions.map((item) => {
-              const isCategory = (item as any).type === 'category';
+              const itemIsCategory = (item as any).type === 'category';
 
-              if (isCategory) {
+              if (itemIsCategory) {
                 const cat = item as unknown as CategoryResult;
                 return (
                   <button
@@ -153,7 +153,7 @@ export function MobileSearch({ isOpen, onClose }: MobileSearchProps) {
                     <span className="text-[#ff6000] font-medium text-sm flex-1">
                       {cat.name}
                     </span>
-                    <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">Kategoriya</span>
+                    <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">Kateqoriya</span>
                   </button>
                 );
               }
@@ -208,3 +208,5 @@ export function MobileSearch({ isOpen, onClose }: MobileSearchProps) {
     </div>
   );
 }
+
+export default MobileSearch;

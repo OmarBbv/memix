@@ -709,8 +709,8 @@ export class ProductsService {
         'brand',
         'discount',
         'priceHistory',
-        'stocks',
-        'stocks.branch',
+        'colorVariants',
+        'colorVariants.stocks',
       ],
     });
 

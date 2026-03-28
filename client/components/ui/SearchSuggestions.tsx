@@ -4,7 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import { useRouter } from '@/i18n/routing';
 import { Product } from '@/services/product.service';
-import { Loader2, Search, TrendingUp } from 'lucide-react';
+import { Loader2, Search, TrendingUp, ChevronRight } from 'lucide-react';
 
 interface CategoryResult {
   type: 'category';
@@ -24,6 +24,30 @@ interface SearchSuggestionsProps {
   onClose: () => void;
 }
 
+// Helper to highlight matching text
+const HighlightedText = ({ text, highlight }: { text: string; highlight: string }) => {
+  if (!highlight.trim()) {
+    return <span>{text}</span>;
+  }
+  const regex = new RegExp(`(${highlight})`, 'gi');
+  const parts = text.split(regex);
+  return (
+    <span>
+      {parts.map((part, i) =>
+        regex.test(part) ? (
+          <span key={i} className="text-[#10b981] font-bold">{part}</span>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </span>
+  );
+};
+
+const isCategory = (item: SearchResultItem): item is CategoryResult => {
+  return (item as any).type === 'category';
+};
+
 export function SearchSuggestions({ open, query, suggestions, loading, onClose }: SearchSuggestionsProps) {
   const router = useRouter();
 
@@ -39,32 +63,9 @@ export function SearchSuggestions({ open, query, suggestions, loading, onClose }
   };
 
   const handleSearchAll = () => {
+    if (!query.trim()) return;
     router.push(`/search?q=${query}`);
     onClose();
-  };
-
-  const isCategory = (item: SearchResultItem): item is CategoryResult => {
-    return (item as any).type === 'category';
-  };
-
-  // Helper to highlight matching text
-  const HighlightedText = ({ text, highlight }: { text: string; highlight: string }) => {
-    if (!highlight.trim()) {
-      return <span>{text}</span>;
-    }
-    const regex = new RegExp(`(${highlight})`, 'gi');
-    const parts = text.split(regex);
-    return (
-      <span>
-        {parts.map((part, i) =>
-          regex.test(part) ? (
-            <span key={i} className="text-[#10b981] font-bold">{part}</span>
-          ) : (
-            <span key={i}>{part}</span>
-          )
-        )}
-      </span>
-    );
   };
 
   const rawCategories = suggestions.filter(isCategory);

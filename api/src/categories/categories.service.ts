@@ -279,6 +279,7 @@ export class CategoriesService {
       .leftJoinAndSelect('product.category', 'category')
       .leftJoinAndSelect('product.discount', 'discount')
       .leftJoinAndSelect('product.stocks', 'stocks')
+      .leftJoinAndSelect('product.colorVariants', 'colorVariants')
       .where('product.categoryId IN (:...categoryIds)', { categoryIds })
       .orderBy('product.createdAt', 'DESC');
 
@@ -326,13 +327,15 @@ export class CategoriesService {
         ? value
         : value.split(',').map((v) => v.trim());
 
-      if (key === 'color' || key === 'size') {
+      if (key === 'color') {
         qb = qb.andWhere(
-          `(product.variants->>:key_${key} IN (:...valArr_${key}) OR stocks.${key} IN (:...valArr_${key}))`,
-          {
-            [`key_${key}`]: key,
-            [`valArr_${key}`]: values,
-          },
+          `(product.variants->>'color' IN (:...valArr_${key}) OR colorVariants.color IN (:...valArr_${key}))`,
+          { [`valArr_${key}`]: values },
+        );
+      } else if (key === 'size') {
+        qb = qb.andWhere(
+          `(product.variants->>'size' IN (:...valArr_${key}) OR stocks.size IN (:...valArr_${key}))`,
+          { [`valArr_${key}`]: values },
         );
       } else {
         const conditions = values.map(

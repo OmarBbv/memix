@@ -1,0 +1,128 @@
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:41 PM [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:41 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +51ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:41 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mMailerModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:41 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPassportModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:41 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigHostModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:41 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mNotificationsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:41 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +2ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:41 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:41 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mServeStaticModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:41 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mMailerCoreModule dependencies initialized[39m[38;5;3m +228ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:41 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mJwtModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:41 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mElasticsearchModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:41 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mSearchModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:41 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mMailModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmCoreModule dependencies initialized[39m[38;5;3m +625ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mDiscountsModule dependencies initialized[39m[38;5;3m +5ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAttributesModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPromotionsModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mUsersModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mCartsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mReviewsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mCouponsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAnalyticsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mBannersModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mCardsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mBrandsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mCampaignsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mProductsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mCategoriesModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mOrdersModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mIntegrationsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mWishlistModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[SeedService] [39m[32mAdmin user already exists, skipping seed.[39m
+[32m[Nest] 211411  - [39m03/28/2026, 3:55:42 PM [32m    LOG[39m [38;5;3m[AppModule] [39m[32m🚀 PostgreSQL bağlantısı başarıyla kuruldu![39m
+--- Categories in DB ---
+ID: 2 | Name: Geyim | Slug: kisi-geyim
+ID: 3 | Name: Tişört | Slug: kisi-tisort
+ID: 4 | Name: Şort | Slug: kisi-sort
+ID: 5 | Name: Köynək | Slug: kisi-koynek
+ID: 6 | Name: İdman şalvarı | Slug: kisi-idman-salvari
+ID: 7 | Name: Şalvar | Slug: kisi-salvar
+ID: 8 | Name: Sweatshirt | Slug: kisi-sweatshirt
+ID: 9 | Name: Jaket | Slug: kisi-jaket
+ID: 10 | Name: Kostyum | Slug: kisi-kostyum
+ID: 11 | Name: Mont & Kurtka | Slug: kisi-mont
+ID: 12 | Name: Palto | Slug: kisi-palto
+ID: 13 | Name: Ayaqqabı | Slug: kisi-ayaqqabi
+ID: 14 | Name: İdman ayaqqabısı | Slug: kisi-idman-ayaqqabisi
+ID: 15 | Name: Gündəlik ayaqqabı | Slug: kisi-gundelik-ayaqqabi
+ID: 16 | Name: Sneaker | Slug: kisi-sneaker
+ID: 17 | Name: Klassik ayaqqabı | Slug: kisi-klassik-ayaqqabi
+ID: 18 | Name: Bot & Çəkmə | Slug: kisi-bot
+ID: 19 | Name: Sandalet & Təlik | Slug: kisi-telik
+ID: 20 | Name: Loafer | Slug: kisi-loafer
+ID: 21 | Name: Çanta | Slug: kisi-canta
+ID: 22 | Name: Sırt çantası | Slug: kisi-back-pack
+ID: 23 | Name: Çiyin çantası | Slug: kisi-shoulder-bag
+ID: 24 | Name: Spor çanta | Slug: kisi-spor-bag
+ID: 25 | Name: Pul qabı | Slug: kisi-wallet
+ID: 26 | Name: Evrak çantası | Slug: kisi-briefcase
+ID: 27 | Name: Bel çantası | Slug: kisi-waist-bag
+ID: 28 | Name: Aksesuar | Slug: kisi-aksesuar
+ID: 29 | Name: Saat | Slug: kisi-saat
+ID: 30 | Name: Günəş eynəyi | Slug: kisi-gunes-eyneyi
+ID: 31 | Name: Kəmər | Slug: kisi-kemer
+ID: 32 | Name: Qalstuk | Slug: kisi-tie
+ID: 33 | Name: Şarf & Əlcək | Slug: kisi-scarf
+ID: 35 | Name: Geyim | Slug: qadin-geyim
+ID: 36 | Name: Libas | Slug: qadin-libas
+ID: 37 | Name: Tişört | Slug: qadin-tisort
+ID: 38 | Name: Şalvar | Slug: qadin-salvar
+ID: 39 | Name: Yubka | Slug: qadin-yubka
+ID: 40 | Name: Bluz | Slug: qadin-bluz
+ID: 41 | Name: Gödəkçə | Slug: qadin-jaket
+ID: 42 | Name: Cins şalvar | Slug: qadin-jeans
+ID: 43 | Name: Mont | Slug: qadin-mont
+ID: 44 | Name: Pijama dəstləri | Slug: qadin-pijama
+ID: 45 | Name: Ayaqqabı | Slug: qadin-ayaqqabi
+ID: 46 | Name: Hündürdaban ayaqqabı | Slug: qadin-hundurdaban-ayaqqabi
+ID: 47 | Name: İdman ayaqqabısı | Slug: qadin-idman-ayaqqabisi
+ID: 48 | Name: Sneaker | Slug: qadin-sneaker
+ID: 49 | Name: Sandalet | Slug: qadin-sandalet
+ID: 50 | Name: Balerin | Slug: qadin-balerin
+ID: 51 | Name: Bot & Çəkmə | Slug: qadin-bot
+ID: 52 | Name: Sabo & Terlik | Slug: qadin-sabo
+ID: 53 | Name: Loafer & Babet | Slug: qadin-loafer
+ID: 54 | Name: Çanta | Slug: qadin-canta
+ID: 55 | Name: Çiyin çantası | Slug: qadin-ciyin-cantasi
+ID: 56 | Name: Sırt çantası | Slug: qadin-sirt-cantasi
+ID: 57 | Name: Əl çantası | Slug: qadin-el-cantasi
+ID: 58 | Name: Cüzdan | Slug: qadin-wallet
+ID: 59 | Name: Abiye çanta | Slug: qadin-evening-bag
+ID: 60 | Name: Plaj çantası | Slug: qadin-beach-bag
+ID: 62 | Name: Körpə (0-2 yaş) | Slug: korpe-0-2-yas
+ID: 63 | Name: Body | Slug: korpe-body
+ID: 64 | Name: Tulum | Slug: korpe-tulum
+ID: 65 | Name: Körpə ayaqqabısı | Slug: korpe-shoes
+ID: 66 | Name: Oğlan uşağı | Slug: oglan-usaqi
+ID: 67 | Name: Tişört | Slug: oglan-tisort
+ID: 68 | Name: Şalvar | Slug: oglan-salvar
+ID: 69 | Name: İdman ayaqqabısı | Slug: oglan-shoes
+ID: 70 | Name: Qız uşağı | Slug: qiz-usaqi
+ID: 71 | Name: Libas | Slug: qiz-libas
+ID: 72 | Name: Yubka | Slug: qiz-yubka
+ID: 73 | Name: Qadın ayaqqabı | Slug: qiz-shoes
+ID: 1 | Name: Kişi | Slug: kisi
+ID: 34 | Name: Qadın | Slug: qadin
+ID: 61 | Name: Uşaq | Slug: usaq
+ID: 74 | Name: Test | Slug: test
+------------------------

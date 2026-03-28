@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { FilterSidebar } from '../category/components/FilterSidebar';
-import { Filter, Loader2, ChevronRight } from 'lucide-react';
+import { Filter, Loader2, ChevronRight, Search } from 'lucide-react';
 import { useInfiniteProducts, useProductFilters } from '@/hooks/useProducts';
 import { useDebounce } from '@/hooks/useDebounce';
 import { Product } from '@/services/product.service';
@@ -224,7 +224,7 @@ export default function SearchPage() {
                     )}
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="bottom" className="h-[90vh] p-0 rounded-t-xl overflow-hidden flex flex-col z-[100]">
+                <SheetContent side="bottom" className="h-[90vh] p-0 rounded-t-xl overflow-hidden flex flex-col z-100">
                   <SheetTitle className="sr-only">Filtrlər</SheetTitle>
                   <div className="flex-1 overflow-y-auto px-5 pt-6 pb-28">
                     <FilterSidebar

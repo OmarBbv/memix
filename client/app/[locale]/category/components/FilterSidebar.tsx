@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Search, X } from 'lucide-react';
 
 interface FilterOption {
   id: string;
@@ -40,6 +40,7 @@ interface FilterSidebarProps {
   onPriceChange?: (min: number, max: number) => void;
 }
 
+// ─── DualRangeSlider ──────────────────
 interface DualRangeSliderProps {
   min: number;
   max: number;
@@ -60,10 +61,10 @@ const DualRangeSlider = ({ min, max, valueMin, valueMax, onChange, onCommit, ste
   const rightPct = getPercent(valueMax);
 
   return (
-    <div className="relative w-full h-10 flex items-center">
-      <div className="absolute left-0 right-0 h-1.5 bg-gray-200 rounded-full pointer-events-none" />
+    <div className="relative w-full h-8 flex items-center">
+      <div className="absolute left-0 right-0 h-1 bg-gray-200 rounded-full pointer-events-none" />
       <div
-        className="absolute h-1.5 bg-black rounded-full pointer-events-none"
+        className="absolute h-1 bg-[#10b981] rounded-full pointer-events-none"
         style={{ left: `${leftPct}%`, right: `${100 - rightPct}%` }}
       />
       <input
@@ -78,20 +79,18 @@ const DualRangeSlider = ({ min, max, valueMin, valueMax, onChange, onCommit, ste
         }}
         onPointerUp={() => onCommit(valueMin, valueMax)}
         onTouchEnd={() => onCommit(valueMin, valueMax)}
-        className="absolute w-full h-10 appearance-none bg-transparent pointer-events-none z-10
+        className="absolute w-full h-8 appearance-none bg-transparent pointer-events-none z-10
           [&::-webkit-slider-thumb]:appearance-none
           [&::-webkit-slider-thumb]:pointer-events-auto
-          [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5
+          [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4
           [&::-webkit-slider-thumb]:rounded-full
-          [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-black
-          [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:cursor-grab
-          [&::-webkit-slider-thumb]:active:cursor-grabbing
-          [&::-webkit-slider-thumb]:hover:scale-110 [&::-webkit-slider-thumb]:transition-transform
+          [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-[#10b981]
+          [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:cursor-pointer
           [&::-moz-range-thumb]:appearance-none
           [&::-moz-range-thumb]:pointer-events-auto
-          [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5
-          [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-black
-          [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:shadow-md [&::-moz-range-thumb]:cursor-grab
+          [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4
+          [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-[#10b981]
+          [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:shadow-md
           [&::-webkit-slider-runnable-track]:appearance-none [&::-webkit-slider-runnable-track]:bg-transparent
           [&::-moz-range-track]:appearance-none [&::-moz-range-track]:bg-transparent"
       />
@@ -108,20 +107,18 @@ const DualRangeSlider = ({ min, max, valueMin, valueMax, onChange, onCommit, ste
         }}
         onPointerUp={() => onCommit(valueMin, valueMax)}
         onTouchEnd={() => onCommit(valueMin, valueMax)}
-        className="absolute w-full h-10 appearance-none bg-transparent pointer-events-none z-20
+        className="absolute w-full h-8 appearance-none bg-transparent pointer-events-none z-20
           [&::-webkit-slider-thumb]:appearance-none
           [&::-webkit-slider-thumb]:pointer-events-auto
-          [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5
+          [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4
           [&::-webkit-slider-thumb]:rounded-full
-          [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-black
-          [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:cursor-grab
-          [&::-webkit-slider-thumb]:active:cursor-grabbing
-          [&::-webkit-slider-thumb]:hover:scale-110 [&::-webkit-slider-thumb]:transition-transform
+          [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-[#10b981]
+          [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:cursor-pointer
           [&::-moz-range-thumb]:appearance-none
           [&::-moz-range-thumb]:pointer-events-auto
-          [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5
-          [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-black
-          [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:shadow-md [&::-moz-range-thumb]:cursor-grab
+          [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4
+          [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-[#10b981]
+          [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:shadow-md
           [&::-webkit-slider-runnable-track]:appearance-none [&::-webkit-slider-runnable-track]:bg-transparent
           [&::-moz-range-track]:appearance-none [&::-moz-range-track]:bg-transparent"
       />
@@ -129,6 +126,7 @@ const DualRangeSlider = ({ min, max, valueMin, valueMax, onChange, onCommit, ste
   );
 };
 
+// ─── PriceFilter ──────────────────
 interface PriceFilterProps {
   priceRange: PriceRange;
   valueMin: number;
@@ -230,7 +228,7 @@ const PriceFilter = ({ priceRange, valueMin, valueMax, onChange }: PriceFilterPr
   };
 
   return (
-    <div className="space-y-4 pt-1 pb-4 overflow-hidden">
+    <div className="space-y-4 pt-2">
       <DualRangeSlider
         min={priceRange.min}
         max={priceRange.max}
@@ -241,7 +239,7 @@ const PriceFilter = ({ priceRange, valueMin, valueMax, onChange }: PriceFilterPr
         step={1}
       />
       <div className="flex items-center gap-3">
-        <div className="flex-1 relative min-w-0">
+        <div className="flex-1 relative">
           <input
             type="number"
             value={localMinInput}
@@ -250,13 +248,13 @@ const PriceFilter = ({ priceRange, valueMin, valueMax, onChange }: PriceFilterPr
             onKeyDown={handleMinKeyDown}
             min={priceRange.min}
             max={sliderMax - 1}
-            className="w-full h-10 px-3 pr-8 text-sm font-medium border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-black/10 focus:border-gray-400 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            className="w-full h-10 px-3 text-sm border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#10b981] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             placeholder="Min"
           />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">₼</span>
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">₼</span>
         </div>
-        <div className="w-3 h-px bg-gray-300 shrink-0" />
-        <div className="flex-1 relative min-w-0">
+        <div className="text-gray-400">−</div>
+        <div className="flex-1 relative">
           <input
             type="number"
             value={localMaxInput}
@@ -265,21 +263,101 @@ const PriceFilter = ({ priceRange, valueMin, valueMax, onChange }: PriceFilterPr
             onKeyDown={handleMaxKeyDown}
             min={sliderMin + 1}
             max={priceRange.max}
-            className="w-full h-10 px-3 pr-8 text-sm font-medium border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-black/10 focus:border-gray-400 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            className="w-full h-10 px-3 text-sm border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#10b981] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             placeholder="Max"
           />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">₼</span>
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">₼</span>
         </div>
-      </div>
-      <div className="flex justify-between text-[10px] text-gray-400 px-0.5">
-        <span>{priceRange.min} ₼</span>
-        <span>{priceRange.max} ₼</span>
       </div>
     </div>
   );
 };
 
-// ─── Main FilterSidebar ──────────────────
+// ─── Filter Group ──────────────────
+interface FilterGroupProps {
+  filter: FilterOption;
+  selectedValues: string[];
+  onFilterChange: (filterId: string, value: string, checked: boolean) => void;
+}
+
+const FilterGroup = ({ filter, selectedValues, onFilterChange }: FilterGroupProps) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  const filteredOptions = filter.options
+    .filter(opt => opt.toLowerCase().includes(searchTerm.toLowerCase()))
+    .sort((a, b) => a.localeCompare(b));
+
+  const showSearch = filter.options.length > 8;
+
+  return (
+    <AccordionItem key={filter.id} value={filter.id} className="border-b last:border-b-0">
+      <AccordionTrigger className="hover:no-underline py-4 text-sm font-semibold text-gray-900 group">
+        <span className="flex items-center gap-2">
+          {filter.name}
+          {selectedValues.length > 0 && (
+            <span className="w-5 h-5 flex items-center justify-center rounded-full bg-[#10b981] text-white text-[10px] font-bold">
+              {selectedValues.length}
+            </span>
+          )}
+        </span>
+      </AccordionTrigger>
+      <AccordionContent>
+        <div className="space-y-4 pt-1 pb-4">
+          {showSearch && (
+            <div className="relative mb-2">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder={`${filter.name} axtar...`}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full h-9 pl-9 pr-3 text-sm border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#10b981]"
+              />
+              {searchTerm && (
+                <button 
+                  onClick={() => setSearchTerm('')}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          )}
+
+          <div className={cn(
+            "space-y-3",
+            filter.options.length > 6 && "max-h-60 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-200"
+          )}>
+            {filteredOptions.length > 0 ? (
+              filteredOptions.map((option) => (
+                <label
+                  key={option}
+                  className="flex items-center space-x-3 cursor-pointer group"
+                >
+                  <Checkbox
+                    id={`${filter.id}-${option}`}
+                    checked={selectedValues.includes(option)}
+                    onCheckedChange={(checked) => {
+                      onFilterChange?.(filter.id, option, !!checked);
+                    }}
+                    className="data-[state=checked]:bg-[#10b981] data-[state=checked]:border-[#10b981]"
+                  />
+                  <span className="text-sm font-medium text-gray-600 group-hover:text-black transition-colors">
+                    {option}
+                  </span>
+                </label>
+              ))
+            ) : (
+              <p className="text-xs text-gray-400 py-2">Nəticə tapılmadı</p>
+            )}
+          </div>
+        </div>
+      </AccordionContent>
+    </AccordionItem>
+  );
+};
+
+// ─── FilterSidebar ──────────────────
 export const FilterSidebar = ({
   filters,
   className,
@@ -294,12 +372,10 @@ export const FilterSidebar = ({
   onPriceChange,
 }: FilterSidebarProps) => {
   const activeCount = Object.values(selectedFilters).reduce((sum, arr) => sum + arr.length, 0);
-  const hasPriceFilter = priceRange && priceRange.max > 0 && onPriceChange;
-  const isPriceActive = hasPriceFilter && (
-    (selectedPriceMin != null && selectedPriceMin > priceRange.min) ||
-    (selectedPriceMax != null && selectedPriceMax < priceRange.max)
+  const totalActiveCount = activeCount + (
+    (selectedPriceMin != null && priceRange && selectedPriceMin > priceRange.min) ||
+    (selectedPriceMax != null && priceRange && selectedPriceMax < priceRange.max) ? 1 : 0
   );
-  const totalActiveCount = activeCount + (isPriceActive ? 1 : 0);
 
   const filterPriority = ['gender', 'brand', 'color', 'size', 'condition', 'material'];
   const nonPriceFilters = [...filters]
@@ -315,16 +391,16 @@ export const FilterSidebar = ({
 
   const allFilterIds = [
     ...nonPriceFilters.map(f => f.id),
-    ...(hasPriceFilter ? ['price-range'] : [])
+    ...(priceRange && priceRange.max > 0 ? ['price-range'] : [])
   ];
 
   return (
-    <div className={`w-full space-y-6 ${className}`}>
-      <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold">
+    <div className={cn("w-full bg-white", className)}>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-bold flex items-center gap-2">
           Filtrlər
           {totalActiveCount > 0 && (
-            <span className="ml-2 inline-flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full bg-black text-white text-xs font-medium">
+            <span className="w-5 h-5 flex items-center justify-center rounded-full bg-[#10b981] text-white text-[10px] font-bold">
               {totalActiveCount}
             </span>
           )}
@@ -334,37 +410,37 @@ export const FilterSidebar = ({
             <Button
               variant="ghost"
               size="sm"
-              className="text-sm text-red-500 hover:text-red-600 hover:bg-red-50 h-8 px-2"
+              className="text-xs font-semibold text-[#10b981] hover:bg-green-50 h-8"
               onClick={onClearAll}
             >
-              Təmizlə
+              Hamısını təmizlə
             </Button>
           )}
-          {onClose && (
-            <Button variant="ghost" size="sm" onClick={onClose} className="lg:hidden h-8 w-8 p-0">
-              ✕
-            </Button>
-          )}
+          <Button variant="ghost" size="sm" onClick={onClose} className="lg:hidden h-8 w-8 p-0">
+            <X className="w-4 h-4" />
+          </Button>
         </div>
       </div>
 
-      <Separator />
+      <Separator className="mb-6" />
 
-      {/* Subcategory links */}
+      {/* Subcategories */}
       {subcategories.length > 0 && (
-        <div className="space-y-1">
-          <h3 className="text-sm font-semibold text-gray-500 capitalize tracking-wider mb-2">Kateqoriyalar</h3>
-          {subcategories.map((sub) => (
-            <Link
-              key={sub.id}
-              href={`/en/category/${sub.slug}`}
-              className="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-black transition-colors group"
-            >
-              {sub.name}
-              <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-black transition-colors" />
-            </Link>
-          ))}
-          <Separator className="mt-3" />
+        <div className="mb-8">
+          <h3 className="text-sm font-bold text-gray-900 mb-4">Alt Kategoriyalar</h3>
+          <div className="space-y-1">
+            {subcategories.map((sub) => (
+              <Link
+                key={sub.id}
+                href={`/en/category/${sub.slug}`}
+                className="flex items-center justify-between py-2 text-sm text-gray-600 hover:text-[#10b981] transition-colors group"
+              >
+                {sub.name}
+                <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-[#10b981] transition-colors" />
+              </Link>
+            ))}
+          </div>
+          <Separator className="mt-8" />
         </div>
       )}
 
@@ -374,14 +450,14 @@ export const FilterSidebar = ({
         defaultValue={allFilterIds}
         className="w-full"
       >
-        {/* Price Range Slider */}
-        {hasPriceFilter && (
+        {/* Price Range */}
+        {priceRange && priceRange.max > 0 && onPriceChange && (
           <AccordionItem value="price-range" className="border-b">
-            <AccordionTrigger className="hover:no-underline py-4 text-base font-semibold">
+            <AccordionTrigger className="hover:no-underline py-4 text-sm font-semibold text-gray-900 group">
               <span className="flex items-center gap-2">
                 Qiymət
-                {isPriceActive && (
-                  <span className="inline-flex items-center justify-center h-4 min-w-4 px-1 rounded-full bg-gray-200 text-gray-600 text-[10px] font-medium">
+                {(selectedPriceMin != null || selectedPriceMax != null) && (
+                  <span className="w-5 h-5 flex items-center justify-center rounded-full bg-[#10b981] text-white text-[10px] font-bold">
                     1
                   </span>
                 )}
@@ -398,61 +474,15 @@ export const FilterSidebar = ({
           </AccordionItem>
         )}
 
-        {/* Other filters */}
-        {nonPriceFilters.map((filter) => {
-          const selectedCount = selectedFilters[filter.id]?.length || 0;
-
-          return (
-            <AccordionItem key={filter.id} value={filter.id} className="border-b">
-              <AccordionTrigger className="hover:no-underline py-4 text-base font-semibold">
-                <span className="flex items-center gap-2">
-                  {filter.name}
-                  {selectedCount > 0 && (
-                    <span className="inline-flex items-center justify-center h-4 min-w-4 px-1 rounded-full bg-gray-200 text-gray-600 text-[10px] font-medium">
-                      {selectedCount}
-                    </span>
-                  )}
-                </span>
-              </AccordionTrigger>
-              <AccordionContent>
-                <div
-                  className={cn(
-                    "space-y-4 pt-1 pb-4 pr-2 custom-scrollbar",
-                    filter.options.length > 6 && "max-h-[220px] overflow-y-auto"
-                  )}
-                >
-                  {[...filter.options].sort((a,b) => a.localeCompare(b)).map((option) => {
-                    const isChecked = selectedFilters[filter.id]?.includes(option) || false;
-                    return (
-                      <label
-                        key={option}
-                        htmlFor={`${filter.id}-${option}`}
-                        className="flex items-center space-x-3 cursor-pointer group w-fit"
-                      >
-                        <Checkbox
-                          id={`${filter.id}-${option}`}
-                          checked={isChecked}
-                          onCheckedChange={(checked) => {
-                            onFilterChange?.(filter.id, option, !!checked);
-                          }}
-                          className="h-5 w-5 rounded-md border-gray-300 transition-colors data-[state=checked]:bg-black data-[state=checked]:border-black shrink-0"
-                        />
-                        <span
-                          className={cn(
-                            "text-sm w-full font-medium leading-none select-none transition-colors",
-                            isChecked ? "text-black" : "text-gray-600 group-hover:text-black"
-                          )}
-                        >
-                          {option}
-                        </span>
-                      </label>
-                    );
-                  })}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          );
-        })}
+        {/* Other Filters */}
+        {nonPriceFilters.map((filter) => (
+          <FilterGroup 
+            key={filter.id}
+            filter={filter}
+            selectedValues={selectedFilters[filter.id] || []}
+            onFilterChange={onFilterChange || (() => {})}
+          />
+        ))}
       </Accordion>
     </div>
   );
