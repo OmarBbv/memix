@@ -24,7 +24,7 @@ export const useProductFilters = (params?: any) => {
   return useQuery({
     queryKey: ["productFilters", params],
     queryFn: () => productService.getFilters(params),
-    enabled: !!params?.search || !!params?.categoryId,
+    enabled: true,
     placeholderData: keepPreviousData,
   });
 };

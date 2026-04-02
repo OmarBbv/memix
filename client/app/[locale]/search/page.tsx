@@ -65,7 +65,7 @@ export default function SearchPage() {
   const debouncedFilters = useDebounce(apiFilters, 300);
 
   // 3) Hook'ları çağır: Filtre menüsü değerleri(categoriesService mantığında) ve Ürünler
-  const { data: filtersData } = useProductFilters({ search: query });
+  const { data: filtersData } = useProductFilters(debouncedFilters);
 
   const {
     data,
@@ -192,7 +192,17 @@ export default function SearchPage() {
   return (
     <div className="min-h-screen py-8 px-4 max-w-7xl mx-auto pb-24 lg:pb-8">
       <h1 className="text-xl sm:text-2xl font-bold mb-6">
-        &quot;{query || 'Bütün məhsullar'}&quot; üçün axtarış nəticələri
+        {query ? (
+          <>
+            &quot;{query}&quot; üçün axtarış nəticələri
+          </>
+        ) : selectedFilters.listingType?.includes('new') ? (
+          'Yeni Məhsullar'
+        ) : selectedFilters.listingType?.includes('used') ? (
+          'İkinci əl Məhsullar'
+        ) : (
+          'Bütün məhsullar'
+        )}
       </h1>
 
       <div className="flex flex-col lg:flex-row gap-8">

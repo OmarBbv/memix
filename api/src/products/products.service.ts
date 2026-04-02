@@ -404,6 +404,14 @@ export class ProductsService {
           categoryId: query.categoryId,
         });
       }
+
+      if (query.listingType) {
+        const listingTypes = Array.isArray(query.listingType)
+          ? query.listingType
+          : (query.listingType as string).split(',').map(v => v.trim());
+        qb.andWhere('product.listingType IN (:...listingTypes)', { listingTypes });
+      }
+
       products = await qb.getMany();
     }
 

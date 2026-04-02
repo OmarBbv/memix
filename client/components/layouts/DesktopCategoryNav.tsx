@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link } from '@/i18n/routing';
 import { Category } from '@/types/category.types';
-import { ChevronRight, ChevronDown, Menu, User, Baby, Home, ShoppingCart, Sparkles, Briefcase, Monitor, Dumbbell, Shirt } from 'lucide-react';
+import { ChevronRight, ChevronDown, Menu, User, Baby, Home, ShoppingCart, Sparkles, Briefcase, Monitor, Dumbbell, Shirt, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface DesktopCategoryNavProps {
@@ -190,8 +190,9 @@ export function DesktopCategoryNav({ categories, show }: DesktopCategoryNavProps
             <Link
               href="/search?listingType=new"
               onClick={() => setMegaMenuOpen(false)}
-              className="h-full flex items-center font-medium text-[13px] text-gray-800 capitalize group-hover:text-black transition-colors relative"
+              className="h-full flex items-center font-medium text-[13px] text-gray-800 capitalize group-hover:text-black transition-colors relative gap-2 px-1"
             >
+              <Sparkles className="w-4 h-4 text-[#d02424]" />
               Yeni
               <span className="absolute -bottom-px left-0 w-full h-[2px] bg-black scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
             </Link>
@@ -201,8 +202,9 @@ export function DesktopCategoryNav({ categories, show }: DesktopCategoryNavProps
             <Link
               href="/search?listingType=used"
               onClick={() => setMegaMenuOpen(false)}
-              className="h-full flex items-center font-medium text-[13px] text-gray-800 capitalize group-hover:text-black transition-colors relative"
+              className="h-full flex items-center font-medium text-[13px] text-gray-800 capitalize group-hover:text-black transition-colors relative gap-2 px-1"
             >
+              <RefreshCw className="w-4 h-4 text-blue-600" />
               İkinci əl
               <span className="absolute -bottom-px left-0 w-full h-[2px] bg-black scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
             </Link>

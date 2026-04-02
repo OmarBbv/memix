@@ -2,7 +2,7 @@
 
 import logoIcon from "@/public/memi.svg";
 import searchIcon from "@/public/navbar/search.svg";
-import { Heart, ShoppingBag, User, Menu, ChevronRight, Globe, Search, X } from "lucide-react";
+import { Heart, ShoppingBag, User, Menu, ChevronRight, Globe, Search, X, Sparkles, RefreshCw } from "lucide-react";
 import Image from "next/image";
 import { Link, usePathname, useRouter } from "@/i18n/routing";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -283,7 +283,10 @@ export default function Navbar() {
                                             onClick={() => setMobileMenuOpen(false)}
                                             className="flex items-center justify-between px-3 py-3 rounded-xl text-sm font-semibold text-black hover:bg-gray-50 transition-colors"
                                         >
-                                            Yeni Məhsullar
+                                            <div className="flex items-center gap-3">
+                                                <Sparkles className="w-5 h-5 text-[#d02424]" />
+                                                Yeni Məhsullar
+                                            </div>
                                             <ChevronRight className="w-4 h-4 text-gray-400" />
                                         </Link>
                                         <Link
@@ -291,7 +294,10 @@ export default function Navbar() {
                                             onClick={() => setMobileMenuOpen(false)}
                                             className="flex items-center justify-between px-3 py-3 rounded-xl text-sm font-semibold text-black hover:bg-gray-50 transition-colors"
                                         >
-                                            İkinci əl
+                                            <div className="flex items-center gap-3">
+                                                <RefreshCw className="w-5 h-5 text-blue-600" />
+                                                İkinci əl
+                                            </div>
                                             <ChevronRight className="w-4 h-4 text-gray-400" />
                                         </Link>
                                         <DropdownMenuSeparator className="my-2 bg-gray-100" />
