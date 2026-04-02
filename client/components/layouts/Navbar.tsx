@@ -278,6 +278,23 @@ export default function Navbar() {
                                 <div className="px-5 pt-4 pb-2">
                                     <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">Kateqoriyalar</h3>
                                     <div className="space-y-0.5">
+                                        <Link
+                                            href="/search?listingType=new"
+                                            onClick={() => setMobileMenuOpen(false)}
+                                            className="flex items-center justify-between px-3 py-3 rounded-xl text-sm font-semibold text-black hover:bg-gray-50 transition-colors"
+                                        >
+                                            Yeni Məhsullar
+                                            <ChevronRight className="w-4 h-4 text-gray-400" />
+                                        </Link>
+                                        <Link
+                                            href="/search?listingType=used"
+                                            onClick={() => setMobileMenuOpen(false)}
+                                            className="flex items-center justify-between px-3 py-3 rounded-xl text-sm font-semibold text-black hover:bg-gray-50 transition-colors"
+                                        >
+                                            İkinci əl
+                                            <ChevronRight className="w-4 h-4 text-gray-400" />
+                                        </Link>
+                                        <DropdownMenuSeparator className="my-2 bg-gray-100" />
                                         {categories?.map((item: Category) => (
                                             <Link
                                                 key={item.id}

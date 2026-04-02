@@ -42,8 +42,8 @@ async function seed() {
 
   // 2. Data Bankı
   const colorPalette = [
-    'Qara', 'Ağ', 'Qırmızı', 'Mavi', 'Yaşıl', 'Sarı', 'Bənövşəyi', 'Narıncı', 
-    'Bordo', 'Antrasit', 'Bej', 'Ekru', 'Firuzəyi', 'Xaki', 'Qəhvəyi', 'Gümüşü', 
+    'Qara', 'Ağ', 'Qırmızı', 'Mavi', 'Yaşıl', 'Sarı', 'Bənövşəyi', 'Narıncı',
+    'Bordo', 'Antrasit', 'Bej', 'Ekru', 'Firuzəyi', 'Xaki', 'Qəhvəyi', 'Gümüşü',
     'Qızılı', 'Çəhrayı', 'Lila', 'Indiqo', 'Tütün', 'Mint'
   ];
 
@@ -75,9 +75,8 @@ async function seed() {
   const brands = await brandRepo.find();
 
   console.log('🧹 Clearing existing store data...');
-  await productRepo.query('DELETE FROM products'); 
+  await productRepo.query('DELETE FROM products');
 
-  // --- 2.5 Alt Kateqoriyaların yaradılması (Yeni Məntiq) ---
   const parentSubMappings: Record<string, string[]> = {
     'ayaqqabi': ['İdman ayaqqabısı', 'Klassik ayaqqabı', 'Botlar'],
     'futbolka': ['Polo Futbolka', 'V-yaxa Futbolka', 'Printli Futbolka'],
@@ -115,69 +114,69 @@ async function seed() {
     console.log(`📦 Adding products to category: ${cat.name}`);
 
     for (let i = 1; i <= productCount; i++) {
-        const selectedBrand = brands[Math.floor(Math.random() * brands.length)];
-        const selectedGender = genders[Math.floor(Math.random() * genders.length)];
-        const selectedListingType = Math.random() > 0.4 ? LISTING_TYPE.NEW : LISTING_TYPE.USED;
-        const skuBase = `${cat.slug.slice(0, 3).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
+      const selectedBrand = brands[Math.floor(Math.random() * brands.length)];
+      const selectedGender = genders[Math.floor(Math.random() * genders.length)];
+      const selectedListingType = Math.random() > 0.4 ? LISTING_TYPE.NEW : LISTING_TYPE.USED;
+      const skuBase = `${cat.slug.slice(0, 3).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-        const product = productRepo.create({
-            name: `${selectedBrand?.name || 'Memix'} ${cat.name} - Model ${i}`,
-            description: `Bu ${cat.name} yüksək keyfiyyətli materiallardan hazırlanmışdır. ${selectedGender} üçün nəzərdə tutulub. Rahatlıq və stili bir arada təqdim edir.`,
-            price: Math.floor(Math.random() * 450) + 25,
-            sku: `${skuBase}-${i}`,
-            barcode: `869${Math.floor(1000000000 + Math.random() * 9000000000)}`,
-            gender: selectedGender,
-            weight: Number((Math.random() * 2).toFixed(2)),
-            category: cat,
-            brand: selectedBrand as any,
-            listingType: selectedListingType,
-            isActive: true,
-            isFeatured: Math.random() > 0.8,
-            banner: images[Math.floor(Math.random() * images.length)],
-            tags: [cat.slug, 'premium', 'yeni-sezon', selectedGender.toLowerCase()],
-            attributes: {
-                material: materials[Math.floor(Math.random() * materials.length)],
-                fit: fits[Math.floor(Math.random() * fits.length)],
-                origin: 'Türkiyə'
-            },
-            variants: {
-                condition: conditions[Math.floor(Math.random() * conditions.length)]
-            }
+      const product = productRepo.create({
+        name: `${selectedBrand?.name || 'Memix'} ${cat.name} - Model ${i}`,
+        description: `Bu ${cat.name} yüksək keyfiyyətli materiallardan hazırlanmışdır. ${selectedGender} üçün nəzərdə tutulub. Rahatlıq və stili bir arada təqdim edir.`,
+        price: Math.floor(Math.random() * 450) + 25,
+        sku: `${skuBase}-${i}`,
+        barcode: `869${Math.floor(1000000000 + Math.random() * 9000000000)}`,
+        gender: selectedGender,
+        weight: Number((Math.random() * 2).toFixed(2)),
+        category: cat,
+        brand: selectedBrand as any,
+        listingType: selectedListingType,
+        isActive: true,
+        isFeatured: Math.random() > 0.8,
+        banner: images[Math.floor(Math.random() * images.length)],
+        tags: [cat.slug, 'premium', 'yeni-sezon', selectedGender.toLowerCase()],
+        attributes: {
+          material: materials[Math.floor(Math.random() * materials.length)],
+          fit: fits[Math.floor(Math.random() * fits.length)],
+          origin: 'Türkiyə'
+        },
+        variants: {
+          condition: conditions[Math.floor(Math.random() * conditions.length)]
+        }
+      });
+
+      const savedProduct = await productRepo.save(product);
+
+      // --- Rəng və Ölçü Variantları (Complex Logic) ---
+      const colorCount = Math.floor(Math.random() * 4) + 1; // Hər məhsula 1-4 arası rəng
+      const selectedColors = [...colorPalette].sort(() => 0.5 - Math.random()).slice(0, colorCount);
+
+      for (const colorName of selectedColors) {
+        const colorVariant = await colorRepo.save({
+          product: savedProduct,
+          color: colorName,
+          images: [
+            images[Math.floor(Math.random() * images.length)],
+            images[Math.floor(Math.random() * images.length)]
+          ]
         });
 
-        const savedProduct = await productRepo.save(product);
+        // Ölçü tipinə görə stok
+        const stType = cat.sizeType || 'beden-text';
+        const possibleSizes = sizeValues[stType] || sizeValues['beden-text'];
 
-        // --- Rəng və Ölçü Variantları (Complex Logic) ---
-        const colorCount = Math.floor(Math.random() * 4) + 1; // Hər məhsula 1-4 arası rəng
-        const selectedColors = [...colorPalette].sort(() => 0.5 - Math.random()).slice(0, colorCount);
+        // Hər rəng üçün 3-5 fərqli ölçü olsun (stokda olanlar)
+        const numSizes = Math.floor(Math.random() * 5) + 2;
+        const selectedSizes = [...possibleSizes].sort(() => 0.5 - Math.random()).slice(0, numSizes);
 
-        for (const colorName of selectedColors) {
-            const colorVariant = await colorRepo.save({
-                product: savedProduct,
-                color: colorName,
-                images: [
-                    images[Math.floor(Math.random() * images.length)],
-                    images[Math.floor(Math.random() * images.length)]
-                ]
-            });
-
-            // Ölçü tipinə görə stok
-            const stType = cat.sizeType || 'beden-text';
-            const possibleSizes = sizeValues[stType] || sizeValues['beden-text'];
-            
-            // Hər rəng üçün 3-5 fərqli ölçü olsun (stokda olanlar)
-            const numSizes = Math.floor(Math.random() * 5) + 2;
-            const selectedSizes = [...possibleSizes].sort(() => 0.5 - Math.random()).slice(0, numSizes);
-
-            for (const sizeVal of selectedSizes) {
-                await stockRepo.save({
-                    product: savedProduct,
-                    colorVariant: colorVariant,
-                    size: sizeVal,
-                    stock: Math.floor(Math.random() * 30) + 1
-                });
-            }
+        for (const sizeVal of selectedSizes) {
+          await stockRepo.save({
+            product: savedProduct,
+            colorVariant: colorVariant,
+            size: sizeVal,
+            stock: Math.floor(Math.random() * 30) + 1
+          });
         }
+      }
     }
   }
 

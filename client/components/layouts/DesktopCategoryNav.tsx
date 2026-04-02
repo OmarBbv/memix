@@ -186,7 +186,29 @@ export function DesktopCategoryNav({ categories, show }: DesktopCategoryNavProps
             )}
           </li>
 
-          {categories.slice(0, 14).map((item) => (
+          <li className="h-full flex items-center group cursor-pointer whitespace-nowrap">
+            <Link
+              href="/search?listingType=new"
+              onClick={() => setMegaMenuOpen(false)}
+              className="h-full flex items-center font-medium text-[13px] text-gray-800 capitalize group-hover:text-black transition-colors relative"
+            >
+              Yeni
+              <span className="absolute -bottom-px left-0 w-full h-[2px] bg-black scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
+            </Link>
+          </li>
+
+          <li className="h-full flex items-center group cursor-pointer whitespace-nowrap">
+            <Link
+              href="/search?listingType=used"
+              onClick={() => setMegaMenuOpen(false)}
+              className="h-full flex items-center font-medium text-[13px] text-gray-800 capitalize group-hover:text-black transition-colors relative"
+            >
+              İkinci əl
+              <span className="absolute -bottom-px left-0 w-full h-[2px] bg-black scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
+            </Link>
+          </li>
+
+          {categories.slice(0, 12).map((item) => (
             <li
               key={item.id}
               className="h-full flex items-center group cursor-pointer whitespace-nowrap"
