@@ -39,6 +39,7 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 import Orders from "./pages/Orders";
 import WarehouseLogs from "./pages/WarehouseLogs";
 import CreateWarehouseLog from "./pages/WarehouseLogs/CreateWarehouseLog";
+import PendingDiscounts from "./pages/PendingDiscounts";
 
 export default function App() {
   return (
@@ -79,6 +80,7 @@ export default function App() {
               <Route path="/marketing/campaigns/create" element={<CreateCampaign />} />
               <Route path="/marketing/campaigns/edit/:id" element={<CreateCampaign />} />
               <Route path="/marketing/discounts" element={<Discounts />} />
+              <Route path="/marketing/pending-discounts" element={<PendingDiscounts />} />
 
               {/* Other Routes */}
               <Route path="/analytics" element={<PlaceholderPage title="Statistika" />} />

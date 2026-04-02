@@ -40,6 +40,9 @@ export class Discount {
   @Column({ default: true })
   isActive: boolean;
 
+  @Column({ default: false })
+  isAutomatic: boolean; // Avtomatik endirim sistemi tərəfindən yaradılıb?
+
   @OneToOne(() => Product, (product) => product.discount, {
     onDelete: 'CASCADE',
   })

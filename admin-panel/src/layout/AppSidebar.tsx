@@ -59,6 +59,7 @@ const navItems: NavItem[] = [
       { name: "Markalar", path: "/marketing/brands", pro: false },
       { name: "Kampaniyalar", path: "/marketing/campaigns", pro: false },
       { name: "Toplu Endirimlər", path: "/marketing/discounts", pro: false },
+      { name: "Gözləyən Endirimlər", path: "/marketing/pending-discounts", new: true },
     ],
   },
   {

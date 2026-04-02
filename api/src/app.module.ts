@@ -30,6 +30,7 @@ import { IntegrationsModule } from './integrations/integrations.module';
 import { AttributesModule } from './attributes/attributes.module';
 import { SizeTypesModule } from './size-types/size-types.module';
 import { WarehouseLogsModule } from './warehouse-logs/warehouse-logs.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { WarehouseLogsModule } from './warehouse-logs/warehouse-logs.module';
       envFilePath: '.env',
     }),
     TypeOrmModule.forRoot(typeOrmConfig),
+    ScheduleModule.forRoot(),
     UsersModule,
     AuthModule,
     ProductsModule,
