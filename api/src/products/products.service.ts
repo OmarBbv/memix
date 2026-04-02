@@ -431,40 +431,15 @@ export class ProductsService {
           .leftJoinAndSelect('product.brand', 'brand')
           .andWhere('product.isDeleted = :isDeleted', { isDeleted: false });
 
-        if (query.listingType) {
-          const listingTypes = Array.isArray(query.listingType) ? query.listingType : query.listingType.split(',').map(v => v.trim());
-          qb.andWhere('product.listingType IN (:...listingTypes)', { listingTypes });
-        }
-        if (query.brand) {
-          const brands = Array.isArray(query.brand) ? query.brand : query.brand.split(',').map(b => b.trim());
-          qb.andWhere('brand.name IN (:...brands)', { brands });
-        }
-        if (query.color) {
-          const colors = Array.isArray(query.color) ? query.color : query.color.split(',').map(c => c.trim());
-          qb.andWhere('(product.variants ->> \'color\' IN (:...colors) OR colorVariants.color IN (:...colors))', { colors });
-        }
-        if (query.size) {
-          const sizes = Array.isArray(query.size) ? query.size : query.size.split(',').map(s => s.trim());
-          qb.andWhere('(product.variants ->> \'size\' IN (:...sizes) OR stocks.size IN (:...sizes))', { sizes });
-        }
-        if (query.gender) {
-          const genders = Array.isArray(query.gender) ? query.gender : query.gender.split(',').map(g => g.trim());
-          qb.andWhere('product.gender IN (:...genders)', { genders });
+        if (query.categoryId) {
+          qb.leftJoin('product.category', 'category');
+          qb.andWhere('category.id = :categoryId', { categoryId: query.categoryId });
         }
 
-        // Dynamic variants narrowing
-        const knownKeys = ['page', 'limit', 'search', 'minPrice', 'maxPrice', 'categoryId', 'sort', 'brand', 'color', 'size', 'gender', 'listingType'];
-        Object.entries(query).forEach(([key, value]) => {
-          if (!knownKeys.includes(key) && value) {
-            const values = Array.isArray(value) ? value : (value as string).split(',').map(v => v.trim());
-            if (values.length > 0) {
-              qb.andWhere(`product.variants ->> :key_${key} IN (:...val_${key})`, {
-                [`key_${key}`]: key,
-                [`val_${key}`]: values
-              });
-            }
-          }
-        });
+        if (query.listingType) {
+          const listingTypes = Array.isArray(query.listingType) ? query.listingType : (query.listingType as string).split(',').map(v => v.trim());
+          qb.andWhere('product.listingType IN (:...listingTypes)', { listingTypes });
+        }
 
         products = await qb.getMany();
       }
@@ -488,40 +463,6 @@ export class ProductsService {
           : (query.listingType as string).split(',').map(v => v.trim());
         qb.andWhere('product.listingType IN (:...listingTypes)', { listingTypes });
       }
-
-      if (query.brand) {
-        const brands = Array.isArray(query.brand) ? query.brand : (query.brand as string).split(',').map(b => b.trim());
-        qb.andWhere('brand.name IN (:...brands)', { brands });
-      }
-
-      if (query.color) {
-        const colors = Array.isArray(query.color) ? query.color : (query.color as string).split(',').map(c => c.trim());
-        qb.andWhere('(product.variants ->> \'color\' IN (:...colors) OR colorVariants.color IN (:...colors))', { colors });
-      }
-
-      if (query.size) {
-        const sizes = Array.isArray(query.size) ? query.size : (query.size as string).split(',').map(s => s.trim());
-        qb.andWhere('(product.variants ->> \'size\' IN (:...sizes) OR stocks.size IN (:...sizes))', { sizes });
-      }
-
-      if (query.gender) {
-        const genders = Array.isArray(query.gender) ? query.gender : (query.gender as string).split(',').map(g => g.trim());
-        qb.andWhere('product.gender IN (:...genders)', { genders });
-      }
-
-      // Handle dynamic variants for narrowing
-      const knownKeys = ['page', 'limit', 'search', 'minPrice', 'maxPrice', 'categoryId', 'sort', 'brand', 'color', 'size', 'gender', 'listingType'];
-      Object.entries(query).forEach(([key, value]) => {
-        if (!knownKeys.includes(key) && value) {
-          const values = Array.isArray(value) ? value : (value as string).split(',').map(v => v.trim());
-          if (values.length > 0) {
-            qb.andWhere(`product.variants ->> :key_${key} IN (:...val_${key})`, {
-              [`key_${key}`]: key,
-              [`val_${key}`]: values
-            });
-          }
-        }
-      });
 
       products = await qb.getMany();
     }
