@@ -169,7 +169,6 @@ export const Card = ({ className, index = 0, category, product: propProduct }: C
                             );
                           });
                         })()}
-
                         {storePrice > 0 && (
                           <div className="flex justify-between items-center text-xs text-indigo-500 px-1 pt-1 border-t border-dashed border-gray-100 mt-1">
                             <span className="font-medium">Mağaza</span>

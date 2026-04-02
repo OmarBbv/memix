@@ -10,6 +10,7 @@ import { ensureFullUrl } from '../common/utils/file-url.util';
 import { PriceHistory } from './entities/price-history.entity';
 import { ProductStock } from './entities/product-stock.entity';
 import { ProductColorVariant } from './entities/product-color-variant.entity';
+import { Category } from '../categories/entities/category.entity';
 
 @Injectable()
 export class ProductsService {
@@ -22,8 +23,64 @@ export class ProductsService {
     private productStockRepository: Repository<ProductStock>,
     @InjectRepository(ProductColorVariant)
     private productColorVariantRepository: Repository<ProductColorVariant>,
+    @InjectRepository(Category)
+    private categoryRepository: Repository<Category>,
     private readonly searchService: SearchService,
   ) { }
+
+  private async generateUniqueBarcode(): Promise<string> {
+    let barcode: string = '';
+    let isUnique = false;
+
+    while (!isUnique) {
+      // 20 + 11 rəqəmli unikal barkod (EAN-13 formatına uyğun)
+      const timestamp = Date.now().toString().slice(-8); // Son 8 rəqəm
+      const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0'); // 3 rəqəmli təsadüfi
+      barcode = `20${timestamp}${random}`; // Toplam 13 rəqəm
+
+      const exists = await this.productsRepository.findOne({
+        where: { barcode },
+      });
+
+      if (!exists) {
+        isUnique = true;
+      }
+    }
+
+    return barcode;
+  }
+
+  async generateSKU(categoryId: number, listingType: string): Promise<{ sku: string | null; error?: string }> {
+    const category = await this.categoryRepository.findOne({ where: { id: categoryId } });
+    if (!category) {
+      return { sku: null, error: 'Kateqoriya tapılmadı' };
+    }
+
+    const prefix = listingType === 'used' ? category.skuPrefixUsed : category.skuPrefixNew;
+    if (!prefix) {
+      return { sku: null, error: 'Bu kateqoriyanın seçilmiş növü (Yeni/İşlənmiş) üçün kod təyin edilməyib.' };
+    }
+
+    const existingProducts = await this.productsRepository
+      .createQueryBuilder('product')
+      .where('product.sku LIKE :pattern', { pattern: `${prefix}%` })
+      .getMany();
+
+    let maxSeq = 0;
+    for (const prod of existingProducts) {
+      if (prod.sku) {
+        const seqStr = prod.sku.replace(prefix, '');
+        const seqNum = parseInt(seqStr, 10);
+        if (!isNaN(seqNum) && seqNum > maxSeq) {
+          maxSeq = seqNum;
+        }
+      }
+    }
+
+    const nextSeq = maxSeq + 1;
+    const paddedSeq = nextSeq.toString().padStart(3, '0');
+    return { sku: `${prefix}${paddedSeq}` };
+  }
 
   async create(
     createProductDto: any,
@@ -65,8 +122,14 @@ export class ProductsService {
       parsedTags = tags;
     }
 
+    let finalBarcode = productData.barcode;
+    if (!finalBarcode || finalBarcode.trim() === '') {
+      finalBarcode = await this.generateUniqueBarcode();
+    }
+
     const product = this.productsRepository.create({
       ...productData,
+      barcode: finalBarcode,
       banner: bannerUrl,
       images: imageUrls.length > 0 ? imageUrls : undefined,
       variants: parsedVariants,
@@ -117,7 +180,7 @@ export class ProductsService {
         );
 
         if (Array.isArray(cv.stocks)) {
-          const stockEntities = cv.stocks.map((s: any) => 
+          const stockEntities = cv.stocks.map((s: any) =>
             this.productStockRepository.create({
               productId: savedProduct.id,
               colorVariantId: colorVariant.id,
@@ -162,7 +225,8 @@ export class ProductsService {
           .leftJoinAndSelect('product.discount', 'discount')
           .leftJoinAndSelect('product.priceHistory', 'priceHistory')
           .leftJoinAndSelect('product.colorVariants', 'colorVariants')
-          .leftJoinAndSelect('colorVariants.stocks', 'stocks');
+          .leftJoinAndSelect('colorVariants.stocks', 'stocks')
+          .andWhere('product.isDeleted = :isDeleted', { isDeleted: false });
 
         if (query.minPrice) {
           fetchQb.andWhere('product.price >= :minPrice', {
@@ -232,6 +296,7 @@ export class ProductsService {
       qb.leftJoinAndSelect('colorVariants.stocks', 'stocks');
       qb.leftJoinAndSelect('product.discount', 'discount');
       qb.leftJoinAndSelect('product.priceHistory', 'priceHistory');
+      qb.andWhere('product.isDeleted = :isDeleted', { isDeleted: false });
 
       if (query.categoryId) {
         qb.andWhere('category.id = :categoryId', {
@@ -323,6 +388,7 @@ export class ProductsService {
           .leftJoinAndSelect('product.stocks', 'stocks')
           .leftJoinAndSelect('product.colorVariants', 'colorVariants')
           .leftJoinAndSelect('product.brand', 'brand')
+          .andWhere('product.isDeleted = :isDeleted', { isDeleted: false })
           .getMany();
       }
     } else {
@@ -330,6 +396,7 @@ export class ProductsService {
       qb.leftJoinAndSelect('product.stocks', 'stocks');
       qb.leftJoinAndSelect('product.colorVariants', 'colorVariants');
       qb.leftJoinAndSelect('product.brand', 'brand');
+      qb.andWhere('product.isDeleted = :isDeleted', { isDeleted: false });
 
       if (query.categoryId) {
         qb.leftJoin('product.category', 'category');
@@ -399,6 +466,11 @@ export class ProductsService {
         if (!dynamicFilters['gender']) dynamicFilters['gender'] = [];
         dynamicFilters['gender'].push(product.gender);
       }
+
+      if (product.listingType) {
+        if (!dynamicFilters['listingType']) dynamicFilters['listingType'] = [];
+        dynamicFilters['listingType'].push(product.listingType);
+      }
     });
 
     const filters = Object.entries(dynamicFilters).reduce(
@@ -431,6 +503,7 @@ export class ProductsService {
 
   async findNewArrivals(limit: number = 8) {
     const products = await this.productsRepository.find({
+      where: { isDeleted: false },
       relations: ['category', 'brand', 'discount', 'priceHistory', 'colorVariants', 'colorVariants.stocks'],
       order: { createdAt: 'DESC' },
       take: limit,
@@ -441,7 +514,7 @@ export class ProductsService {
 
   async findOne(id: number) {
     const product = await this.productsRepository.findOne({
-      where: { id },
+      where: { id, isDeleted: false },
       relations: [
         'category',
         'brand',
@@ -473,7 +546,7 @@ export class ProductsService {
     })) || [];
 
     // Flat stocks for some frontend parts that might still expect it
-    const allStocks = colorVariants.flatMap(cv => 
+    const allStocks = colorVariants.flatMap(cv =>
       (cv.stocks || []).map(s => ({
         ...s,
         color: cv.color,
@@ -609,7 +682,6 @@ export class ProductsService {
             ?.filter(f => f.fieldname === `variantImages_${vIndex}`)
             .map(f => `${appUrl}/uploads/${f.filename}`) || [];
 
-          // Combine with existing images if they come in the DTO
           const existingVariantImages = Array.isArray(cv.images) ? cv.images : [];
           const combinedImages = [...existingVariantImages, ...variantImages];
 
@@ -622,7 +694,7 @@ export class ProductsService {
           );
 
           if (Array.isArray(cv.stocks)) {
-            const stockEntities = cv.stocks.map((s: any) => 
+            const stockEntities = cv.stocks.map((s: any) =>
               queryRunner.manager.create(ProductStock, {
                 productId: product.id,
                 colorVariantId: colorVariant.id,
@@ -645,8 +717,14 @@ export class ProductsService {
         product.brand = { id: Number(brandId) } as any;
       }
 
+      let finalBarcode = productData.barcode || product.barcode;
+      if (!finalBarcode || finalBarcode.trim() === '') {
+        finalBarcode = await this.generateUniqueBarcode();
+      }
+
       this.productsRepository.merge(product, {
         ...productData,
+        barcode: finalBarcode,
         banner: bannerUrl,
         images: finalImages,
         variants: parsedVariants,
@@ -681,11 +759,14 @@ export class ProductsService {
   }
 
   async remove(id: number) {
-    const product = await this.findOne(id);
-    await this.productsRepository.remove(product);
+    const product = await this.productsRepository.findOneBy({ id });
+    if (!product) throw new NotFoundException("Məhsul tapılmadı");
+
+    await this.productsRepository.update(id, { isDeleted: true });
     await this.searchService.removeProduct(id);
     return product;
   }
+
 
   async findSimilar(id: number, limit: number = 4) {
     const product = await this.productsRepository.findOne({
@@ -711,7 +792,7 @@ export class ProductsService {
     if (ids.length === 0) return [];
 
     const fullProducts = await this.productsRepository.find({
-      where: { id: In(ids) },
+      where: { id: In(ids), isDeleted: false },
       relations: [
         'category',
         'brand',
@@ -727,6 +808,7 @@ export class ProductsService {
 
   async syncSearchIndex() {
     const products = await this.productsRepository.find({
+      where: { isDeleted: false },
       relations: ['category', 'brand', 'discount', 'stocks'],
     });
 

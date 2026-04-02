@@ -20,6 +20,7 @@ import { SIZE_OPTIONS } from "../../constants/sizes";
 import { COLOR_OPTIONS } from "../../constants/colors";
 import { SizeType } from "../../types/category";
 import QuickCreateBrandModal from "../../components/brands/QuickCreateBrandModal";
+import productService from "../../services/productService";
 
 export default function AddProduct() {
   const navigate = useNavigate();
@@ -48,6 +49,7 @@ export default function AddProduct() {
       weight: "" as any,
       categoryId: undefined,
       brandId: undefined,
+      listingType: "new",
       isFeatured: false,
       images: [],
       tags: [],
@@ -89,6 +91,23 @@ export default function AddProduct() {
     }
   }, [currentCategory, setValue, watch]);
 
+  const listingType = watch("listingType");
+
+  useEffect(() => {
+    if (categoryId && listingType) {
+      productService.generateSKU(categoryId, listingType).then(response => {
+        if (response.error) {
+          toast.error(response.error);
+          setValue("sku", "");
+        } else if (response.sku) {
+          setValue("sku", response.sku);
+        }
+      }).catch(err => {
+        console.error("SKU generation error:", err);
+      });
+    }
+  }, [categoryId, listingType, setValue]);
+
   const handleAddVariant = () => {
     if (!variantName || !variantValues) return;
     const valuesArray = variantValues.split(",").map(v => v.trim()).filter(Boolean);
@@ -117,6 +136,7 @@ export default function AddProduct() {
     if (data.categoryId) formData.append("categoryId", String(data.categoryId));
     if (data.brandId) formData.append("brandId", String(data.brandId));
     formData.append("isFeatured", String(data.isFeatured));
+    if (data.listingType) formData.append("listingType", data.listingType);
 
     if (data.tags && data.tags.length > 0) {
       data.tags.filter(Boolean).forEach(tag => formData.append("tags", tag));
@@ -207,42 +227,29 @@ export default function AddProduct() {
                   {/* SKU/Barcode */}
                   <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
                     <div className="w-full md:w-64">
-                      <Label htmlFor="sku" optional className="!mb-0">Məhsul Kodu (SKU)</Label>
+                      <Label htmlFor="sku" optional className="mb-0!">Məhsul Kodu (SKU)</Label>
                     </div>
                     <div className="flex-1">
                       <Input
                         type="text"
                         id="sku"
-                        placeholder="Məs: 1801292"
+                        placeholder="Məs: A5-A001"
                         {...register("sku")}
+                        disabled={true}
+                        className="bg-gray-50 cursor-not-allowed"
                         error={!!errors.sku}
                         hint={errors.sku?.message}
                       />
                     </div>
                   </div>
 
-                  <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
-                    <div className="w-full md:w-64">
-                      <Label htmlFor="barcode" optional className="!mb-0">Barkod</Label>
-                    </div>
-                    <div className="flex-1">
-                      <Input
-                        type="text"
-                        id="barcode"
-                        placeholder="Barkodu daxil edin"
-                        {...register("barcode")}
-                        error={!!errors.barcode}
-                        hint={errors.barcode?.message}
-                      />
-                    </div>
-                  </div>
                 </div>
 
                 <div className="space-y-4 pt-4 border-t border-gray-100 dark:border-gray-800">
                   {/* Price/Gender/Weight */}
                   <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
                     <div className="w-full md:w-64">
-                      <Label htmlFor="price" required className="!mb-0">Qiymət</Label>
+                      <Label htmlFor="price" required className="mb-0!">Qiymət</Label>
                     </div>
                     <div className="flex-1 max-w-sm">
                       <Input
@@ -254,6 +261,30 @@ export default function AddProduct() {
                         error={!!errors.price}
                         hint={errors.price?.message}
                         autoComplete="off"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
+                    <div className="w-full md:w-64">
+                      <Label className="mb-0!">Məhsulun Vəziyyəti</Label>
+                    </div>
+                    <div className="flex-1 max-w-sm">
+                      <Controller
+                        name="listingType"
+                        control={control}
+                        render={({ field }) => (
+                          <SearchableSelect
+                            options={[
+                              { label: "YENİ (NEW)", value: "new" },
+                              { label: "İŞLƏNMİŞ (USED)", value: "used" },
+                            ]}
+                            placeholder="Vəziyyəti seçin"
+                            onChange={field.onChange}
+                            value={field.value}
+                            error={!!errors.listingType}
+                          />
+                        )}
                       />
                     </div>
                   </div>
@@ -418,8 +449,8 @@ export default function AddProduct() {
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                               {(watch(`colorVariants.${index}.stocks`) || []).map((s: any, sIdx: number) => (
-                                <div 
-                                  key={sIdx} 
+                                <div
+                                  key={sIdx}
                                   className="group relative flex items-center gap-2 p-2 bg-white dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm transition-all hover:border-brand-500/30 hover:shadow-lg hover:shadow-brand-500/5"
                                 >
                                   <div className="flex-1 min-w-0">
@@ -438,7 +469,7 @@ export default function AddProduct() {
                                       )}
                                     />
                                   </div>
-                                  
+
                                   <div className="w-16">
                                     <div className="relative">
                                       <Input
@@ -460,11 +491,10 @@ export default function AddProduct() {
                                         setValue(`colorVariants.${index}.stocks`, stocks);
                                       }
                                     }}
-                                    className={`flex items-center justify-center p-2 transition-all rounded-xl ${
-                                      (watch(`colorVariants.${index}.stocks`) || []).length > 1 
-                                        ? "text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
-                                        : "text-gray-200 cursor-not-allowed opacity-30"
-                                    }`}
+                                    className={`flex items-center justify-center p-2 transition-all rounded-xl ${(watch(`colorVariants.${index}.stocks`) || []).length > 1
+                                      ? "text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
+                                      : "text-gray-200 cursor-not-allowed opacity-30"
+                                      }`}
                                     disabled={(watch(`colorVariants.${index}.stocks`) || []).length <= 1}
                                     title="Sil"
                                   >

@@ -62,7 +62,7 @@ export default function OrderDetailModal({ order, isOpen, onClose }: OrderDetail
   return (
     <Modal isOpen={isOpen} onClose={onClose} className="max-w-[700px] p-6 lg:p-8">
       <div className="flex flex-col gap-6">
-        <div className="flex items-center justify-between border-b pb-4 dark:border-gray-800">
+        <div className="flex items-center justify-between border-b pb-4 dark:border-gray-800 pr-10 sm:pr-14">
           <div>
             <h3 className="text-xl font-bold text-gray-800 dark:text-white/90">
               Sifariş #{order.id}
@@ -81,8 +81,8 @@ export default function OrderDetailModal({ order, isOpen, onClose }: OrderDetail
             <h4 className="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4">Müştəri Məlumatları</h4>
             <div className="space-y-3">
               <div>
-                <Label className="text-gray-400 mb-0.5">Adı:</Label>
-                <p className="text-theme-sm font-medium text-gray-800 dark:text-white/90">{order.user?.name || "Qonaq"}</p>
+                <Label className="text-gray-400 mb-0.5">Müştəri:</Label>
+                <p className="text-theme-sm font-medium text-gray-800 dark:text-white/90">{order.user?.email || "Qonaq"}</p>
               </div>
               <div>
                 <Label className="text-gray-400 mb-0.5">Telefon:</Label>

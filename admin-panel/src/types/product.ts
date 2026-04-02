@@ -43,6 +43,7 @@ export interface Product {
   banner: string;
   tags: string[];
   isFeatured: boolean;
+  listingType?: 'new' | 'used';
   discount?: {
     id: number;
     type: 'percentage' | 'fixed';
@@ -71,6 +72,7 @@ export interface CreateProductDto {
   banner?: string;
   tags?: string[];
   isFeatured?: boolean;
+  listingType?: 'new' | 'used';
 }
 
 export interface UpdateProductDto extends Partial<CreateProductDto> { }

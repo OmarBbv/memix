@@ -62,9 +62,20 @@ export default function ProductTable({ products, onEdit, onDelete, onDiscount }:
                         )}
                     </div>
                     <div className="flex flex-col">
-                      <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                        {product.name}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                          {product.name}
+                        </span>
+                        {product.listingType && (
+                          <Badge 
+                            size="sm" 
+                            color={product.listingType === 'new' ? 'success' : 'warning'}
+                            variant="light"
+                          >
+                            {product.listingType === 'new' ? 'YENİ' : 'İŞLƏNMİŞ'}
+                          </Badge>
+                        )}
+                      </div>
                       <span className="block text-gray-500 text-theme-xs dark:text-gray-400">
                         ID: #{product.id}
                       </span>

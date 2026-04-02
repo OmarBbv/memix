@@ -4,8 +4,10 @@ import {
   IsArray,
   IsOptional,
   IsBoolean,
+  IsEnum,
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
+import { LISTING_TYPE, type ListingType } from '../enums/listing.type.enum';
 
 export class CreateProductDto {
   @IsString()
@@ -87,6 +89,9 @@ export class CreateProductDto {
 
   @IsOptional()
   colorVariants?: any; // Rəng variantları (JSON formatı)
+
+  @IsEnum(LISTING_TYPE)
+  listingType: ListingType = LISTING_TYPE.NEW;
 
   @IsOptional()
   existingBanner?: string;

@@ -20,6 +20,7 @@ import { SIZE_OPTIONS } from "../../constants/sizes";
 import { COLOR_OPTIONS } from "../../constants/colors";
 import { SizeType } from "../../types/category";
 import QuickCreateBrandModal from "../../components/brands/QuickCreateBrandModal";
+import productService from "../../services/productService";
 
 export default function EditProduct() {
   const { id } = useParams();
@@ -61,6 +62,7 @@ export default function EditProduct() {
         weight: (product.weight !== null && product.weight !== undefined) ? Number(product.weight) : "" as any,
         categoryId: product.category?.id,
         brandId: product.brand?.id,
+        listingType: product.listingType || "new",
         isFeatured: product.isFeatured,
         tags: product.tags || [],
         variants: product.variants || {},
@@ -103,6 +105,30 @@ export default function EditProduct() {
     }
   }, [currentCategory, setValue, watch]);
 
+  const listingType = watch("listingType");
+
+  useEffect(() => {
+    if (product && categoryId && listingType) {
+      const isOriginalCategory = product.category?.id === categoryId;
+      const isOriginalListingType = (product.listingType || "new") === listingType;
+      
+      if (!isOriginalCategory || !isOriginalListingType) {
+        productService.generateSKU(categoryId, listingType).then(response => {
+          if (response.error) {
+            toast.error(response.error);
+            setValue("sku", "");
+          } else if (response.sku) {
+            setValue("sku", response.sku);
+          }
+        }).catch(err => {
+          console.error("SKU generation error:", err);
+        });
+      } else {
+        setValue("sku", product.sku || "");
+      }
+    }
+  }, [categoryId, listingType, product, setValue]);
+
   const handleAddVariant = () => {
     if (!variantName || !variantValues) return;
     const valuesArray = variantValues.split(",").map(v => v.trim()).filter(Boolean);
@@ -130,6 +156,7 @@ export default function EditProduct() {
     if (data.categoryId) formData.append("categoryId", String(data.categoryId));
     if (data.brandId) formData.append("brandId", String(data.brandId));
     formData.append("isFeatured", String(data.isFeatured));
+    if (data.listingType) formData.append("listingType", data.listingType);
 
     if (data.tags && data.tags.length > 0) {
       data.tags.filter(Boolean).forEach(tag => formData.append("tags", tag));
@@ -241,13 +268,15 @@ export default function EditProduct() {
 
                   <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
                     <div className="w-full md:w-64">
-                      <Label htmlFor="barcode" optional className="mb-0!">Barkod</Label>
+                      <Label htmlFor="barcode" optional className="mb-0!">Barkod (Avtomatik)</Label>
                     </div>
                     <div className="flex-1">
                       <Input
                         type="text"
                         id="barcode"
                         {...register("barcode")}
+                        disabled={true}
+                        className="bg-gray-50 cursor-not-allowed"
                         error={!!errors.barcode}
                         hint={errors.barcode?.message}
                       />
@@ -268,6 +297,30 @@ export default function EditProduct() {
                         onInput={(e: React.FormEvent<HTMLInputElement>) => allowOnlyNumbers(e, true)}
                         error={!!errors.price}
                         hint={errors.price?.message}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
+                    <div className="w-full md:w-64">
+                      <Label className="mb-0!">Məhsulun Vəziyyəti</Label>
+                    </div>
+                    <div className="flex-1 max-w-sm">
+                      <Controller
+                        name="listingType"
+                        control={control}
+                        render={({ field }) => (
+                          <SearchableSelect
+                            options={[
+                              { label: "YENİ (NEW)", value: "new" },
+                              { label: "İŞLƏNMİŞ (USED)", value: "used" },
+                            ]}
+                            placeholder="Vəziyyəti seçin"
+                            onChange={field.onChange}
+                            value={field.value}
+                            error={!!errors.listingType}
+                          />
+                        )}
                       />
                     </div>
                   </div>

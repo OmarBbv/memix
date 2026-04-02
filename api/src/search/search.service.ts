@@ -29,6 +29,7 @@ export class SearchService {
             tags: { type: 'keyword' },
             sku: { type: 'keyword' },
             barcode: { type: 'keyword' },
+            listingType: { type: 'keyword' },
             createdAt: { type: 'date' },
           },
         },
@@ -71,6 +72,7 @@ export class SearchService {
           tags: product.tags,
           sku: product.sku,
           barcode: product.barcode,
+          listingType: product.listingType,
           createdAt: product.createdAt,
         },
       });
@@ -94,6 +96,7 @@ export class SearchService {
         tags: product.tags || [],
         sku: product.sku || '',
         barcode: product.barcode || '',
+        listingType: product.listingType || 'new',
         createdAt: product.createdAt,
       },
     ]);

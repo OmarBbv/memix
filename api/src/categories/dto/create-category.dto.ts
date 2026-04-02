@@ -36,7 +36,15 @@ export class CreateCategoryDto {
 
   @IsOptional()
   @Transform(({ value }) =>
-    value === '' || value === 'null' ? null : (value as SizeType),
+    value === '' || value === 'null' ? null : value,
   )
-  sizeType?: SizeType | null;
+  sizeType?: string | null;
+
+  @IsOptional()
+  @IsString()
+  skuPrefixUsed?: string;
+
+  @IsOptional()
+  @IsString()
+  skuPrefixNew?: string;
 }

@@ -15,6 +15,7 @@ import { ProductColorVariant } from './product-color-variant.entity';
 import { Review } from '../../reviews/entities/review.entity';
 import { Discount } from '../../discounts/entities/discount.entity';
 import { PriceHistory } from './price-history.entity';
+import { LISTING_TYPE, type ListingType } from '../enums/listing.type.enum';
 
 @Entity('products')
 export class Product {
@@ -33,7 +34,7 @@ export class Product {
   @Column({ unique: true, nullable: true })
   guid1c: string; // 1C-den gelen GUID (Identifyer)
 
-  @Column({ nullable: true })
+  @Column({ unique: true, nullable: true })
   barcode: string; // Məhsulun barkodu (Məsələn: 2001801292005)
 
   @Column({ nullable: true })
@@ -95,6 +96,12 @@ export class Product {
 
   @OneToMany(() => PriceHistory, (priceHistory) => priceHistory.product)
   priceHistory: PriceHistory[];
+
+  @Column({ default: false })
+  isDeleted: boolean;
+
+  @Column({ enum: LISTING_TYPE, default: LISTING_TYPE.NEW })
+  listingType: ListingType
 
   @CreateDateColumn()
   createdAt: Date; // Yaradılma tarixi

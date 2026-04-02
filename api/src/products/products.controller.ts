@@ -46,6 +46,17 @@ export class ProductsController {
     return this.productsService.getFilters(query);
   }
 
+  @Get('generate-sku')
+  async generateSKU(
+    @Query('categoryId') categoryId: string,
+    @Query('listingType') listingType: string,
+  ) {
+    if (!categoryId || !listingType) {
+      return { sku: null, error: 'categoryId and listingType are required' };
+    }
+    return this.productsService.generateSKU(+categoryId, listingType);
+  }
+
   @Get('new-arrivals')
   findNewArrivals(@Query('limit') limit?: string) {
     return this.productsService.findNewArrivals(limit ? +limit : 8);

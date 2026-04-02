@@ -4,7 +4,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate, useParams } from "react-router";
 import { categorySchema } from "../../validations/categorySchema";
 import { useCreateCategory, useUpdateCategory, useCategories, useCategory } from "../../hooks/useCategories";
+import { useSizeTypes, useCreateSizeType } from "../../hooks/useSizeTypes";
 import SearchableSelect from "../../components/ui/select/SearchableSelect";
+import toast from "react-hot-toast";
 import { allowOnlyNumbers } from "../../utils/inputHelpers";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import ComponentCard from "../../components/common/ComponentCard";
@@ -26,6 +28,9 @@ export default function CategoryFormPage() {
   const createMutation = useCreateCategory();
   const updateMutation = useUpdateCategory();
 
+  const { data: sizeTypes } = useSizeTypes();
+  const createSizeTypeMutation = useCreateSizeType();
+
   const {
     register,
     handleSubmit,
@@ -42,6 +47,8 @@ export default function CategoryFormPage() {
       isActive: true,
       showOnHome: false,
       sizeType: "",
+      skuPrefixUsed: "",
+      skuPrefixNew: "",
     },
   });
 
@@ -55,6 +62,8 @@ export default function CategoryFormPage() {
         isActive: categoryData.isActive,
         showOnHome: categoryData.showOnHome || false,
         sizeType: (categoryData as any).sizeType || "",
+        skuPrefixUsed: (categoryData as any).skuPrefixUsed || "",
+        skuPrefixNew: (categoryData as any).skuPrefixNew || "",
       });
       if (categoryData.imageUrl) {
         setImagePreview(categoryData.imageUrl.startsWith('http') ? categoryData.imageUrl : `http://localhost:4444${categoryData.imageUrl}`);
@@ -71,6 +80,12 @@ export default function CategoryFormPage() {
     formData.append("showOnHome", values.showOnHome.toString());
     if (values.sizeType) {
       formData.append("sizeType", values.sizeType);
+    }
+    if (values.skuPrefixUsed) {
+      formData.append("skuPrefixUsed", values.skuPrefixUsed);
+    }
+    if (values.skuPrefixNew) {
+      formData.append("skuPrefixNew", values.skuPrefixNew);
     }
 
     if (imageFile) {
@@ -172,17 +187,32 @@ export default function CategoryFormPage() {
                     <SearchableSelect
                       options={[
                         { label: "Ölçü tipi yoxdur", value: "" },
-                        { label: "Bədən ölçüsü (XS, S, M, L, XL, XXL)", value: "beden-text" },
-                        { label: "Nömrə ilə ölçü (28, 30, 32, 34...)", value: "beden-numeric" },
-                        { label: "Ayaqqabı nömrəsi (35-45)", value: "ayaqqabi" },
-                        { label: "Üzuk ölçüsü (14-22)", value: "uzuk" },
-                        { label: "Tək ölçü — Standart (çanta, kəmər, parfüm)", value: "tek-olcu" },
-                        { label: "Yaş qrupu — Uşaq geyimləri", value: "yas-grupu" },
+                        ...(sizeTypes?.map(st => ({ label: st.name, value: st.slug })) || [])
                       ]}
                       value={field.value as any}
-                      onChange={field.onChange}
+                      onChange={(val) => {
+                        const strVal = val ? val.toString() : "";
+                        const isExisting = sizeTypes?.some(st => st.slug === strVal) || strVal === "";
+                        
+                        if (!isExisting && strVal !== "") {
+                           const loadingToast = toast.loading("Yeni ölçü tipi yaradılır...");
+                           createSizeTypeMutation.mutate({ name: strVal }, {
+                             onSuccess: (newSize) => {
+                               toast.success("Ölçü tipi yaradıldı!", { id: loadingToast });
+                               field.onChange(newSize.slug);
+                             },
+                             onError: () => {
+                               toast.error("Ölçü tipi yaradılarkən xəta baş verdi", { id: loadingToast });
+                               field.onChange("");
+                             }
+                           });
+                        } else {
+                           field.onChange(val);
+                        }
+                      }}
                       error={!!errors.sizeType}
                       placeholder="Ölçü sistemini seçin"
+                      allowCustomValue={true}
                     />
                   )}
                 />
@@ -212,6 +242,38 @@ export default function CategoryFormPage() {
                     <span className="ml-3 text-sm font-semibold text-gray-700 dark:text-gray-300 group-hover:text-orange-500 transition-colors">Ana Səhifə</span>
                   </label>
                 </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+              {/* SKU Prefixes */}
+              <div>
+                <Label optional>SKU Prefix (İşlənmiş)</Label>
+                <Input
+                  {...register("skuPrefixUsed")}
+                  type="text"
+                  onInput={(e: React.FormEvent<HTMLInputElement>) => {
+                    e.currentTarget.value = e.currentTarget.value.toUpperCase();
+                  }}
+                  placeholder="Məs: IPH-15-XXX"
+                  error={!!errors.skuPrefixUsed}
+                  hint={errors.skuPrefixUsed?.message as string}
+                />
+                <p className="mt-1 text-xs text-gray-500 italic">İşlənmiş məhsullar üçün xüsusi SKU formatı (avtomatik generation üçün).</p>
+              </div>
+              <div>
+                <Label optional>SKU Prefix (Yeni)</Label>
+                <Input
+                  {...register("skuPrefixNew")}
+                  type="text"
+                  onInput={(e: React.FormEvent<HTMLInputElement>) => {
+                    e.currentTarget.value = e.currentTarget.value.toUpperCase();
+                  }}
+                  placeholder="Məs: IPH-15-NEW-XXX"
+                  error={!!errors.skuPrefixNew}
+                  hint={errors.skuPrefixNew?.message as string}
+                />
+                <p className="mt-1 text-xs text-gray-500 italic">Yeni məhsullar üçün xüsusi SKU formatı (avtomatik generation üçün).</p>
               </div>
             </div>
 

@@ -8,6 +8,8 @@ export const categorySchema = z.object({
   isActive: z.boolean().default(true),
   showOnHome: z.boolean().default(false),
   sizeType: z.string().optional().or(z.literal('')),
+  skuPrefixUsed: z.string().optional().or(z.literal('')),
+  skuPrefixNew: z.string().optional().or(z.literal('')),
 });
 
 export type CategoryFormValues = z.infer<typeof categorySchema>;

@@ -29,3 +29,17 @@ httpClientPrivate.interceptors.request.use(
   }
 );
 
+httpClientPrivate.interceptors.response.use(
+  (response) => (
+    response
+  ),
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('logout'));
+      }
+    }
+    return Promise.reject(error);
+  }
+)

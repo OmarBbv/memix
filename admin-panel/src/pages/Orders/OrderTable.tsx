@@ -76,7 +76,7 @@ export default function OrderTable({ orders, onView, onDelete }: OrderTableProps
                 <TableCell className="px-5 py-4 text-start">
                   <div className="flex flex-col">
                     <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                      {order.user?.name || "Qonaq"}
+                      {order.user?.email || "Qonaq"}
                     </span>
                     <span className="block text-gray-500 text-theme-xs dark:text-gray-400">
                       {order.contactPhone || "Telefon qeyd olunmayıb"}

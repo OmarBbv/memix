@@ -186,7 +186,7 @@ export function DesktopCategoryNav({ categories, show }: DesktopCategoryNavProps
             )}
           </li>
 
-          {categories.slice(0, 11).map((item) => (
+          {categories.slice(0, 14).map((item) => (
             <li
               key={item.id}
               className="h-full flex items-center group cursor-pointer whitespace-nowrap"

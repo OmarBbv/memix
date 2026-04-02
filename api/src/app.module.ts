@@ -28,6 +28,7 @@ import { CampaignsModule } from './campaigns/campaigns.module';
 import { PromotionsModule } from './promotions/promotions.module';
 import { IntegrationsModule } from './integrations/integrations.module';
 import { AttributesModule } from './attributes/attributes.module';
+import { SizeTypesModule } from './size-types/size-types.module';
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { AttributesModule } from './attributes/attributes.module';
     PromotionsModule,
     IntegrationsModule,
     AttributesModule,
+    SizeTypesModule,
   ],
   controllers: [UploadsController],
   providers: [],

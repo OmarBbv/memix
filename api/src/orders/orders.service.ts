@@ -252,21 +252,23 @@ export class OrdersService {
     const updatedOrder = await this.findOne(id);
 
     // Müştəriyə real-time bildirilir
-    this.notificationsService.notifyOrderStatusChange(order.user.id, {
-      id: updatedOrder.id,
-      status: updatedOrder.status,
-    });
+    if (order.user) {
+      this.notificationsService.notifyOrderStatusChange(order.user.id, {
+        id: updatedOrder.id,
+        status: updatedOrder.status,
+      });
 
-    // Email bildirilişi
-    if (order.user?.email) {
-      try {
-        await this.mailService.sendOrderStatusUpdate(order.user.email, {
-          orderId: order.id,
-          status: this.getStatusLabel(status),
-          customerName: order.user.name,
-        });
-      } catch (error) {
-        console.error('Email göndərilərkən xəta:', error);
+      // Email bildirilişi
+      if (order.user.email) {
+        try {
+          await this.mailService.sendOrderStatusUpdate(order.user.email, {
+            orderId: order.id,
+            status: this.getStatusLabel(status),
+            customerName: order.user.name,
+          });
+        } catch (error) {
+          console.error('Email göndərilərkən xəta:', error);
+        }
       }
     }
 

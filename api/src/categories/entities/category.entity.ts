@@ -45,13 +45,18 @@ export class Category {
   @Column({ default: false })
   showOnHome: boolean;
 
+  @Column({ type: 'varchar', nullable: true })
+  skuPrefixUsed: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  skuPrefixNew: string | null;
+
   @Column({
-    type: 'enum',
-    enum: SizeType,
+    type: 'varchar',
     nullable: true,
     default: null,
   })
-  sizeType: SizeType | null; // Kateqoriyanın ölçü tipi
+  sizeType: string | null; // Kateqoriyanın ölçü tipi
 
   @ManyToOne(() => Category, (category) => category.children, {
     onDelete: 'CASCADE',

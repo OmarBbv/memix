@@ -11,6 +11,7 @@ export const productSchema = z.object({
   stock: z.coerce.number().int().nonnegative('Stock must be a non-negative integer').optional(),
   bannerFile: z.any().optional(), // Vitrin şəkli üçün fayl
   images: z.array(z.string()).optional().default([]), // For existing image URLs if editing
+  listingType: z.enum(['new', 'used']).optional().default('new'),
   categoryId: z.coerce.number().optional(),
   brandId: z.coerce.number().optional(),
   variantGroupId: z.string().optional().or(z.literal('')),

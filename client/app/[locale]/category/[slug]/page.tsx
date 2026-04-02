@@ -110,11 +110,11 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
 
     const subcategories = category?.children?.map(child => child.name) || [];
 
-    const getFilterName = (key: string) => {
+    const getFilterName = (key: string, customSizeName?: string) => {
         const names: Record<string, string> = {
             brand: 'Brend',
             color: 'Rəng',
-            size: 'Ölçü',
+            size: customSizeName || 'Ölçü',
             gender: 'Cins',
             condition: 'Vəziyyət',
             material: 'Material',
@@ -124,7 +124,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
 
     const dynamicFilters = filtersData?.filters ? Object.entries(filtersData.filters).map(([key, options]) => ({
         id: key,
-        name: getFilterName(key),
+        name: getFilterName(key, filtersData?.sizeTypeName),
         options: options as string[]
     })) : [];
 

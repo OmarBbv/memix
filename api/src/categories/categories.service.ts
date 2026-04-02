@@ -462,6 +462,15 @@ export class CategoriesService {
       throw new NotFoundException(ErrorMessages.CATEGORY_NOT_FOUND);
     }
 
+    let sizeTypeName = 'Ölçü';
+    if (category.sizeType) {
+      const stRepo = this.categoriesRepository.manager.getRepository('size_types');
+      const sizeTypeRecord = await stRepo.findOne({ where: { slug: category.sizeType } }) as any;
+      if (sizeTypeRecord) {
+        sizeTypeName = sizeTypeRecord.name;
+      }
+    }
+
     const categoryIds = this.getIdsFromTree(category);
 
     const products = await this.categoriesRepository.manager
@@ -546,6 +555,7 @@ export class CategoriesService {
 
     return {
       filters,
+      sizeTypeName,
       priceRange: {
         min: minPrice,
         max: maxPrice,

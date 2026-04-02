@@ -18,6 +18,7 @@ interface IProductService {
   create(data: CreateProductDto | FormData): Promise<Product>;
   update(id: number, data: UpdateProductDto | FormData): Promise<Product>;
   delete(id: number): Promise<void>;
+  generateSKU(categoryId: number, listingType: string): Promise<{ sku: string | null; error?: string }>;
 }
 
 class ProductService implements IProductService {
@@ -66,6 +67,16 @@ class ProductService implements IProductService {
       await axiosInstance.delete(`/products/${id}`);
     } catch (error) {
       console.error(`Error deleting product with id ${id}:`, error);
+      throw error;
+    }
+  }
+
+  async generateSKU(categoryId: number, listingType: string): Promise<{ sku: string | null; error?: string }> {
+    try {
+      const response = await axiosInstance.get('/products/generate-sku', { params: { categoryId, listingType } });
+      return response.data;
+    } catch (error) {
+      console.error('Error generating SKU:', error);
       throw error;
     }
   }

@@ -11,7 +11,7 @@ export const useWishlist = () => {
   const { data: wishlistItems = [], isLoading } = useQuery({
     queryKey: ["wishlist"],
     queryFn: wishlistService.getAll,
-    enabled: !!user, // Only fetch if user is logged in
+    enabled: !!user,
   });
 
   const addMutation = useMutation({

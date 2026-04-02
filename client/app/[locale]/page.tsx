@@ -21,6 +21,46 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/effect-fade';
 
+const staticHeroSlides = [
+  {
+    id: 1,
+    image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2070&auto=format&fit=crop",
+    title: "Yeni Mövsüm",
+    subtitle: "2026 Kolleksiyası",
+    description: "Ən son trendlərlə qarderobunuzu yeniləyin.",
+    buttonText: "Kəşf Et",
+    link: "/category",
+    secondaryButtonText: "Daha Çox",
+    secondaryLink: "/category"
+  },
+  {
+    id: 2,
+    image: "https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=2071&auto=format&fit=crop",
+    title: "Qış Stili",
+    subtitle: "Premium Seçimlər",
+    description: "Soyuq havalarda isti və şıq qalın.",
+    buttonText: "Alış-verişə Başla",
+    link: "/category",
+    secondaryButtonText: "Daha Çox",
+    secondaryLink: "/category"
+  },
+  {
+    id: 3,
+    image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=2070&auto=format&fit=crop",
+    title: "Davamlı Moda",
+    subtitle: "Eko-Dostu Geyim",
+    description: "Gələcəyi düşünərək geyinin.",
+    buttonText: "Kolleksiyanı Gör",
+    link: "/category",
+    secondaryButtonText: "Daha Çox",
+    secondaryLink: "/category"
+  }
+];
+
+const staticBrands = [
+  "Zara", "H&M", "Mango", "Nike", "Adidas", "Tommy Hilfiger", "Calvin Klein", "Gucci"
+];
+
 export default function Home() {
   const { data: categories = [], isLoading } = useHomeCategories();
   const { data: apiProducts = [], isLoading: isProductsLoading } = useNewArrivals(8);
@@ -33,9 +73,9 @@ export default function Home() {
       title: p.name,
       price: Number(p.price),
       image: p.images?.[0] || p.banner || "",
-      brand: p.tags?.[0] || "Brand", // Fallback logic
+      brand: p.tags?.[0] || "Brand",
       category: p.category?.name.toLowerCase() || "women",
-      priceHistory: p.priceHistory?.map(h => Number(h.price)) || [],
+      priceHistory: p.priceHistory,
       discount: p.discount,
       variants: p.variants,
       tags: p.tags
@@ -44,7 +84,7 @@ export default function Home() {
 
   const displayCategories = useMemo(() => {
     if (categories.length > 0) return categories;
-    
+
     return [
       { name: "Qadın", slug: "women", imageUrl: "/cat.jpeg", productsCount: "12.5K+" },
       { name: "Kişi", slug: "men", imageUrl: "/cat2.jpeg", productsCount: "8.2K+" },
@@ -56,42 +96,6 @@ export default function Home() {
   }, [categories]);
 
   const { data: banners = [] } = useBanners(BannerLocation.HOME_MAIN_SLIDER);
-
-  const staticHeroSlides = [
-    {
-      id: 1,
-      image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2070&auto=format&fit=crop",
-      title: "Yeni Mövsüm",
-      subtitle: "2026 Kolleksiyası",
-      description: "Ən son trendlərlə qarderobunuzu yeniləyin.",
-      buttonText: "Kəşf Et",
-      link: "/category",
-      secondaryButtonText: "Daha Çox",
-      secondaryLink: "/category"
-    },
-    {
-      id: 2,
-      image: "https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=2071&auto=format&fit=crop",
-      title: "Qış Stili",
-      subtitle: "Premium Seçimlər",
-      description: "Soyuq havalarda isti və şıq qalın.",
-      buttonText: "Alış-verişə Başla",
-      link: "/category",
-      secondaryButtonText: "Daha Çox",
-      secondaryLink: "/category"
-    },
-    {
-      id: 3,
-      image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=2070&auto=format&fit=crop",
-      title: "Davamlı Moda",
-      subtitle: "Eko-Dostu Geyim",
-      description: "Gələcəyi düşünərək geyinin.",
-      buttonText: "Kolleksiyanı Gör",
-      link: "/category",
-      secondaryButtonText: "Daha Çox",
-      secondaryLink: "/category"
-    }
-  ];
 
   const heroSlides = banners.length > 0 ? banners.map(b => ({
     id: b.id,
@@ -107,10 +111,6 @@ export default function Home() {
 
   const { data: apiBrands = [] } = useBrands({ showOnHome: true });
 
-  const staticBrands = [
-    "Zara", "H&M", "Mango", "Nike", "Adidas", "Tommy Hilfiger", "Calvin Klein", "Gucci"
-  ];
-
   const brandItems = apiBrands.length > 0 ? apiBrands : staticBrands.map((name, id) => ({ id, name, logoUrl: null }));
 
   const stats = [
@@ -123,6 +123,9 @@ export default function Home() {
     if (apiBrands.length > 0) return apiBrands.map(b => b.name);
     return staticBrands;
   }, [apiBrands]);
+
+  console.log('brands: ', brands);
+  console.log('products: ', products);
 
   return (
     <main className="min-h-screen bg-white text-zinc-950">
@@ -286,7 +289,7 @@ export default function Home() {
                 <div key={i} className="aspect-3/4 animate-pulse rounded-2xl bg-zinc-100" />
               ))
             ) : (
-              displayCategories.map((cat: any, idx) => (
+              displayCategories.slice(0, 12).map((cat: any, idx) => (
                 <Link
                   key={cat.id || idx}
                   href={`/category/${cat.slug}`}
