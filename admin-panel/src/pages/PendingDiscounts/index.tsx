@@ -15,7 +15,7 @@ const PendingDiscounts: React.FC = () => {
   // Brend üzrə qruplaşdır
   const groupedByBrand = useMemo(() => {
     if (!pendingDiscounts) return {};
-    
+
     const groups: Record<string, PendingDiscount[]> = {};
     for (const pd of pendingDiscounts) {
       const key = pd.brandName || "Brendsiz";
@@ -40,7 +40,7 @@ const PendingDiscounts: React.FC = () => {
   const selectBrand = (brandName: string) => {
     const items = groupedByBrand[brandName] || [];
     const allSelected = items.every((i) => selectedIds.has(i.productId));
-    
+
     setSelectedIds((prev) => {
       const next = new Set(prev);
       items.forEach((i) => {
@@ -175,7 +175,7 @@ const PendingDiscounts: React.FC = () => {
                     onChange={selectAll}
                     className="w-4 h-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
                   />
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <span className="select-none text-sm font-medium text-gray-700 dark:text-gray-300">
                     Hamısını seç ({pendingDiscounts.length} məhsul)
                   </span>
                 </label>
@@ -207,11 +207,10 @@ const PendingDiscounts: React.FC = () => {
                     {items.map((item) => (
                       <div
                         key={item.productId}
-                        className={`flex items-center gap-4 p-4 rounded-xl border transition-all cursor-pointer ${
-                          selectedIds.has(item.productId)
+                        className={`flex items-center gap-4 p-4 rounded-xl border transition-all cursor-pointer ${selectedIds.has(item.productId)
                             ? "border-brand-500 bg-brand-50 dark:bg-brand-900/10 dark:border-brand-500/50"
                             : "border-gray-200 bg-gray-50/50 dark:border-gray-700 dark:bg-gray-800/30 hover:border-gray-300"
-                        }`}
+                          }`}
                         onClick={() => toggleSelect(item.productId)}
                       >
                         <input

@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router";
-import { Toaster } from "react-hot-toast";
+import { Toaster, ToastBar, toast } from "react-hot-toast";
 import PlaceholderPage from "./pages/PlaceholderPage";
 import Products from "./pages/Products";
 import AddProduct from "./pages/Products/AddProduct";
@@ -46,7 +46,32 @@ export default function App() {
     <>
       <Router basename="/admin">
         <ScrollToTop />
-        <Toaster position="top-right" containerStyle={{ zIndex: 999999 }} />
+        <Toaster
+          position="top-right"
+          containerStyle={{ zIndex: 999999 }}
+          toastOptions={{
+            className: "text-sm select-none",
+          }}
+        >
+          {(t) => (
+            <ToastBar toast={t}>
+              {({ icon, message }) => (
+                <>
+                  {icon}
+                  {message}
+                  {t.type !== "loading" && (
+                    <button
+                      className="p-1 ml-2 text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-md transition-all cursor-pointer flex items-center justify-center size-5"
+                      onClick={() => toast.dismiss(t.id)}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </>
+              )}
+            </ToastBar>
+          )}
+        </Toaster>
         <Routes>
           {/* Dashboard Layout */}
           <Route element={<ProtectedRoute />}>
