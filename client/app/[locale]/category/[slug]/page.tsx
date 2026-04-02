@@ -123,7 +123,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
         return names[key] || key.charAt(0).toUpperCase() + key.slice(1);
     };
 
-    const translateValue = (id: string, value: string) => {
+    const getOptionLabel = (id: string, value: string) => {
         if (id === 'listingType') {
             return value === 'new' ? 'Yeni' : '2-ci əl';
         }
@@ -133,7 +133,12 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
     const dynamicFilters = filtersData?.filters ? Object.entries(filtersData.filters).map(([key, options]) => ({
         id: key,
         name: getFilterName(key, filtersData?.sizeTypeName),
-        options: (options as string[]).map(opt => translateValue(key, opt))
+        options: (options as string[]).map(opt => {
+            if (key === 'listingType') {
+                return { value: opt, label: getOptionLabel(key, opt) };
+            }
+            return opt;
+        })
     })) : [];
 
     const filters = dynamicFilters;
@@ -290,7 +295,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                                                 onClick={() => handleFilterChange(filterId, value, false)}
                                                 className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 text-sm text-gray-700 hover:bg-gray-200 transition-colors"
                                             >
-                                                {value}
+                                                {getOptionLabel(filterId, value)}
                                                 <span className="text-gray-400 hover:text-gray-600">✕</span>
                                             </button>
                                         ))

@@ -12,7 +12,7 @@ import { ChevronRight, Search, X } from 'lucide-react';
 interface FilterOption {
   id: string;
   name: string;
-  options: string[];
+  options: (string | { value: string; label: string })[];
 }
 
 interface Subcategory {
@@ -281,11 +281,22 @@ interface FilterGroupProps {
 }
 
 const FilterGroup = ({ filter, selectedValues, onFilterChange }: FilterGroupProps) => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   
-  const filteredOptions = filter.options
-    .filter(opt => opt.toLowerCase().includes(searchTerm.toLowerCase()))
-    .sort((a, b) => a.localeCompare(b));
+  const filteredOptions = filter.options.filter(option => {
+    const label = typeof option === 'string' ? option : option.label;
+    return label.toLowerCase().includes(searchQuery.toLowerCase());
+  }).sort((a, b) => {
+    const labelA = typeof a === 'string' ? a : a.label;
+    const labelB = typeof b === 'string' ? b : b.label;
+    return labelA.localeCompare(labelB);
+  });
+
+  const getOptionValue = (option: string | { value: string; label: string }) => 
+    typeof option === 'string' ? option : option.value;
+
+  const getOptionLabel = (option: string | { value: string; label: string }) => 
+    typeof option === 'string' ? option : option.label;
 
   const showSearch = filter.options.length > 8;
 
@@ -309,13 +320,13 @@ const FilterGroup = ({ filter, selectedValues, onFilterChange }: FilterGroupProp
               <input
                 type="text"
                 placeholder={`${filter.name} axtar...`}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full h-9 pl-9 pr-3 text-sm border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#10b981]"
               />
-              {searchTerm && (
+              {searchQuery && (
                 <button 
-                  onClick={() => setSearchTerm('')}
+                  onClick={() => setSearchQuery('')}
                   className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -329,24 +340,29 @@ const FilterGroup = ({ filter, selectedValues, onFilterChange }: FilterGroupProp
             filter.options.length > 6 && "max-h-60 overflow-y-auto pr-2 custom-scrollbar"
           )}>
             {filteredOptions.length > 0 ? (
-              filteredOptions.map((option) => (
-                <label
-                  key={option}
-                  className="flex items-center space-x-3 cursor-pointer group"
-                >
-                  <Checkbox
-                    id={`${filter.id}-${option}`}
-                    checked={selectedValues.includes(option)}
-                    onCheckedChange={(checked) => {
-                      onFilterChange?.(filter.id, option, !!checked);
-                    }}
-                    className="data-[state=checked]:bg-[#10b981] data-[state=checked]:border-[#10b981]"
-                  />
-                  <span className="text-sm font-medium text-gray-600 group-hover:text-black transition-colors">
-                    {option}
-                  </span>
-                </label>
-              ))
+              filteredOptions.map((option) => {
+                const val = getOptionValue(option);
+                const label = getOptionLabel(option);
+                return (
+                  <div key={val} className="flex items-center space-x-3 group cursor-pointer" 
+                       onClick={() => onFilterChange?.(filter.id, val, !selectedValues.includes(val))}>
+                    <Checkbox 
+                      id={`${filter.id}-${val}`}
+                      checked={selectedValues.includes(val)}
+                      onCheckedChange={(checked) => {
+                        onFilterChange?.(filter.id, val, !!checked);
+                      }}
+                      className="border-gray-200 data-[state=checked]:bg-black data-[state=checked]:border-black"
+                    />
+                    <label
+                      htmlFor={`${filter.id}-${val}`}
+                      className="text-sm font-medium text-gray-600 group-hover:text-black transition-colors cursor-pointer flex-1"
+                    >
+                      {label}
+                    </label>
+                  </div>
+                );
+              })
             ) : (
               <p className="text-xs text-gray-400 py-2">Nəticə tapılmadı</p>
             )}

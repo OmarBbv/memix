@@ -159,14 +159,27 @@ export default function SearchPage() {
       gender: 'Cins',
       condition: 'Vəziyyət',
       material: 'Material',
+      listingType: 'Məhsul Növü',
     };
     return names[key] || key.charAt(0).toUpperCase() + key.slice(1);
+  };
+
+  const getOptionLabel = (id: string, value: string) => {
+    if (id === 'listingType') {
+      return value === 'new' ? 'Yeni' : '2-ci əl';
+    }
+    return value;
   };
 
   const dynamicFilters = filtersData?.filters ? Object.entries(filtersData.filters).map(([key, options]) => ({
     id: key,
     name: getFilterName(key),
-    options: options as string[]
+    options: (options as string[]).map(opt => {
+        if (key === 'listingType') {
+            return { value: opt, label: getOptionLabel(key, opt) };
+        }
+        return opt;
+    })
   })) : [];
 
   const priceRange = filtersData?.priceRange && filtersData.priceRange.max > 0
@@ -278,7 +291,7 @@ export default function SearchPage() {
                     onClick={() => handleFilterChange(filterId, value, false)}
                     className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 text-sm text-gray-700 hover:bg-gray-200 transition-colors"
                   >
-                    {value}
+                    {getOptionLabel(filterId, value)}
                     <span className="text-gray-400 hover:text-gray-600">✕</span>
                   </button>
                 ))
