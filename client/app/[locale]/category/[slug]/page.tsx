@@ -118,14 +118,22 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
             gender: 'Cins',
             condition: 'Vəziyyət',
             material: 'Material',
+            listingType: 'Məhsul Növü',
         };
         return names[key] || key.charAt(0).toUpperCase() + key.slice(1);
+    };
+
+    const translateValue = (id: string, value: string) => {
+        if (id === 'listingType') {
+            return value === 'new' ? 'Yeni' : '2-ci əl';
+        }
+        return value;
     };
 
     const dynamicFilters = filtersData?.filters ? Object.entries(filtersData.filters).map(([key, options]) => ({
         id: key,
         name: getFilterName(key, filtersData?.sizeTypeName),
-        options: options as string[]
+        options: (options as string[]).map(opt => translateValue(key, opt))
     })) : [];
 
     const filters = dynamicFilters;
@@ -228,7 +236,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                                         <SheetContent side="bottom" className="h-screen p-0 rounded-none overflow-hidden flex flex-col">
                                             <SheetTitle className="sr-only">Filtrlər</SheetTitle>
 
-                                            <div className="flex-1 overflow-y-auto px-5 pt-6 pb-28">
+                                            <div className="flex-1 overflow-y-auto px-5 pt-6 pb-28 custom-scrollbar">
                                                 <FilterSidebar
                                                     filters={filters}
                                                     selectedFilters={selectedFilters}

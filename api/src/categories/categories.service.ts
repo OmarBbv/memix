@@ -341,6 +341,8 @@ export class CategoriesService {
         const brands = values.map((brand: string) => brand.trim());
         qb = qb.leftJoin('product.brand', 'brandRel')
                .andWhere('brandRel.name IN (:...brands)', { brands });
+      } else if (key === 'listingType') {
+        qb = qb.andWhere('product.listingType IN (:...listingTypes)', { listingTypes: values });
       } else {
         const conditions = values.map(
           (v, i) =>
@@ -494,6 +496,12 @@ export class CategoriesService {
       if (product.brand && product.brand.name) {
         if (!dynamicFilters['brand']) dynamicFilters['brand'] = [];
         dynamicFilters['brand'].push(product.brand.name);
+      }
+
+      // Extract Listing Type
+      if (product.listingType) {
+        if (!dynamicFilters['listingType']) dynamicFilters['listingType'] = [];
+        dynamicFilters['listingType'].push(product.listingType);
       }
 
       // Extract from variants JSON

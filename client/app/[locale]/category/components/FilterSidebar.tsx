@@ -326,7 +326,7 @@ const FilterGroup = ({ filter, selectedValues, onFilterChange }: FilterGroupProp
 
           <div className={cn(
             "space-y-3",
-            filter.options.length > 6 && "max-h-60 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-200"
+            filter.options.length > 6 && "max-h-60 overflow-y-auto pr-2 custom-scrollbar"
           )}>
             {filteredOptions.length > 0 ? (
               filteredOptions.map((option) => (
