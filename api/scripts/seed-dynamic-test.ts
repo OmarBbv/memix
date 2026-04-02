@@ -77,10 +77,42 @@ async function seed() {
   console.log('🧹 Clearing existing store data...');
   await productRepo.query('DELETE FROM products'); 
 
+  // --- 2.5 Alt Kateqoriyaların yaradılması (Yeni Məntiq) ---
+  const parentSubMappings: Record<string, string[]> = {
+    'ayaqqabi': ['İdman ayaqqabısı', 'Klassik ayaqqabı', 'Botlar'],
+    'futbolka': ['Polo Futbolka', 'V-yaxa Futbolka', 'Printli Futbolka'],
+    'salvar': ['Cins Şalvar', 'Klassik Şalvar', 'Kargo Şalvar'],
+    'canta': ['Sırt çantası', 'Əl çantası', 'Cüzdanlar'],
+  };
+
+  for (const [parentSlug, subNames] of Object.entries(parentSubMappings)) {
+    const parent = await categoryRepo.findOne({ where: { slug: parentSlug } });
+    if (parent) {
+      console.log(`🌿 Creating subcategories for: ${parent.name}`);
+      for (const subName of subNames) {
+        const subSlug = subName.toLowerCase().replace(/ /g, '-');
+        let sub = await categoryRepo.findOne({ where: { slug: subSlug } });
+        if (!sub) {
+          sub = categoryRepo.create({
+            name: subName,
+            slug: subSlug,
+            parent: parent,
+            sizeType: parent.sizeType, // Miras al
+            isActive: true
+          });
+          await categoryRepo.save(sub);
+        }
+      }
+    }
+  }
+
+  // Bütün kateqoriyaları (yaxınlarda yaradılanlar daxil) yenidən çəkək
+  const allCategories = await categoryRepo.find();
+
   // 3. Kateqoriya üzrə Professional Seeding
-  for (const cat of categories) {
-    const productCount = Math.floor(Math.random() * (12 - 7 + 1)) + 7;
-    console.log(`📦 Creating ${productCount} smart products for: ${cat.name}`);
+  for (const cat of allCategories) {
+    const productCount = Math.floor(Math.random() * (12 - 5 + 1)) + 5;
+    console.log(`📦 Adding products to category: ${cat.name}`);
 
     for (let i = 1; i <= productCount; i++) {
         const selectedBrand = brands[Math.floor(Math.random() * brands.length)];
