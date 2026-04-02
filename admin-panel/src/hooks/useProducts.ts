@@ -10,6 +10,14 @@ export const useProducts = (params: ProductQueryParams = {}) => {
   });
 };
 
+export const useAdminProducts = (params: ProductQueryParams = {}) => {
+  return useQuery({
+    queryKey: ['admin-products', params],
+    queryFn: () => productService.getAllAdmin(params),
+    placeholderData: keepPreviousData,
+  });
+};
+
 export const useProduct = (id: number) => {
   return useQuery({
     queryKey: ['product', id],

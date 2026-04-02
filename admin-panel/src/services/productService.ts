@@ -14,6 +14,7 @@ export interface PaginatedResponse<T> {
 
 interface IProductService {
   getAll(params?: ProductQueryParams): Promise<PaginatedResponse<Product>>;
+  getAllAdmin(params?: ProductQueryParams): Promise<PaginatedResponse<Product>>;
   getById(id: number): Promise<Product>;
   create(data: CreateProductDto | FormData): Promise<Product>;
   update(id: number, data: UpdateProductDto | FormData): Promise<Product>;
@@ -28,6 +29,16 @@ class ProductService implements IProductService {
       return response.data;
     } catch (error) {
       console.error('Error fetching all products:', error);
+      throw error;
+    }
+  }
+
+  async getAllAdmin(params: ProductQueryParams = {}): Promise<PaginatedResponse<Product>> {
+    try {
+      const response = await axiosInstance.get('/products/admin', { params });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching admin products:', error);
       throw error;
     }
   }

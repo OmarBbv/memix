@@ -5,7 +5,7 @@ import * as z from "zod";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import { PlusIcon } from "../../icons";
-import { useProducts, useDeleteProduct } from "../../hooks/useProducts";
+import { useAdminProducts, useDeleteProduct } from "../../hooks/useProducts";
 import ProductTable from "./ProductTable";
 import { Product } from "../../types/product";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
@@ -39,7 +39,7 @@ const Products: React.FC = () => {
   const [selectedBrand, setSelectedBrand] = useState<string | number>("");
   const navigate = useNavigate();
   const { data: brands } = useBrands();
-  const { data: productsData, isLoading } = useProducts({ 
+  const { data: productsData, isLoading } = useAdminProducts({ 
     page, 
     limit: 10, 
     search: searchTerm,
@@ -67,21 +67,21 @@ const Products: React.FC = () => {
   const updateDiscount = useUpdateDiscount();
   const deleteDiscount = useDeleteDiscount();
 
-  const handleEdit = (product: Product) => navigate(`/products/edit/${product.id}`);
+  const handleEdit = React.useCallback((product: Product) => navigate(`/products/edit/${product.id}`), [navigate]);
 
-  const handleAdd = () => navigate("/products/create");
+  const handleAdd = React.useCallback(() => navigate("/products/create"), [navigate]);
 
-  const handleSearch = (value: string) => {
+  const handleSearch = React.useCallback((value: string) => {
     setSearchTerm(value);
     setPage(1);
-  };
+  }, []);
 
-  const openDeleteDialog = (id: number) => {
+  const openDeleteDialog = React.useCallback((id: number) => {
     setProductToDelete(id);
     setIsDeleteDialogOpen(true);
-  };
+  }, []);
 
-  const handleDelete = () => {
+  const handleDelete = React.useCallback(() => {
     if (productToDelete) {
       deleteMutation.mutate(productToDelete, {
         onSuccess: () => {
@@ -90,9 +90,9 @@ const Products: React.FC = () => {
         }
       });
     }
-  };
+  }, [productToDelete, deleteMutation]);
 
-  const openDiscountModal = (product: Product) => {
+  const openDiscountModal = React.useCallback((product: Product) => {
     setSelectedProduct(product);
     if (product.discount) {
       reset({
@@ -110,9 +110,9 @@ const Products: React.FC = () => {
       });
     }
     setIsDiscountModalOpen(true);
-  };
+  }, [reset]);
 
-  const handleSaveDiscount = (values: DiscountFormValues) => {
+  const handleSaveDiscount = React.useCallback((values: DiscountFormValues) => {
     if (!selectedProduct) return;
 
     const data = {
@@ -139,9 +139,9 @@ const Products: React.FC = () => {
         }
       });
     }
-  };
+  }, [selectedProduct, updateDiscount, createDiscount]);
 
-  const handleDeleteDiscount = () => {
+  const handleDeleteDiscount = React.useCallback(() => {
     if (selectedProduct?.discount) {
       deleteDiscount.mutate(selectedProduct.discount.id, {
         onSuccess: () => {
@@ -150,7 +150,7 @@ const Products: React.FC = () => {
         }
       });
     }
-  };
+  }, [selectedProduct, deleteDiscount]);
 
   return (
     <>

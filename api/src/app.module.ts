@@ -29,6 +29,7 @@ import { PromotionsModule } from './promotions/promotions.module';
 import { IntegrationsModule } from './integrations/integrations.module';
 import { AttributesModule } from './attributes/attributes.module';
 import { SizeTypesModule } from './size-types/size-types.module';
+import { WarehouseLogsModule } from './warehouse-logs/warehouse-logs.module';
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { SizeTypesModule } from './size-types/size-types.module';
     IntegrationsModule,
     AttributesModule,
     SizeTypesModule,
+    WarehouseLogsModule,
   ],
   controllers: [UploadsController],
   providers: [],

@@ -198,6 +198,62 @@ export class ProductsService {
     return fullProduct;
   }
 
+  async findAllAdmin(query: any = {}) {
+    const page = Math.max(1, parseInt(query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(query.limit) || 10));
+    const skip = (page - 1) * limit;
+
+    const qb = this.productsRepository.createQueryBuilder('product');
+
+    qb.leftJoinAndSelect('product.category', 'category');
+    qb.leftJoinAndSelect('product.brand', 'brand');
+    qb.leftJoinAndSelect('product.colorVariants', 'colorVariants');
+    qb.leftJoinAndSelect('colorVariants.stocks', 'stocks');
+    qb.leftJoinAndSelect('product.discount', 'discount');
+    qb.leftJoinAndSelect('product.priceHistory', 'priceHistory');
+    
+    // Admin sees all non-deleted products
+    qb.where('product.isDeleted = :isDeleted', { isDeleted: false });
+
+    if (query.search) {
+      qb.andWhere('(product.name ILIKE :search OR product.sku ILIKE :search OR product.barcode ILIKE :search)', {
+        search: `%${query.search}%`,
+      });
+    }
+
+    if (query.categoryId) {
+      qb.andWhere('category.id = :categoryId', { categoryId: query.categoryId });
+    }
+
+    if (query.brand) {
+      const brands = Array.isArray(query.brand) ? query.brand : query.brand.split(',').map((b: string) => b.trim());
+      const isNumeric = brands.every(b => !isNaN(Number(b)) && b !== '');
+      if (isNumeric) {
+        qb.andWhere('brand.id IN (:...brands)', { brands: brands.map(Number) });
+      } else {
+        qb.andWhere('brand.name IN (:...brands)', { brands });
+      }
+    }
+
+    qb.orderBy('product.createdAt', 'DESC');
+    qb.skip(skip).take(limit);
+
+    const [products, total] = await qb.getManyAndCount();
+    const mappedProducts = products.map((product) => this.mapProduct(product));
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: mappedProducts,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNextPage: page < totalPages,
+      },
+    };
+  }
+
   async findAll(query: any = {}) {
     const page = Math.max(1, parseInt(query.page) || 1);
     const limit = Math.min(100, Math.max(1, parseInt(query.limit) || 20));

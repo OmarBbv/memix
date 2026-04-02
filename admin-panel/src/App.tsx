@@ -37,6 +37,8 @@ import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import Orders from "./pages/Orders";
+import WarehouseLogs from "./pages/WarehouseLogs";
+import CreateWarehouseLog from "./pages/WarehouseLogs/CreateWarehouseLog";
 
 export default function App() {
   return (
@@ -60,6 +62,8 @@ export default function App() {
               <Route path="/orders" element={<Orders />} />
               <Route path="/orders/returns" element={<PlaceholderPage title="Geri Qaytarılanlar" />} />
               <Route path="/users" element={<Users />} />
+              <Route path="/warehouse-logs" element={<WarehouseLogs />} />
+              <Route path="/warehouse-logs/create" element={<CreateWarehouseLog />} />
 
               {/* Marketing Routes */}
               <Route path="/marketing/banners" element={<Banners />} />

@@ -113,18 +113,7 @@ export default function ProductTable({ products, onEdit, onDelete, onDiscount }:
                   {(() => {
                     const totalStock = product.stocks?.reduce((sum, s) => sum + (s.stock || 0), 0) || 0;
                     return (
-                      <div className="flex flex-col">
-                        <span className="font-medium text-gray-800 dark:text-white/90">{totalStock} ədəd</span>
-                        {product.stocks && product.stocks.length > 0 && (
-                          <div className="mt-1 space-y-0.5">
-                            {product.stocks.map((s: any) => (
-                              <span key={s.id || s.branchId} className="block text-theme-xs text-gray-400">
-                                {s.branch?.name || 'Filial'}: {s.stock}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
+                      <span className="font-medium text-gray-800 dark:text-white/90">{totalStock} ədəd</span>
                     );
                   })()}
                 </TableCell>

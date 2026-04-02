@@ -41,6 +41,13 @@ export class ProductsController {
     return this.productsService.findAll(query);
   }
 
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @Get('admin')
+  findAllAdmin(@Query() query: any) {
+    return this.productsService.findAllAdmin(query);
+  }
+
   @Get('filters')
   getFilters(@Query() query: any) {
     return this.productsService.getFilters(query);

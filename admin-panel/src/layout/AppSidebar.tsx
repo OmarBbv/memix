@@ -61,6 +61,11 @@ const navItems: NavItem[] = [
       { name: "Toplu Endirimlər", path: "/marketing/discounts", pro: false },
     ],
   },
+  {
+    icon: <BoxIcon />,
+    name: "Anbar Qeydləri",
+    path: "/warehouse-logs",
+  },
 ];
 
 const othersItems: NavItem[] = [
