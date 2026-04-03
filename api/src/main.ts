@@ -28,6 +28,7 @@ async function bootstrap() {
       'http://ru.localhost:3000',
       'http://localhost:5173',
       'http://localhost:4000',
+      'http://93.180.133.166',
     ],
     credentials: true,
   });
