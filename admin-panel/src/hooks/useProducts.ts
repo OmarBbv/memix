@@ -33,6 +33,7 @@ export const useCreateProduct = () => {
     mutationFn: (data: CreateProductDto) => productService.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-products'] });
     },
   });
 };
@@ -45,6 +46,7 @@ export const useUpdateProduct = () => {
       productService.update(id, data),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-products'] });
       queryClient.invalidateQueries({ queryKey: ['product', data.id] });
     },
   });
@@ -57,6 +59,7 @@ export const useDeleteProduct = () => {
     mutationFn: (id: number) => productService.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-products'] });
     },
   });
 };
