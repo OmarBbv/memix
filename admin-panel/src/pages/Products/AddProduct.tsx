@@ -63,9 +63,7 @@ export default function AddProduct() {
     name: "colorVariants",
   });
 
-  const [variantName, setVariantName] = useState("");
-  const [variantValues, setVariantValues] = useState("");
-  const variants = (watch("variants") || {}) as Record<string, string[]>;
+
   const categoryId = watch("categoryId");
 
   const currentCategory = categories?.find(c => c.id === categoryId);
@@ -108,20 +106,7 @@ export default function AddProduct() {
     }
   }, [categoryId, listingType, setValue]);
 
-  const handleAddVariant = () => {
-    if (!variantName || !variantValues) return;
-    const valuesArray = variantValues.split(",").map(v => v.trim()).filter(Boolean);
-    const newVariants = { ...variants, [variantName]: valuesArray };
-    setValue("variants", newVariants);
-    setVariantName("");
-    setVariantValues("");
-  };
 
-  const handleRemoveVariant = (key: string) => {
-    const newVariants = { ...variants };
-    delete newVariants[key];
-    setValue("variants", newVariants);
-  };
 
   const onSubmit = (data: ProductFormValues) => {
     const formData = new FormData();
@@ -448,7 +433,7 @@ export default function AddProduct() {
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                              {(watch(`colorVariants.${index}.stocks`) || []).map((s: any, sIdx: number) => (
+                              {(watch(`colorVariants.${index}.stocks`) || []).map((_: any, sIdx: number) => (
                                 <div
                                   key={sIdx}
                                   className="group relative flex items-center gap-2 p-2 bg-white dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm transition-all hover:border-brand-500/30 hover:shadow-lg hover:shadow-brand-500/5"

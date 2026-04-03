@@ -289,7 +289,7 @@ export default function Home() {
                 <div key={i} className="aspect-3/4 animate-pulse rounded-2xl bg-zinc-100" />
               ))
             ) : (
-              displayCategories.slice(0, 12).map((cat: any, idx) => (
+              displayCategories.slice(0, 12).map((cat: any, idx: number) => (
                 <Link
                   key={cat.id || idx}
                   href={`/category/${cat.slug}`}
@@ -301,7 +301,7 @@ export default function Home() {
                         ? (cat.imageUrl.startsWith('http')
                           ? cat.imageUrl
                           : cat.imageUrl.startsWith('/uploads')
-                            ? `http://localhost:4444${cat.imageUrl}`
+                            ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4444'}${cat.imageUrl}`
                             : cat.imageUrl)
                         : "/placeholder-cat.jpg"
                     }

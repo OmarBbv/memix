@@ -66,7 +66,7 @@ export default function CategoryFormPage() {
         skuPrefixNew: (categoryData as any).skuPrefixNew || "",
       });
       if (categoryData.imageUrl) {
-        setImagePreview(categoryData.imageUrl.startsWith('http') ? categoryData.imageUrl : `http://localhost:4444${categoryData.imageUrl}`);
+        setImagePreview(categoryData.imageUrl.startsWith('http') ? categoryData.imageUrl : `${import.meta.env.VITE_APP_API_URL || 'http://localhost:4444'}${categoryData.imageUrl}`);
       }
     }
   }, [categoryData, reset, isEdit]);

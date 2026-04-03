@@ -81,9 +81,7 @@ export default function EditProduct() {
     }
   }, [product, reset]);
 
-  const [variantName, setVariantName] = useState("");
-  const [variantValues, setVariantValues] = useState("");
-  const variants = (watch("variants") || {}) as Record<string, string[]>;
+
   const categoryId = watch("categoryId");
 
   const currentCategory = categories?.find(c => c.id === categoryId);
@@ -111,7 +109,7 @@ export default function EditProduct() {
     if (product && categoryId && listingType) {
       const isOriginalCategory = product.category?.id === categoryId;
       const isOriginalListingType = (product.listingType || "new") === listingType;
-      
+
       if (!isOriginalCategory || !isOriginalListingType) {
         productService.generateSKU(categoryId, listingType).then(response => {
           if (response.error) {
@@ -129,20 +127,7 @@ export default function EditProduct() {
     }
   }, [categoryId, listingType, product, setValue]);
 
-  const handleAddVariant = () => {
-    if (!variantName || !variantValues) return;
-    const valuesArray = variantValues.split(",").map(v => v.trim()).filter(Boolean);
-    const newVariants = { ...variants, [variantName]: valuesArray };
-    setValue("variants", newVariants);
-    setVariantName("");
-    setVariantValues("");
-  };
 
-  const handleRemoveVariant = (key: string) => {
-    const newVariants = { ...variants };
-    delete newVariants[key];
-    setValue("variants", newVariants);
-  };
 
   const onSubmit = (data: ProductFormValues) => {
     const formData = new FormData();
@@ -479,7 +464,7 @@ export default function EditProduct() {
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                              {(watch(`colorVariants.${index}.stocks`) || []).map((s: any, sIdx: number) => (
+                              {(watch(`colorVariants.${index}.stocks`) || []).map((_: any, sIdx: number) => (
                                 <div key={sIdx} className="group relative flex items-center gap-2 p-2 bg-white dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm transition-all hover:border-brand-500/30 hover:shadow-lg hover:shadow-brand-500/5">
                                   <div className="flex-1 min-w-0">
                                     <Controller
@@ -518,8 +503,8 @@ export default function EditProduct() {
                                       }
                                     }}
                                     className={`flex items-center justify-center p-2 transition-all rounded-xl ${(watch(`colorVariants.${index}.stocks`) || []).length > 1
-                                        ? "text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
-                                        : "text-gray-200 cursor-not-allowed opacity-30"
+                                      ? "text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
+                                      : "text-gray-200 cursor-not-allowed opacity-30"
                                       }`}
                                     disabled={(watch(`colorVariants.${index}.stocks`) || []).length <= 1}
                                   >
@@ -636,7 +621,7 @@ export default function EditProduct() {
                 {/* Description */}
                 <div className="flex flex-col md:flex-row md:items-start gap-2 md:gap-6 pt-10 border-t border-gray-100 dark:border-gray-800">
                   <div className="w-full md:w-64 pt-2">
-                    <Label htmlFor="description" optional className="!mb-0">Təsvir</Label>
+                    <Label htmlFor="description" optional className="mb-0!">Təsvir</Label>
                   </div>
                   <div className="flex-1">
                     <Controller
