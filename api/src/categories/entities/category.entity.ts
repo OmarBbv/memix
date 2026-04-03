@@ -45,6 +45,9 @@ export class Category {
   @Column({ default: false })
   showOnHome: boolean;
 
+  @Column({ default: false })
+  isDeleted: boolean;
+
   @Column({ type: 'varchar', nullable: true })
   skuPrefixUsed: string | null;
 

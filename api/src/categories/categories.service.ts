@@ -125,7 +125,7 @@ export class CategoriesService {
   }
 
   async findAll(all: boolean = false) {
-    const where: any = {};
+    const where: any = { isDeleted: false };
     if (!all) {
       where.isActive = true;
     }
@@ -147,6 +147,7 @@ export class CategoriesService {
     category: Category,
     all: boolean = false,
   ): Category | null {
+    if (category.isDeleted) return null;
     if (!all && !category.isActive) return null;
     category.name = this.formatName(category.name);
     category.imageUrl = ensureFullUrl(category.imageUrl);
@@ -177,7 +178,7 @@ export class CategoriesService {
       if (categoryIds.length === 0) return [];
 
       const categories = await this.categoriesRepository.find({
-        where: { id: In(categoryIds) },
+        where: { id: In(categoryIds), isDeleted: false },
         relations: ['parent', 'children'],
         order: { order: 'ASC', id: 'ASC' },
       });
@@ -189,7 +190,7 @@ export class CategoriesService {
       }));
     }
 
-    const where: any = { parent: IsNull() };
+    const where: any = { parent: IsNull(), isDeleted: false };
     if (!all) {
       where.isActive = true;
     }
@@ -214,7 +215,7 @@ export class CategoriesService {
 
   async findHomeCategories() {
     const categories = await this.categoriesRepository.find({
-      where: { showOnHome: true, isActive: true },
+      where: { showOnHome: true, isActive: true, isDeleted: false },
       order: { order: 'ASC', id: 'ASC' },
     });
 
@@ -227,7 +228,7 @@ export class CategoriesService {
 
   async findOne(id: number): Promise<Category> {
     const category = await this.categoriesRepository.findOne({
-      where: { id },
+      where: { id, isDeleted: false },
       relations: ['parent', 'children'],
     });
 
@@ -245,7 +246,7 @@ export class CategoriesService {
     filters: Record<string, string> = {},
   ): Promise<any> {
     const category = await this.categoriesRepository.findOne({
-      where: { slug },
+      where: { slug, isDeleted: false },
       relations: [
         'parent',
         'children',
@@ -444,7 +445,8 @@ export class CategoriesService {
 
   async remove(id: number) {
     const category = await this.findOne(id);
-    await this.categoriesRepository.remove(category);
+    category.isDeleted = true;
+    await this.categoriesRepository.save(category);
     await this.searchService.removeCategory(id);
     this.clearCache();
     return category;
@@ -452,7 +454,7 @@ export class CategoriesService {
 
   async getFilters(id: number) {
     const category = await this.categoriesRepository.findOne({
-      where: { id },
+      where: { id, isDeleted: false },
       relations: [
         'children',
         'children.children',
