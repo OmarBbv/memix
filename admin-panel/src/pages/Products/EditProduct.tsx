@@ -298,7 +298,7 @@ export default function EditProduct() {
                           <SearchableSelect
                             options={[
                               { label: "YENİ (NEW)", value: "new" },
-                              { label: "İŞLƏNMİŞ (USED)", value: "used" },
+                              { label: "İKİNCİ ƏL (USED)", value: "used" },
                             ]}
                             placeholder="Vəziyyəti seçin"
                             onChange={field.onChange}

@@ -72,7 +72,7 @@ export default function ProductTable({ products, onEdit, onDelete, onDiscount }:
                             color={product.listingType === 'new' ? 'success' : 'warning'}
                             variant="light"
                           >
-                            {product.listingType === 'new' ? 'YENİ' : 'İŞLƏNMİŞ'}
+                            {product.listingType === 'new' ? 'YENİ' : 'İKİNCİ ƏL'}
                           </Badge>
                         )}
                       </div>
