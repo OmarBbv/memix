@@ -76,9 +76,9 @@ async function seed() {
     const categoryRepo = connection.getRepository(Category);
 
     for (const item of attributesData) {
-      let attribute = await attrRepo.findOne({ 
+      let attribute = await attrRepo.findOne({
         where: { name: item.name },
-        relations: ['options', 'categories'] 
+        relations: ['options', 'categories']
       });
 
       if (!attribute) {
@@ -89,8 +89,8 @@ async function seed() {
 
       // Add options
       for (const optValue of item.options) {
-        let option = await optionRepo.findOne({ 
-          where: { value: optValue, attribute: { id: attribute.id } } 
+        let option = await optionRepo.findOne({
+          where: { value: optValue, attribute: { id: attribute.id } }
         });
         if (!option) {
           option = optionRepo.create({ value: optValue, attribute });
@@ -103,7 +103,7 @@ async function seed() {
       const categories = await categoryRepo.find({
         where: { slug: In(item.categorySlugs) }
       });
-      
+
       if (categories.length > 0) {
         attribute.categories = categories;
         await attrRepo.save(attribute);

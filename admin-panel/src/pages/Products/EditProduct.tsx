@@ -235,38 +235,6 @@ export default function EditProduct() {
                       />
                     </div>
                   </div>
-
-                  <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
-                    <div className="w-full md:w-64">
-                      <Label htmlFor="sku" optional className="mb-0!">Məhsul Kodu (SKU)</Label>
-                    </div>
-                    <div className="flex-1">
-                      <Input
-                        type="text"
-                        id="sku"
-                        {...register("sku")}
-                        error={!!errors.sku}
-                        hint={errors.sku?.message}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
-                    <div className="w-full md:w-64">
-                      <Label htmlFor="barcode" optional className="mb-0!">Barkod (Avtomatik)</Label>
-                    </div>
-                    <div className="flex-1">
-                      <Input
-                        type="text"
-                        id="barcode"
-                        {...register("barcode")}
-                        disabled={true}
-                        className="bg-gray-50 cursor-not-allowed"
-                        error={!!errors.barcode}
-                        hint={errors.barcode?.message}
-                      />
-                    </div>
-                  </div>
                 </div>
 
                 <div className="space-y-4 pt-4 border-t border-gray-100 dark:border-gray-800">
@@ -288,7 +256,7 @@ export default function EditProduct() {
 
                   <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
                     <div className="w-full md:w-64">
-                      <Label className="mb-0!">Məhsulun Vəziyyəti</Label>
+                      <Label required className="mb-0!">Məhsulun Vəziyyəti</Label>
                     </div>
                     <div className="flex-1 max-w-sm">
                       <Controller
@@ -312,7 +280,7 @@ export default function EditProduct() {
 
                   <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
                     <div className="w-full md:w-64">
-                      <Label optional className="mb-0!">Cinsi</Label>
+                      <Label className="mb-0!">Cinsi</Label>
                     </div>
                     <div className="flex-1 max-w-sm">
                       <Controller
@@ -337,7 +305,7 @@ export default function EditProduct() {
 
                   <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
                     <div className="w-full md:w-64">
-                      <Label htmlFor="weight" optional className="mb-0!">Çəki (Qr)</Label>
+                      <Label htmlFor="weight" className="mb-0!">Çəki (Qr)</Label>
                     </div>
                     <div className="flex-1 max-w-sm">
                       <Input
@@ -376,7 +344,7 @@ export default function EditProduct() {
 
                   <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
                     <div className="w-full md:w-64 flex items-center justify-between pr-4">
-                      <Label optional className="mb-0!">Brend (Marka)</Label>
+                      <Label className="mb-0!">Brend (Marka)</Label>
                       <button
                         type="button"
                         onClick={() => setIsBrandModalOpen(true)}
@@ -404,6 +372,39 @@ export default function EditProduct() {
                       />
                     </div>
                   </div>
+
+                  {/* SKU/Barcode moved here */}
+                  <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6 pt-4 border-t border-gray-100 dark:border-gray-800">
+                    <div className="w-full md:w-64">
+                      <Label htmlFor="sku" className="mb-0!">Məhsul Kodu (SKU)</Label>
+                    </div>
+                    <div className="flex-1">
+                      <Input
+                        type="text"
+                        id="sku"
+                        {...register("sku")}
+                        error={!!errors.sku}
+                        hint={errors.sku?.message}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
+                    <div className="w-full md:w-64">
+                      <Label htmlFor="barcode" className="mb-0!">Barkod (Avtomatik)</Label>
+                    </div>
+                    <div className="flex-1">
+                      <Input
+                        type="text"
+                        id="barcode"
+                        {...register("barcode")}
+                        disabled={true}
+                        className="bg-gray-50 cursor-not-allowed"
+                        error={!!errors.barcode}
+                        hint={errors.barcode?.message}
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div className="space-y-4 pt-4 border-t border-gray-100 dark:border-gray-800">
@@ -427,7 +428,7 @@ export default function EditProduct() {
                         <div className="space-y-8">
                           <div className="flex flex-col md:flex-row md:items-center gap-4">
                             <div className="w-full md:w-32">
-                              <Label className="text-[10px] font-black uppercase tracking-widest text-[#64748B] mb-0!">RƏNG</Label>
+                              <Label required className="text-[10px] font-black uppercase tracking-widest text-[#64748B] mb-0!">RƏNG</Label>
                             </div>
                             <div className="flex-1 max-w-sm">
                               <Controller
@@ -621,7 +622,7 @@ export default function EditProduct() {
                 {/* Description */}
                 <div className="flex flex-col md:flex-row md:items-start gap-2 md:gap-6 pt-10 border-t border-gray-100 dark:border-gray-800">
                   <div className="w-full md:w-64 pt-2">
-                    <Label htmlFor="description" optional className="mb-0!">Təsvir</Label>
+                    <Label htmlFor="description" className="mb-0!">Təsvir</Label>
                   </div>
                   <div className="flex-1">
                     <Controller

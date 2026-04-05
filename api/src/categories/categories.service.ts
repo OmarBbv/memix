@@ -341,7 +341,7 @@ export class CategoriesService {
       } else if (key === 'brand') {
         const brands = values.map((brand: string) => brand.trim());
         qb = qb.leftJoin('product.brand', 'brandRel')
-               .andWhere('brandRel.name IN (:...brands)', { brands });
+          .andWhere('brandRel.name IN (:...brands)', { brands });
       } else if (key === 'listingType') {
         qb = qb.andWhere('product.listingType IN (:...listingTypes)', { listingTypes: values });
       } else {

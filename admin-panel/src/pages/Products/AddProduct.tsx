@@ -208,26 +208,6 @@ export default function AddProduct() {
                       />
                     </div>
                   </div>
-
-                  {/* SKU/Barcode */}
-                  <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
-                    <div className="w-full md:w-64">
-                      <Label htmlFor="sku" optional className="mb-0!">Məhsul Kodu (SKU)</Label>
-                    </div>
-                    <div className="flex-1">
-                      <Input
-                        type="text"
-                        id="sku"
-                        placeholder="Məs: A5-A001"
-                        {...register("sku")}
-                        disabled={true}
-                        className="bg-gray-50 cursor-not-allowed"
-                        error={!!errors.sku}
-                        hint={errors.sku?.message}
-                      />
-                    </div>
-                  </div>
-
                 </div>
 
                 <div className="space-y-4 pt-4 border-t border-gray-100 dark:border-gray-800">
@@ -252,7 +232,7 @@ export default function AddProduct() {
 
                   <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
                     <div className="w-full md:w-64">
-                      <Label className="mb-0!">Məhsulun Vəziyyəti</Label>
+                      <Label required className="mb-0!">Məhsulun Vəziyyəti</Label>
                     </div>
                     <div className="flex-1 max-w-sm">
                       <Controller
@@ -276,7 +256,7 @@ export default function AddProduct() {
 
                   <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
                     <div className="w-full md:w-64">
-                      <Label optional className="!mb-0">Cinsi</Label>
+                      <Label className="mb-0!">Cinsi</Label>
                     </div>
                     <div className="flex-1 max-w-sm">
                       <Controller
@@ -302,7 +282,7 @@ export default function AddProduct() {
 
                   <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
                     <div className="w-full md:w-64">
-                      <Label htmlFor="weight" optional className="!mb-0">Çəki (Qr)</Label>
+                      <Label htmlFor="weight" className="mb-0!">Çəki (Qr)</Label>
                     </div>
                     <div className="flex-1 max-w-sm">
                       <Input
@@ -322,7 +302,7 @@ export default function AddProduct() {
                   {/* Category/Brand */}
                   <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
                     <div className="w-full md:w-64">
-                      <Label required className="!mb-0">Kateqoriya</Label>
+                      <Label required className="mb-0!">Kateqoriya</Label>
                     </div>
                     <div className="flex-1">
                       <Controller
@@ -346,7 +326,7 @@ export default function AddProduct() {
 
                   <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
                     <div className="w-full md:w-64 flex items-center justify-between pr-4">
-                      <Label optional className="!mb-0">Brend (Marka)</Label>
+                      <Label className="mb-0!">Brend (Marka)</Label>
                       <button
                         type="button"
                         onClick={() => setIsBrandModalOpen(true)}
@@ -374,6 +354,25 @@ export default function AddProduct() {
                       />
                     </div>
                   </div>
+
+                  {/* SKU/Barcode moved here */}
+                  <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6 pt-4 border-t border-gray-100 dark:border-gray-800">
+                    <div className="w-full md:w-64">
+                      <Label htmlFor="sku" className="mb-0!">Məhsul Kodu (SKU)</Label>
+                    </div>
+                    <div className="flex-1">
+                      <Input
+                        type="text"
+                        id="sku"
+                        placeholder="Məs: A5-A001"
+                        {...register("sku")}
+                        disabled={true}
+                        className="bg-gray-50 cursor-not-allowed"
+                        error={!!errors.sku}
+                        hint={errors.sku?.message}
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 {/* COLOR BASED VARIANTS */}
@@ -397,7 +396,7 @@ export default function AddProduct() {
                         <div className="space-y-8">
                           <div className="flex flex-col md:flex-row md:items-center gap-4">
                             <div className="w-full md:w-32">
-                              <Label className="text-[10px] font-black uppercase tracking-widest text-[#64748B] mb-0!">RƏNG</Label>
+                              <Label required className="text-[10px] font-black uppercase tracking-widest text-[#64748B] mb-0!">RƏNG</Label>
                             </div>
                             <div className="flex-1 max-w-sm">
                               <Controller
@@ -585,7 +584,7 @@ export default function AddProduct() {
                 {/* DESCRIPTION */}
                 <div className="flex flex-col md:flex-row md:items-start gap-2 md:gap-6 pt-10 border-t border-gray-100 dark:border-gray-800">
                   <div className="w-full md:w-64 pt-2">
-                    <Label htmlFor="description" optional className="!mb-0">Təsvir</Label>
+                    <Label htmlFor="description" className="mb-0!">Təsvir</Label>
                     <p className="text-xs text-gray-400 mt-1">Məhsul haqqında ətraflı məlumat</p>
                   </div>
                   <div className="flex-1">
@@ -611,7 +610,7 @@ export default function AddProduct() {
                 <div className="space-y-4 pt-10 border-t border-gray-100 dark:border-gray-800">
                   <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
                     <div className="w-full md:w-64">
-                      <Label htmlFor="bannerFile" required className="!mb-0">Vitrin Şəkli (Əsas)</Label>
+                      <Label htmlFor="bannerFile" required className="mb-0!">Vitrin Şəkli (Əsas)</Label>
                       <p className="text-xs text-gray-400 mt-1">Kataloqda görünəcək əsas şəkil</p>
                     </div>
                     <div className="flex-1">
@@ -633,7 +632,7 @@ export default function AddProduct() {
                   {/* TAGS */}
                   <div className="flex flex-col md:flex-row md:items-start gap-2 md:gap-6">
                     <div className="w-full md:w-64 pt-2">
-                      <Label htmlFor="tags" optional className="mb-0!">Teqlər</Label>
+                      <Label htmlFor="tags" className="mb-0!">Teqlər</Label>
                       <p className="text-xs text-gray-400 mt-1">Məs: Yeni, Endirim</p>
                     </div>
                     <div className="flex-1">
@@ -661,7 +660,7 @@ export default function AddProduct() {
                   {/* FEATURED */}
                   <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6 pt-4">
                     <div className="w-full md:w-64">
-                      <Label htmlFor="isFeatured" className="!mb-0">Önə Çıxması</Label>
+                      <Label htmlFor="isFeatured" className="mb-0!">Önə Çıxması</Label>
                     </div>
                     <div className="flex-1">
                       <Controller
