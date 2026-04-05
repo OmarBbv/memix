@@ -4,6 +4,7 @@ import {
   DollarLineIcon,
 } from "../../icons";
 import { useDashboardOverview } from "../../hooks/useAnalytics";
+import { formatNumber } from "../../utils/numberFormat";
 
 export default function EcommerceMetrics() {
   const { data, isLoading, isError } = useDashboardOverview();
@@ -36,7 +37,7 @@ export default function EcommerceMetrics() {
               Ümumi Gəlir
             </span>
             <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-              {Number(revenue.totalRevenue).toFixed(2)} AZN
+              {formatNumber(Number(revenue.totalRevenue))} AZN
             </h4>
           </div>
         </div>
@@ -54,7 +55,7 @@ export default function EcommerceMetrics() {
               Sifarişlər
             </span>
             <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-              {sales.totalOrders}
+              {formatNumber(sales.totalOrders, 0)}
             </h4>
           </div>
         </div>
@@ -73,7 +74,7 @@ export default function EcommerceMetrics() {
               Müştərilər
             </span>
             <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-              {userActivity.totalUsers}
+              {formatNumber(userActivity.totalUsers, 0)}
             </h4>
           </div>
         </div>

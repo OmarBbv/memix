@@ -4,13 +4,64 @@ import { Repository } from 'typeorm';
 import { CreateWarehouseLogDto } from './dto/create-warehouse-log.dto';
 import { UpdateWarehouseLogDto } from './dto/update-warehouse-log.dto';
 import { WarehouseLog } from './entities/warehouse-log.entity';
+import { Product } from '../products/entities/product.entity';
 
 @Injectable()
 export class WarehouseLogsService {
   constructor(
     @InjectRepository(WarehouseLog)
     private readonly repository: Repository<WarehouseLog>,
+    @InjectRepository(Product)
+    private readonly productRepository: Repository<Product>,
   ) {}
+
+  async getDailyStats(startDate?: string, endDate?: string) {
+    const qb = this.repository.createQueryBuilder('log')
+      .select('log.recordDate', 'date')
+      .addSelect('SUM(log.totalAmount)', 'logTotalAmount')
+      .addSelect('SUM(log.productCount)', 'logTotalCount');
+
+    if (startDate && endDate) {
+      qb.where('log.recordDate BETWEEN :start AND :end', { start: startDate, end: endDate });
+    }
+
+    qb.groupBy('log.recordDate')
+      .orderBy('log.recordDate', 'DESC');
+
+    const logs = await qb.getRawMany();
+
+    // Həmin tarixlərdə yaradılan məhsulların ümumi dəyəri
+    const productQb = this.productRepository.createQueryBuilder('p')
+       .leftJoin('p.stocks', 's')
+       .select('DATE(p.createdAt)', 'date')
+       .addSelect('SUM(CAST(s.stock AS DECIMAL) * p.price)', 'value')
+       .where('p.isDeleted = false')
+       .groupBy('DATE(p.createdAt)');
+
+    if (startDate && endDate) {
+        productQb.andWhere('p.createdAt BETWEEN :start AND :end', { start: startDate, end: endDate });
+    }
+
+    const productStats = await productQb.getRawMany();
+    const productStatsMap = new Map();
+    productStats.forEach(ps => {
+      const d = new Date(ps.date).toISOString().split('T')[0];
+      productStatsMap.set(d, parseFloat(ps.value) || 0);
+    });
+
+    return logs.map(log => {
+      const dateStr = new Date(log.date).toISOString().split('T')[0];
+      const prodValue = productStatsMap.get(dateStr) || 0;
+      const logTotal = parseFloat(log.logTotalAmount) || 0;
+      return {
+        date: dateStr,
+        logTotalAmount: logTotal,
+        logTotalCount: parseInt(log.logTotalCount) || 0,
+        productTotalValue: prodValue,
+        balance: logTotal - prodValue
+      };
+    });
+  }
 
   async create(dto: CreateWarehouseLogDto) {
     const record = this.repository.create(dto);
@@ -18,8 +69,43 @@ export class WarehouseLogsService {
   }
 
   async findAll() {
-    return await this.repository.find({
+    const logs = await this.repository.find({
       order: { recordDate: 'DESC' },
+    });
+
+    // Bütün tarixlərdə yaradılan məhsulların ümumi dəyəri və sayını hesablayırıq
+    const productStats = await this.productRepository.createQueryBuilder('p')
+       .leftJoin('p.stocks', 's')
+       .select('DATE(p.createdAt)', 'date')
+       .addSelect('SUM(CAST(s.stock AS DECIMAL) * p.price)', 'totalValue')
+       .addSelect('SUM(CAST(s.stock AS INTEGER))', 'totalCount')
+       .where('p.isDeleted = false')
+       .groupBy('DATE(p.createdAt)')
+       .getRawMany();
+
+    const productStatsMap = new Map();
+    productStats.forEach(ps => {
+      const dateStr = new Date(ps.date).toISOString().split('T')[0];
+      productStatsMap.set(dateStr, {
+        value: parseFloat(ps.totalValue) || 0,
+        count: parseInt(ps.totalCount) || 0
+      });
+    });
+
+    return logs.map(log => {
+      const dateStr = new Date(log.recordDate).toISOString().split('T')[0];
+      const stats = productStatsMap.get(dateStr) || { value: 0, count: 0 };
+      
+      const logAmount = parseFloat(log.totalAmount.toString());
+      const logCount = parseInt(log.productCount.toString());
+
+      return {
+        ...log,
+        productExpense: stats.value,
+        productCountExpense: stats.count,
+        balanceAmount: logAmount - stats.value,
+        balanceCount: logCount - stats.count
+      };
     });
   }
 

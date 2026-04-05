@@ -8,6 +8,7 @@ import {
 import Badge from "../../components/ui/badge/Badge";
 import { Order, OrderStatus } from "../../types/order";
 import { EyeIcon, TrashBinIcon } from "../../icons";
+import { formatNumber } from "../../utils/numberFormat";
 
 interface OrderTableProps {
   orders: Order[];
@@ -84,7 +85,7 @@ export default function OrderTable({ orders, onView, onDelete }: OrderTableProps
                   </div>
                 </TableCell>
                 <TableCell className="px-5 py-4 text-start font-bold text-gray-900 text-theme-sm dark:text-white/90">
-                  {Number(order.totalPrice).toFixed(2)} AZN
+                  {formatNumber(Number(order.totalPrice))} AZN
                 </TableCell>
                 <TableCell className="px-5 py-4 text-start text-gray-500 text-theme-sm dark:text-gray-400">
                   {new Date(order.createdAt).toLocaleDateString('az-AZ', {

@@ -6,6 +6,11 @@ export interface WarehouseLog {
   note?: string;
   createdAt: string;
   updatedAt: string;
+  // Hesablanmış sahələr
+  productExpense?: number;
+  productCountExpense?: number;
+  balanceAmount?: number;
+  balanceCount?: number;
 }
 
 export interface CreateWarehouseLogDto {
@@ -13,4 +18,12 @@ export interface CreateWarehouseLogDto {
   productCount: number;
   totalAmount: number;
   note?: string;
+}
+
+export interface WarehouseStats {
+  date: string;
+  logTotalAmount: number;
+  logTotalCount: number;
+  productTotalValue: number;
+  balance: number;
 }

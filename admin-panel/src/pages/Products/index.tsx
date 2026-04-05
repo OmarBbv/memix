@@ -5,7 +5,7 @@ import * as z from "zod";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import { PlusIcon } from "../../icons";
-import { useAdminProducts, useDeleteProduct } from "../../hooks/useProducts";
+import { useAdminProducts, useDeleteProduct, useProductStats } from "../../hooks/useProducts";
 import ProductTable from "./ProductTable";
 import { Product } from "../../types/product";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
@@ -23,6 +23,7 @@ import toast from "react-hot-toast";
 import { allowOnlyNumbers } from "../../utils/inputHelpers";
 import { useBrands } from "../../hooks/useBrands";
 import SearchableSelect from "../../components/ui/select/SearchableSelect";
+import { formatNumber } from "../../utils/numberFormat";
 
 const discountSchema = z.object({
   type: z.nativeEnum(DiscountType),
@@ -45,6 +46,7 @@ const Products: React.FC = () => {
     search: searchTerm,
     brand: selectedBrand || undefined
   });
+  const { data: stats, isLoading: statsLoading } = useProductStats();
   const deleteMutation = useDeleteProduct();
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -161,6 +163,29 @@ const Products: React.FC = () => {
       <PageBreadcrumb pageTitle="Məhsullar" />
 
       <div className="flex flex-col gap-6">
+        {/* Ümumi Statistika Kartları */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2">
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-white/3">
+            <p className="text-sm text-gray-500 dark:text-gray-400">Ümumi Stok</p>
+            <h3 className="mt-1 text-2xl font-bold text-gray-800 dark:text-white/90">
+              {statsLoading ? (
+                <div className="h-8 w-16 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
+              ) : (
+                `${formatNumber(stats?.totalStock || 0, 0)} ədəd`
+              )}
+            </h3>
+          </div>
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-white/3">
+            <p className="text-sm text-gray-500 dark:text-gray-400">Ümumi Dəyər (Satış Qiyməti ilə)</p>
+            <h3 className="mt-1 text-2xl font-bold text-gray-800 dark:text-white/90">
+              {statsLoading ? (
+                <div className="h-8 w-24 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
+              ) : (
+                `${formatNumber(stats?.totalValue || 0)} AZN`
+              )}
+            </h3>
+          </div>
+        </div>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end flex-1">

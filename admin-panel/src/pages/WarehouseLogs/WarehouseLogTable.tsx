@@ -7,6 +7,7 @@ import {
 } from "../../components/ui/table";
 import { WarehouseLog } from "../../types/warehouse-log";
 import { TrashBinIcon } from "../../icons";
+import { formatNumber } from "../../utils/numberFormat";
 
 interface WarehouseLogTableProps {
   logs: WarehouseLog[];
@@ -24,10 +25,16 @@ export default function WarehouseLogTable({ logs, onDelete }: WarehouseLogTableP
                 Tarix
               </TableCell>
               <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                Məhsul Sayı
+                Büdcə (Say)
               </TableCell>
               <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                Ümumi Məbləğ
+                Qalıq Say
+              </TableCell>
+              <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                Büdcə (Məbləğ)
+              </TableCell>
+              <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                Qalıq Məbləğ
               </TableCell>
               <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                 Məlumat
@@ -45,12 +52,18 @@ export default function WarehouseLogTable({ logs, onDelete }: WarehouseLogTableP
                   {new Date(log.recordDate).toLocaleDateString('az-AZ')}
                 </TableCell>
                 <TableCell className="px-5 py-4 text-start text-gray-500 text-theme-sm dark:text-gray-400">
-                  {log.productCount} ədəd
+                  {formatNumber(log.productCount, 0)} ədəd
                 </TableCell>
-                <TableCell className="px-5 py-4 text-start font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                  {log.totalAmount} AZN
+                <TableCell className={`px-5 py-4 text-start font-medium text-theme-sm ${(log.balanceCount ?? 0) >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
+                  {formatNumber(log.balanceCount ?? log.productCount, 0)} ədəd
                 </TableCell>
-                <TableCell className="px-5 py-4 text-start text-gray-500 text-theme-sm dark:text-gray-400 truncate max-w-[200px]">
+                <TableCell className="px-5 py-4 text-start text-gray-500 text-theme-sm dark:text-gray-400">
+                  {formatNumber(log.totalAmount)} AZN
+                </TableCell>
+                <TableCell className={`px-5 py-4 text-start font-bold text-theme-sm ${(log.balanceAmount ?? 0) >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
+                  {formatNumber(log.balanceAmount ?? log.totalAmount)} AZN
+                </TableCell>
+                <TableCell className="px-5 py-4 text-start text-gray-500 text-theme-sm dark:text-gray-400 truncate max-w-[150px]">
                   {log.note || "-"}
                 </TableCell>
                 <TableCell className="px-5 py-4 text-end">

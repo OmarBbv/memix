@@ -1,5 +1,5 @@
 import axiosInstance from '../api/axiosInstance';
-import { CreateProductDto, Product, ProductQueryParams, UpdateProductDto } from '../types/product';
+import { CreateProductDto, Product, ProductQueryParams, ProductStats, UpdateProductDto } from '../types/product';
 
 export interface PaginatedResponse<T> {
   data: T[];
@@ -21,6 +21,7 @@ interface IProductService {
   delete(id: number): Promise<void>;
   generateSKU(categoryId: number, listingType: string): Promise<{ sku: string | null; error?: string }>;
   downloadLabel(id: number): Promise<void>;
+  getGlobalStats(): Promise<ProductStats>;
 }
 
 class ProductService implements IProductService {
@@ -107,6 +108,16 @@ class ProductService implements IProductService {
       link.remove();
     } catch (error) {
       console.error(`Error downloading label for product with id ${id}:`, error);
+      throw error;
+    }
+  }
+
+  async getGlobalStats(): Promise<ProductStats> {
+    try {
+      const response = await axiosInstance.get('/products/stats');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching global stats:', error);
       throw error;
     }
   }

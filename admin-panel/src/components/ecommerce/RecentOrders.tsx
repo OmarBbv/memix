@@ -9,6 +9,7 @@ import Badge from "../ui/badge/Badge";
 import { useOrders } from "../../hooks/useOrders";
 import { OrderStatus } from "../../types/order";
 import { Link } from "react-router";
+import { formatNumber } from "../../utils/numberFormat";
 
 export default function RecentOrders() {
   const { data: orders, isLoading } = useOrders();
@@ -93,7 +94,7 @@ export default function RecentOrders() {
                     {order.user?.name || "Qonaq"}
                   </TableCell>
                   <TableCell className="py-3 font-bold text-gray-900 text-theme-sm dark:text-white/90">
-                    {Number(order.totalPrice).toFixed(2)} AZN
+                    {formatNumber(Number(order.totalPrice))} AZN
                   </TableCell>
                   <TableCell className="py-3">
                     <Badge size="sm" color={getStatusColor(order.status) as any}>

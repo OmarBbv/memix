@@ -1,6 +1,6 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { WarehouseLogService } from '../services/WarehouseLogService';
-import { CreateWarehouseLogDto } from '../types/warehouse-log';
+import { CreateWarehouseLogDto, WarehouseStats } from '../types/warehouse-log';
 
 export const useWarehouseLogs = () => {
   return useQuery({
@@ -16,6 +16,7 @@ export const useCreateWarehouseLog = () => {
     mutationFn: (data: CreateWarehouseLogDto) => WarehouseLogService.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['warehouse-logs'] });
+      queryClient.invalidateQueries({ queryKey: ['warehouse-stats'] });
     },
   });
 };
@@ -27,6 +28,14 @@ export const useDeleteWarehouseLog = () => {
     mutationFn: (id: number) => WarehouseLogService.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['warehouse-logs'] });
+      queryClient.invalidateQueries({ queryKey: ['warehouse-stats'] });
     },
+  });
+};
+
+export const useWarehouseStats = (startDate?: string, endDate?: string): UseQueryResult<WarehouseStats[], Error> => {
+  return useQuery({
+    queryKey: ['warehouse-stats', startDate, endDate],
+    queryFn: () => WarehouseLogService.getStats(startDate, endDate),
   });
 };

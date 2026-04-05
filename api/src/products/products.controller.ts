@@ -83,6 +83,13 @@ export class ProductsController {
     }
   }
 
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @Get('stats')
+  getGlobalStats() {
+    return this.productsService.getGlobalStats();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.productsService.findOne(+id);

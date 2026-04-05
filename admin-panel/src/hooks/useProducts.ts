@@ -1,6 +1,6 @@
-import { keepPreviousData, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useQuery, useMutation, useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import productService from '../services/productService';
-import { CreateProductDto, ProductQueryParams, UpdateProductDto } from '../types/product';
+import { CreateProductDto, ProductQueryParams, ProductStats, UpdateProductDto } from '../types/product';
 
 export const useProducts = (params: ProductQueryParams = {}) => {
   return useQuery({
@@ -34,6 +34,7 @@ export const useCreateProduct = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+      queryClient.invalidateQueries({ queryKey: ['products-stats'] });
     },
   });
 };
@@ -47,6 +48,7 @@ export const useUpdateProduct = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+      queryClient.invalidateQueries({ queryKey: ['products-stats'] });
       queryClient.invalidateQueries({ queryKey: ['product', data.id] });
     },
   });
@@ -60,6 +62,14 @@ export const useDeleteProduct = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+      queryClient.invalidateQueries({ queryKey: ['products-stats'] });
     },
+  });
+};
+
+export const useProductStats = (): UseQueryResult<ProductStats, Error> => {
+  return useQuery({
+    queryKey: ['products-stats'],
+    queryFn: () => productService.getGlobalStats(),
   });
 };

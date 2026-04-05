@@ -88,4 +88,10 @@ export interface ProductQueryParams {
   color?: string | string[];
   size?: string | string[];
   sort?: 'popular' | 'newest' | string;
+  listingType?: string | string[];
+}
+
+export interface ProductStats {
+  totalStock: number;
+  totalValue: number;
 }

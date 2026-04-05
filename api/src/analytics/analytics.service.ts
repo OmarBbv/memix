@@ -14,7 +14,7 @@ export class AnalyticsService {
     private userRepository: Repository<User>,
     @InjectRepository(Product)
     private productRepository: Repository<Product>,
-  ) {}
+  ) { }
 
   async getSalesStats(startDate?: Date, endDate?: Date) {
     const where: any = { status: OrderStatus.DELIVERED };
@@ -169,8 +169,6 @@ export class AnalyticsService {
       activityRate: totalUsers > 0 ? (activeUsers / totalUsers) * 100 : 0,
     };
   }
-
-
 
   async getDashboardOverview() {
     const [sales, topProducts, userActivity, revenue] = await Promise.all([

@@ -8,6 +8,7 @@ import Button from "../../components/ui/button/Button";
 import toast from "react-hot-toast";
 import orderService from "../../services/orderService";
 import { DownloadIcon } from "../../icons";
+import { formatNumber } from "../../utils/numberFormat";
 
 interface OrderDetailModalProps {
   order: Order | null;
@@ -152,14 +153,14 @@ export default function OrderDetailModal({ order, isOpen, onClose }: OrderDetail
                       </div>
                     </td>
                     <td className="px-4 py-3 text-center text-theme-sm text-gray-500 font-medium">{item.quantity}</td>
-                    <td className="px-4 py-3 text-right text-theme-sm font-bold text-gray-900 dark:text-white/90">{Number(item.price).toFixed(2)} AZN</td>
+                    <td className="px-4 py-3 text-right text-theme-sm font-bold text-gray-900 dark:text-white/90">{formatNumber(Number(item.price))} AZN</td>
                   </tr>
                 ))}
               </tbody>
               <tfoot className="bg-gray-50 dark:bg-gray-800/50">
                 <tr>
                   <td colSpan={2} className="px-4 py-3 text-right font-bold text-gray-500">Cəmi:</td>
-                  <td className="px-4 py-3 text-right font-black text-lg text-brand-500">{Number(order.totalPrice).toFixed(2)} AZN</td>
+                  <td className="px-4 py-3 text-right font-black text-lg text-brand-500">{formatNumber(Number(order.totalPrice))} AZN</td>
                 </tr>
               </tfoot>
             </table>

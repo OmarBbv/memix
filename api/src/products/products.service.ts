@@ -471,6 +471,21 @@ export class ProductsService {
     };
   }
 
+  async getGlobalStats() {
+    const result = await this.productsRepository
+      .createQueryBuilder('product')
+      .leftJoin('product.stocks', 'stock')
+      .select('SUM(stock.stock)', 'totalStock')
+      .addSelect('SUM(CAST(stock.stock AS DECIMAL) * product.price)', 'totalValue')
+      .where('product.isDeleted = :isDeleted', { isDeleted: false })
+      .getRawOne();
+
+    return {
+      totalStock: parseInt(result.totalStock) || 0,
+      totalValue: parseFloat(result.totalValue) || 0,
+    };
+  }
+
   async getFilters(query: any = {}) {
     let products: Product[] = [];
 

@@ -9,6 +9,7 @@ import Badge from "../../components/ui/badge/Badge";
 import { Product } from "../../types/product";
 import { PencilIcon, TrashBinIcon, DollarLineIcon, DownloadIcon } from "../../icons";
 import productService from "../../services/productService";
+import { formatNumber } from "../../utils/numberFormat";
 import toast from "react-hot-toast";
 
 interface ProductTableProps {
@@ -99,14 +100,14 @@ export default function ProductTable({ products, onEdit, onDelete, onDiscount }:
                 <TableCell className="px-5 py-4 text-start font-medium text-gray-800 text-theme-sm dark:text-white/90">
                   <div className="flex flex-col">
                     <span className={product.discount ? "text-xs text-gray-400 line-through" : ""}>
-                      {product.price} AZN
+                      {formatNumber(product.price)} AZN
                     </span>
                     {product.discount && (
                       <span className="text-brand-500">
-                        {product.discount.type === 'percentage'
-                          ? (product.price * (1 - product.discount.value / 100)).toFixed(2)
-                          : (product.price - product.discount.value).toFixed(2)
-                        } AZN
+                        {formatNumber(product.discount.type === 'percentage'
+                          ? (product.price * (1 - product.discount.value / 100))
+                          : (product.price - product.discount.value)
+                        )} AZN
                       </span>
                     )}
                   </div>

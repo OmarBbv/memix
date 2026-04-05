@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { WarehouseLogsService } from './warehouse-logs.service';
 import { CreateWarehouseLogDto } from './dto/create-warehouse-log.dto';
@@ -22,6 +23,12 @@ export class WarehouseLogsController {
   @ApiOperation({ summary: 'Create a new warehouse record' })
   create(@Body() createWarehouseLogDto: CreateWarehouseLogDto) {
     return this.warehouseLogsService.create(createWarehouseLogDto);
+  }
+
+  @Get('stats')
+  @ApiOperation({ summary: 'Get daily warehouse stats with balance calculation' })
+  getStats(@Query('startDate') startDate?: string, @Query('endDate') endDate?: string) {
+    return this.warehouseLogsService.getDailyStats(startDate, endDate);
   }
 
   @Get()
