@@ -193,7 +193,7 @@ export function DesktopCategoryNav({ categories, show }: DesktopCategoryNavProps
               className="h-full flex items-center font-medium text-[13px] text-gray-800 capitalize group-hover:text-black transition-colors relative gap-2 px-1"
             >
               <Sparkles className="w-4 h-4 text-[#d02424]" />
-              Yeni
+              Yeni / Outlet
               <span className="absolute -bottom-px left-0 w-full h-[2px] bg-black scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
             </Link>
           </li>

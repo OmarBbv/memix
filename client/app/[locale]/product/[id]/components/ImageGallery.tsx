@@ -22,6 +22,11 @@ export const ImageGallery = ({ allImages, productName, isLiked, onToggleWishlist
   const mainImageRef = useRef<HTMLDivElement>(null);
   const [imageHeight, setImageHeight] = useState(0);
 
+  // Zoom states
+  const [isHovering, setIsHovering] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [lensPos, setLensPos] = useState({ left: 0, top: 0 });
+
   useEffect(() => {
     if (allImages.length > 0) {
       setActiveIndex(0);
@@ -43,6 +48,28 @@ export const ImageGallery = ({ allImages, productName, isLiked, onToggleWishlist
   const handleThumbnailClick = (idx: number) => {
     setActiveIndex(idx);
     swiperInstance?.slideTo(idx);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!mainImageRef.current) return;
+
+    const { left, top, width, height } = mainImageRef.current.getBoundingClientRect();
+
+    const lensSize = width * 0.4;
+
+    let x = e.pageX - left - window.scrollX - lensSize / 2;
+    let y = e.pageY - top - window.scrollY - lensSize / 2;
+
+    if (x < 0) x = 0;
+    if (x > width - lensSize) x = width - lensSize;
+    if (y < 0) y = 0;
+    if (y > height - lensSize) y = height - lensSize;
+
+    setLensPos({ left: x, top: y });
+
+    const xPercent = (x / (width - lensSize)) * 100;
+    const yPercent = (y / (height - lensSize)) * 100;
+    setMousePos({ x: xPercent, y: yPercent });
   };
 
   return (
@@ -89,47 +116,66 @@ export const ImageGallery = ({ allImages, productName, isLiked, onToggleWishlist
           </div>
         )}
 
-        {/* Main Image Swiper */}
+        {/* Main Image Container (Now without global overflow-hidden) */}
         <div
           ref={mainImageRef}
-          className="group flex-1 relative aspect-square rounded-2xl overflow-hidden bg-white border border-gray-100 shadow-sm"
+          onMouseEnter={() => setIsHovering(true)}
+          onMouseLeave={() => setIsHovering(false)}
+          onMouseMove={handleMouseMove}
+          className="group flex-1 relative aspect-square rounded-2xl bg-white border border-gray-100 shadow-sm cursor-zoom-in"
         >
-          <Swiper
-            modules={[Navigation]}
-            onSwiper={setSwiperInstance}
-            onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
-            className="w-full h-full"
-            navigation={{
-              prevEl: '.custom-prev-button',
-              nextEl: '.custom-next-button',
-            }}
-          >
-            {allImages.map((img, idx) => (
-              <SwiperSlide key={idx} className="relative w-full h-full">
-                <div className="absolute inset-4 lg:inset-8">
-                  <Image
-                    src={img}
-                    alt={`${productName} - ${idx + 1}`}
-                    fill
-                    unoptimized
-                    className="object-contain"
-                    priority={idx === 0}
-                  />
-                </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+          {/* Inner Wrapper for Clip (Swiper, Lens) */}
+          <div className="absolute inset-0 overflow-hidden rounded-2xl z-10">
+            <Swiper
+              modules={[Navigation]}
+              onSwiper={setSwiperInstance}
+              onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
+              className="w-full h-full"
+              navigation={{
+                prevEl: '.custom-prev-button',
+                nextEl: '.custom-next-button',
+              }}
+            >
+              {allImages.map((img, idx) => (
+                <SwiperSlide key={idx} className="relative w-full h-full">
+                  <div className="absolute inset-4 lg:inset-8">
+                    <Image
+                      src={img}
+                      alt={`${productName} - ${idx + 1}`}
+                      fill
+                      unoptimized
+                      className="object-contain"
+                      priority={idx === 0}
+                    />
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
 
-          {/* Custom Navigation Buttons (Desktop Only) */}
-          <button className="custom-prev-button hidden lg:flex absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-white disabled:opacity-0 disabled:cursor-not-allowed">
-            <ChevronLeft className="w-6 h-6 text-gray-800" />
-          </button>
-          <button className="custom-next-button hidden lg:flex absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-white disabled:opacity-0 disabled:cursor-not-allowed">
-            <ChevronRight className="w-6 h-6 text-gray-800" />
-          </button>
+            {/* Custom Navigation Buttons (Z-index 20 for internal visibility) */}
+            <button className="custom-prev-button hidden lg:flex absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-white disabled:opacity-0 disabled:cursor-not-allowed">
+              <ChevronLeft className="w-6 h-6 text-gray-800" />
+            </button>
+            <button className="custom-next-button hidden lg:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-white disabled:opacity-0 disabled:cursor-not-allowed">
+              <ChevronRight className="w-6 h-6 text-gray-800" />
+            </button>
 
-          {/* Top Right Action Buttons */}
-          <div className="absolute top-4 right-4 flex flex-col gap-3 z-10">
+            {/* Zoom Lens (Inside Clip) */}
+            {isHovering && (
+              <div
+                className="hidden lg:block absolute pointer-events-none border border-black/10 bg-black/10 z-20"
+                style={{
+                  width: '40%',
+                  height: '40%',
+                  left: `${lensPos.left}px`,
+                  top: `${lensPos.top}px`,
+                }}
+              />
+            )}
+          </div>
+
+          {/* Action Buttons (Outside Clip to be always visible) */}
+          <div className="absolute top-4 right-4 flex flex-col gap-3 z-30">
             <button
               onClick={onToggleWishlist}
               className="p-3 bg-white/80 backdrop-blur-sm rounded-full shadow-lg transition-all hover:bg-white text-gray-700"
@@ -142,6 +188,24 @@ export const ImageGallery = ({ allImages, productName, isLiked, onToggleWishlist
               <Share2 className="w-6 h-6" />
             </button>
           </div>
+
+          {/* Zoom Panel (Outside Clip - Trendyol style overlay) */}
+          {isHovering && (
+            <div
+              className="hidden lg:block absolute left-[102%] top-0 w-[70%] h-full bg-white z-10 border border-gray-100 shadow-2xl rounded-2xl overflow-hidden"
+              style={{ pointerEvents: 'none' }}
+            >
+              <div
+                className="w-full h-full"
+                style={{
+                  backgroundImage: `url(${allImages[activeIndex]})`,
+                  backgroundPosition: `${mousePos.x}% ${mousePos.y}%`,
+                  backgroundSize: '250%', // 2.5x zoom
+                  backgroundRepeat: 'no-repeat'
+                }}
+              />
+            </div>
+          )}
         </div>
       </div>
 
