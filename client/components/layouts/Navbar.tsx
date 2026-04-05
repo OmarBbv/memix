@@ -301,6 +301,30 @@ export default function Navbar() {
                                             <ChevronRight className="w-4 h-4 text-gray-400" />
                                         </Link>
                                         <Link
+                                            href="/category/kisi"
+                                            onClick={() => setMobileMenuOpen(false)}
+                                            className="flex items-center justify-between px-3 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                                        >
+                                            Kişi
+                                            <ChevronRight className="w-4 h-4 text-gray-400" />
+                                        </Link>
+                                        <Link
+                                            href="/category/qadin"
+                                            onClick={() => setMobileMenuOpen(false)}
+                                            className="flex items-center justify-between px-3 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                                        >
+                                            Qadın
+                                            <ChevronRight className="w-4 h-4 text-gray-400" />
+                                        </Link>
+                                        <Link
+                                            href="/category/usaq"
+                                            onClick={() => setMobileMenuOpen(false)}
+                                            className="flex items-center justify-between px-3 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                                        >
+                                            Uşaq
+                                            <ChevronRight className="w-4 h-4 text-gray-400" />
+                                        </Link>
+                                        <Link
                                             href="/search?categoryId=25,46"
                                             onClick={() => setMobileMenuOpen(false)}
                                             className="flex items-center justify-between px-3 py-3 rounded-xl text-sm font-semibold text-black hover:bg-gray-50 transition-colors"
@@ -334,7 +358,7 @@ export default function Navbar() {
                                             <ChevronRight className="w-4 h-4 text-gray-400" />
                                         </Link>
                                         <DropdownMenuSeparator className="my-2 bg-gray-100" />
-                                        {categories?.map((item: Category) => (
+                                        {categories?.filter(c => !['kisi', 'qadin', 'usaq'].includes(c.slug)).map((item: Category) => (
                                             <Link
                                                 key={item.id}
                                                 href={`/category/${item.slug}`}
