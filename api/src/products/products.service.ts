@@ -671,7 +671,7 @@ export class ProductsService {
     return this.mapProduct(product);
   }
 
-  private mapProduct(product: Product) {
+  public mapProduct(product: Product) {
     const colorVariants = product.colorVariants?.map(cv => ({
       ...cv,
       images: Array.isArray(cv.images) ? cv.images.map(img => ensureFullUrl(img)) : [],

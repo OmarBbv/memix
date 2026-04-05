@@ -13,6 +13,7 @@ import { generateSlug } from '../common/utils/slug.util';
 import { ErrorMessages } from '../common/constants/error-messages';
 import { ensureFullUrl } from '../common/utils/file-url.util';
 import { SearchService } from '../search/search.service';
+import { ProductsService } from '../products/products.service';
 
 @Injectable()
 export class CategoriesService {
@@ -24,6 +25,7 @@ export class CategoriesService {
     @InjectRepository(Category)
     private categoriesRepository: Repository<Category>,
     private readonly searchService: SearchService,
+    private readonly productsService: ProductsService,
   ) { }
 
   public clearCache() {
@@ -281,6 +283,7 @@ export class CategoriesService {
       .leftJoinAndSelect('product.discount', 'discount')
       .leftJoinAndSelect('product.stocks', 'stocks')
       .leftJoinAndSelect('product.colorVariants', 'colorVariants')
+      .leftJoinAndSelect('product.brand', 'brand')
       .where('product.categoryId IN (:...categoryIds)', { categoryIds })
       .orderBy('product.createdAt', 'DESC');
 
@@ -365,16 +368,7 @@ export class CategoriesService {
       .getMany();
 
     category.products = allProducts.map(
-      (product) =>
-        ({
-          ...product,
-          banner: ensureFullUrl(product.banner),
-          images: Array.isArray(product.images)
-            ? (product.images
-              .map((img) => ensureFullUrl(img))
-              .filter(Boolean) as string[])
-            : product.images,
-        }) as any,
+      (product) => this.productsService.mapProduct(product),
     );
     const responseCategory: any = {
       ...category,

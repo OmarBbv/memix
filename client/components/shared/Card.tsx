@@ -58,7 +58,7 @@ export const Card = ({ className, index = 0, category, product: propProduct, sho
   const rawSize = productData.variants?.size || productData.size;
   const size = Array.isArray(rawSize) ? rawSize.join(', ') : rawSize;
   const city = productData.variants?.city || productData.city;
-  const condition = productData.variants?.condition || productData.condition || 'Çox yaxşı';
+  const condition = productData.variants?.condition || productData.condition || (productData.listingType === 'used' ? 'Yaxşı' : 'Çox yaxşı');
 
   const productObj: Product = {
     ...productData,
@@ -211,7 +211,14 @@ export const Card = ({ className, index = 0, category, product: propProduct, sho
           </div>
           <div className="flex flex-col items-start sm:items-end shrink-0">
 
-            <span className="text-[9px] sm:text-[10px] text-gray-500">{condition}</span>
+            <span className={cn(
+              "text-[9px] sm:text-[10px] px-2 py-0.5 rounded-full font-medium transition-colors",
+              productData.listingType === 'used'
+                ? "bg-gray-100 text-gray-400 font-normal"
+                : "bg-emerald-50 text-emerald-700 border border-emerald-100 font-semibold"
+            )}>
+              {condition}
+            </span>
           </div>
         </div>
 

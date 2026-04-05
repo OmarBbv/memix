@@ -82,6 +82,7 @@ export type Product = {
       stock: number;
     }[];
   }[];
+  listingType?: 'new' | 'used';
   createdAt?: string;
   updatedAt?: string;
 };

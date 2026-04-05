@@ -165,7 +165,7 @@ export default function Home() {
                       </div>
 
                       {/* Title */}
-                      <h1 className="text-3xl sm:text-5xl lg:text-7xl font-bold text-white leading-[1.1] tracking-tight">
+                      <h1 className="text-3xl sm:text-5xl lg:text-7xl font-bold text-white leading-[1.1]">
                         {slide.title}
                       </h1>
 
@@ -267,7 +267,7 @@ export default function Home() {
                 <span className="w-6 sm:w-8 h-px bg-zinc-300"></span>
                 Kəşf Et
               </span>
-              <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold tracking-tight">Kateqoriyalar</h2>
+              <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold">Kateqoriyalar</h2>
               <p className="text-zinc-500 text-sm sm:text-lg max-w-md">İstədiyiniz kateqoriyanı seçin və minlərlə unikal məhsul arasından seçim edin.</p>
             </div>
             <Link href="/categories">
@@ -393,11 +393,11 @@ export default function Home() {
           {/* Section Header */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 sm:gap-6 mb-8 sm:mb-12 px-4 lg:px-8">
             <div className="space-y-2 sm:space-y-3">
-              <span className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold uppercase tracking-widest text-zinc-500">
+              <span className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold tracking-widest text-zinc-500">
                 <span className="w-6 sm:w-8 h-px bg-zinc-300"></span>
                 Vitrinimizdə
               </span>
-              <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold tracking-tight">Yeni Gələnlər</h2>
+              <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold">Yeni Gələnlər</h2>
               <p className="text-zinc-500 text-sm sm:text-lg max-w-md">Hər gün yenilənən vitrinimizdən ən son parçaları seçin.</p>
             </div>
             <Link href="/search">
@@ -455,7 +455,7 @@ export default function Home() {
               Niyə Biz
               <span className="w-8 h-px bg-zinc-300"></span>
             </span>
-            <h2 className="text-3xl lg:text-5xl font-bold tracking-tight mb-4">Memix Üstünlükləri</h2>
+            <h2 className="text-3xl lg:text-5xl font-bold mb-4">Memix Üstünlükləri</h2>
             <p className="text-zinc-500 text-lg max-w-2xl mx-auto">
               Azərbaycanda ən etibarlı ikinci əl moda platforması ilə alış-veriş təcrübənizi yüksəldin.
             </p>
