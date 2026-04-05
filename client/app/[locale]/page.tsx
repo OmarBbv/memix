@@ -259,7 +259,6 @@ export default function Home() {
         </div>
       </section>
 
-{/* 
       <section className="py-10 sm:py-20 lg:py-28">
         <div className="max-w-7xl mx-auto px-4 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 sm:gap-6 mb-8 sm:mb-12">
@@ -323,7 +322,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-      */}
 
       {/* Featured Banner */}
       <section className="py-6 sm:py-4 lg:py-8">
