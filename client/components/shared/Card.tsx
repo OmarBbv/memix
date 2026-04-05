@@ -27,11 +27,10 @@ export const Card = ({ className, index = 0, category, product: propProduct, sho
 
   if (!productData) return null;
 
-  const { id, discount, priceHistory, valuationPrice } = productData;
+  const { id, discount, priceHistory, valuationPrice, brand: brandValue } = productData as Product;
   const title = productData.title || productData.name || '';
   const imageSrc = productData.image || productData.banner || '';
-  const brandValue = productData.variants?.brand || productData.brand || '';
-  const brand = (brandValue && typeof brandValue === 'object') ? (brandValue as any).name : brandValue;
+  const brand = ((brandValue && typeof brandValue === 'object') ? brandValue.name : (brandValue || '')).toUpperCase();
 
   const basePrice = typeof productData.price === 'string' ? parseFloat(productData.price) : productData.price;
 
