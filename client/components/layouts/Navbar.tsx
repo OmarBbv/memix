@@ -2,7 +2,7 @@
 
 import logoIcon from "@/public/memi.svg";
 import searchIcon from "@/public/navbar/search.svg";
-import { Heart, ShoppingBag, User, Menu, ChevronRight, Globe, Search, X, Sparkles, RefreshCw } from "lucide-react";
+import { Heart, ShoppingBag, User, Menu, ChevronRight, Globe, Search, X, Sparkles, RefreshCw, Briefcase } from "lucide-react";
 import Image from "next/image";
 import { Link, usePathname, useRouter } from "@/i18n/routing";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -297,6 +297,39 @@ export default function Navbar() {
                                             <div className="flex items-center gap-3">
                                                 <RefreshCw className="w-5 h-5 text-blue-600" />
                                                 İkinci əl
+                                            </div>
+                                            <ChevronRight className="w-4 h-4 text-gray-400" />
+                                        </Link>
+                                        <Link
+                                            href="/search?categoryId=25,46"
+                                            onClick={() => setMobileMenuOpen(false)}
+                                            className="flex items-center justify-between px-3 py-3 rounded-xl text-sm font-semibold text-black hover:bg-gray-50 transition-colors"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <Briefcase className="w-5 h-5 text-zinc-600" />
+                                                Çanta
+                                            </div>
+                                            <ChevronRight className="w-4 h-4 text-gray-400" />
+                                        </Link>
+                                        <Link
+                                            href="/category/kisi-aksesuar"
+                                            onClick={() => setMobileMenuOpen(false)}
+                                            className="flex items-center justify-between px-3 py-3 rounded-xl text-sm font-semibold text-black hover:bg-gray-50 transition-colors"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <Sparkles className="w-5 h-5 text-amber-500" />
+                                                Aksesuar
+                                            </div>
+                                            <ChevronRight className="w-4 h-4 text-gray-400" />
+                                        </Link>
+                                        <Link
+                                            href="/search?categoryId=24,45"
+                                            onClick={() => setMobileMenuOpen(false)}
+                                            className="flex items-center justify-between px-3 py-3 rounded-xl text-sm font-semibold text-black hover:bg-gray-50 transition-colors"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <Briefcase className="w-5 h-5 text-zinc-600" />
+                                                Ayaqqabı
                                             </div>
                                             <ChevronRight className="w-4 h-4 text-gray-400" />
                                         </Link>

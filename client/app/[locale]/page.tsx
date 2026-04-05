@@ -259,6 +259,7 @@ export default function Home() {
         </div>
       </section>
 
+{/* 
       <section className="py-10 sm:py-20 lg:py-28">
         <div className="max-w-7xl mx-auto px-4 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 sm:gap-6 mb-8 sm:mb-12">
@@ -308,7 +309,6 @@ export default function Home() {
                   />
                   <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
 
-                  {/* Content */}
                   <div className="absolute inset-0 flex flex-col justify-end p-4 lg:p-5">
                     <h3 className="text-white font-bold text-lg lg:text-xl mb-1 transform translate-y-1 group-hover:translate-y-0 transition-transform duration-300">
                       {cat.name}
@@ -323,6 +323,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+      */}
 
       {/* Featured Banner */}
       <section className="py-6 sm:py-4 lg:py-8">
