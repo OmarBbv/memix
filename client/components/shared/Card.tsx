@@ -3,7 +3,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import { Heart, Info } from 'lucide-react';
+import { Heart, Info, Trash2 } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { useAppDispatch, useAppSelector } from '@/lib/redux/hooks';
 // import { toggleWishlist } from '@/lib/redux/features/wishlistSlice';
@@ -16,9 +16,10 @@ interface CardProps {
   index?: number;
   category?: string;
   product?: Product;
+  showTrashIcon?: boolean;
 }
 
-export const Card = ({ className, index = 0, category, product: propProduct }: CardProps) => {
+export const Card = ({ className, index = 0, category, product: propProduct, showTrashIcon }: CardProps) => {
   /* const dispatch = useAppDispatch();
   const wishlistItems = useAppSelector((state) => state.wishlist.items); */
   const { isInWishlist, toggleWishlist } = useWishlist();
@@ -26,7 +27,7 @@ export const Card = ({ className, index = 0, category, product: propProduct }: C
 
   if (!productData) return null;
 
-  const { id, discount, priceHistory } = productData;
+  const { id, discount, priceHistory, valuationPrice } = productData;
   const title = productData.title || productData.name || '';
   const imageSrc = productData.image || productData.banner || '';
   const brandValue = productData.variants?.brand || productData.brand || '';
@@ -108,10 +109,15 @@ export const Card = ({ className, index = 0, category, product: propProduct }: C
           onClick={handleWishlist}
           className={cn(
             "absolute right-3 top-3 rounded-full bg-white/80 p-2 text-gray-700 backdrop-blur-md transition-all hover:bg-white z-30",
-            isWishlisted && "text-red-500 bg-white"
+            !showTrashIcon && isWishlisted && "text-red-500 bg-white",
+            showTrashIcon && "hover:text-red-600 hover:bg-red-50"
           )}
         >
-          <Heart className={cn("h-4 w-4", isWishlisted && "fill-current")} />
+          {showTrashIcon ? (
+            <Trash2 className="h-4 w-4" />
+          ) : (
+            <Heart className={cn("h-4 w-4", isWishlisted && "fill-current")} />
+          )}
         </button>
         {discountPercentage > 0 && (
           <span className="absolute left-3 top-3 rounded-md bg-red-500 px-2 py-1 text-[10px] font-bold text-white shadow-sm z-10">
@@ -186,9 +192,18 @@ export const Card = ({ className, index = 0, category, product: propProduct }: C
               </div>
             </div>
 
-            {storePrice > 0 && (
+            {valuationPrice && (
+              <div className="flex items-center gap-1 mt-1 px-1.5 py-0.5 bg-amber-50/50 rounded border border-amber-100/50 w-fit">
+                <span className="text-[9px] sm:text-[10px] text-zinc-500 font-medium whitespace-nowrap">Orijinal:</span>
+                <span className="text-[10px] sm:text-xs font-semibold text-zinc-600 decoration-zinc-400/50 line-through whitespace-nowrap">
+                  {Number(valuationPrice).toFixed(2)} ₼
+                </span>
+              </div>
+            )}
+
+            {storePrice > 0 && !valuationPrice && (
               <div className="flex items-center gap-1 mt-1 px-1.5 py-0.5 bg-indigo-50/50 rounded border border-indigo-100/50 w-fit">
-                <span className="text-[9px] sm:text-[10px] text-gray-500 font-medium whitespace-nowrap">Orijinal:</span>
+                <span className="text-[9px] sm:text-[10px] text-gray-500 font-medium whitespace-nowrap">Mağaza:</span>
                 <span className="text-[10px] sm:text-xs font-semibold text-gray-600 decoration-gray-400/50 line-through whitespace-nowrap">
                   {storePrice.toFixed(2)} ₼
                 </span>

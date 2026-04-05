@@ -53,16 +53,16 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
 
     const debouncedFilters = useDebounce(apiFilters, 300);
 
-    const { 
-        data: infiniteData, 
-        isLoading, 
-        error, 
-        isFetching, 
-        fetchNextPage, 
-        hasNextPage, 
-        isFetchingNextPage 
+    const {
+        data: infiniteData,
+        isLoading,
+        error,
+        isFetching,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage
     } = useCategoryBySlug(slug, debouncedFilters);
-    
+
     const category = infiniteData?.pages[0];
     const isFiltering = isFetching && !isLoading && !isFetchingNextPage;
     const { data: filtersData } = useCategoryFilters(category?.id as number);
@@ -147,9 +147,9 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
         ? { min: Math.floor(filtersData.priceRange.min || 0), max: Math.ceil(filtersData.priceRange.max) }
         : undefined;
 
-    const products = useMemo(() => 
+    const products = useMemo(() =>
         infiniteData?.pages.flatMap(page => page.products || []) || []
-    , [infiniteData]);
+        , [infiniteData]);
 
     const totalProducts = category?.pagination?.total || 0;
     const priceFilterCount = (selectedPriceMin != null ? 1 : 0) + (selectedPriceMax != null ? 1 : 0);
@@ -166,10 +166,10 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                 <div className="min-h-screen py-8 px-4 max-w-7xl mx-auto pb-24 lg:pb-8">
                     <nav className="flex items-center gap-1.5 sm:gap-2 mb-4 sm:mb-6 text-xs sm:text-sm overflow-x-auto whitespace-nowrap scrollbar-hide">
                         <Link
-                            href="/en/category"
-                            className="text-gray-400 hover:text-black transition-colors shrink-0"
+                            href="/en"
+                            className="text-gray-400 hover:text-black transition-colors shrink-0 select-none"
                         >
-                            Kateqoriyalar
+                            Ana səhifə
                         </Link>
                         {category.parent && (
                             <>
@@ -366,8 +366,8 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                                         <p className="text-sm text-gray-500">
                                             {products.length} / {totalProducts} məhsul göstərilir
                                         </p>
-                                        <Button 
-                                            variant="outline" 
+                                        <Button
+                                            variant="outline"
                                             className="px-8 border-gray-300 h-12 rounded-xl"
                                             onClick={() => fetchNextPage()}
                                             disabled={isFetchingNextPage}

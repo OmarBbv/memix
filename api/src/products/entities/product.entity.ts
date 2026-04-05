@@ -108,4 +108,6 @@ export class Product {
 
   @UpdateDateColumn()
   updatedAt: Date; // Yenilənmə tarixi
+
+  valuationPrice?: number; // Virtual sahə, bazada saxlanılmır
 }

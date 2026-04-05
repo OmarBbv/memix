@@ -101,8 +101,6 @@ export default function ProfilePage() {
   //   console.log('profile: ', profile)
   // }, [day, month, year])
 
-  console.log('profile: ', profile?.birthday)
-
   return (
     <ContentState
       isLoading={isLoading}

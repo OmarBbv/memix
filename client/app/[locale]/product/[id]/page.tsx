@@ -170,6 +170,16 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     </span>
                   </div>
                 )}
+                {!discountPercentage && product.valuationPrice && (
+                   <div className="flex items-center gap-2.5">
+                    <span className="text-lg text-zinc-400 line-through font-medium opacity-60">
+                      {Number(product.valuationPrice).toFixed(2)} ₼
+                    </span>
+                    <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-bold rounded-lg border border-amber-200 uppercase">
+                      Orijinal
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 

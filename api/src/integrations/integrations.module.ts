@@ -10,6 +10,7 @@ import { CategoriesModule } from '../categories/categories.module';
 import { ProductsService } from '../products/products.service';
 import { PriceHistory } from '../products/entities/price-history.entity';
 import { SearchModule } from '../search/search.module';
+import { ProductsModule } from '../products/products.module';
 import { IntegrationsController } from './integrations.controller';
 import { IntegrationsService } from './integrations.service';
 
@@ -26,8 +27,9 @@ import { IntegrationsService } from './integrations.service';
     ]),
     CategoriesModule,
     SearchModule,
+    ProductsModule,
   ],
   controllers: [IntegrationsController],
-  providers: [IntegrationsService, ProductsService],
+  providers: [IntegrationsService],
 })
 export class IntegrationsModule {}

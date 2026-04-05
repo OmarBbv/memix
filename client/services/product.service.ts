@@ -7,6 +7,7 @@ export type Product = {
   description?: string;
   price: number | string;
   oldPrice?: number;
+  valuationPrice?: number;
   image?: string;
   images?: string[];
   banner?: string;

@@ -11,6 +11,7 @@ import { PriceHistory } from './entities/price-history.entity';
 import { ProductStock } from './entities/product-stock.entity';
 import { ProductColorVariant } from './entities/product-color-variant.entity';
 import { Category } from '../categories/entities/category.entity';
+import { ValuationService } from './valuation.service';
 import PDFDocument from 'pdfkit';
 import * as bwipjs from 'bwip-js';
 
@@ -28,6 +29,7 @@ export class ProductsService {
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
     private readonly searchService: SearchService,
+    private readonly valuationService: ValuationService,
   ) { }
 
   private async generateUniqueBarcode(): Promise<string> {
@@ -687,8 +689,13 @@ export class ProductsService {
       }))
     );
 
+    const valuationPrice = product.brand?.name && product.category?.name
+      ? this.valuationService.getValuation(product.brand.name, product.category.name)
+      : null;
+
     return {
       ...product,
+      valuationPrice,
       colorVariants,
       banner: ensureFullUrl(product.banner),
       images: Array.isArray(product.images)

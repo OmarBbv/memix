@@ -8,6 +8,7 @@ import { SearchModule } from '../search/search.module';
 import { PriceHistory } from './entities/price-history.entity';
 import { ProductStock } from './entities/product-stock.entity';
 import { ProductColorVariant } from './entities/product-color-variant.entity';
+import { ValuationService } from './valuation.service';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ProductColorVariant } from './entities/product-color-variant.entity';
     SearchModule,
   ],
   controllers: [ProductsController],
-  providers: [ProductsService],
+  providers: [ProductsService, ValuationService],
+  exports: [ProductsService, ValuationService],
 })
 export class ProductsModule {}

@@ -77,6 +77,7 @@ export default function Home() {
       category: p.category?.name.toLowerCase() || "women",
       priceHistory: p.priceHistory,
       discount: p.discount,
+      valuationPrice: p.valuationPrice,
       variants: p.variants,
       tags: p.tags
     }));
@@ -123,9 +124,6 @@ export default function Home() {
     if (apiBrands.length > 0) return apiBrands.map(b => b.name);
     return staticBrands;
   }, [apiBrands]);
-
-  console.log('brands: ', brands);
-  console.log('products: ', products);
 
   return (
     <main className="min-h-screen bg-white text-zinc-950">
@@ -224,7 +222,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Quick Category Links (Mobile-first horizontal scroll) */}
       <section className="py-4 px-4 lg:hidden">
         <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
           {displayCategories.map((cat: any, idx: number) => (
@@ -262,10 +259,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Categories Section */}
       <section className="py-10 sm:py-20 lg:py-28">
         <div className="max-w-7xl mx-auto px-4 lg:px-8">
-          {/* Section Header */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 sm:gap-6 mb-8 sm:mb-12">
             <div className="space-y-2 sm:space-y-3">
               <span className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold uppercase tracking-widest text-zinc-500">
