@@ -20,6 +20,7 @@ interface IProductService {
   update(id: number, data: UpdateProductDto | FormData): Promise<Product>;
   delete(id: number): Promise<void>;
   generateSKU(categoryId: number, listingType: string): Promise<{ sku: string | null; error?: string }>;
+  downloadLabel(id: number): Promise<void>;
 }
 
 class ProductService implements IProductService {
@@ -88,6 +89,24 @@ class ProductService implements IProductService {
       return response.data;
     } catch (error) {
       console.error('Error generating SKU:', error);
+      throw error;
+    }
+  }
+
+  async downloadLabel(id: number): Promise<void> {
+    try {
+      const response = await axiosInstance.get(`/products/${id}/label`, {
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `label-${id}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error(`Error downloading label for product with id ${id}:`, error);
       throw error;
     }
   }

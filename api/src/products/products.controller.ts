@@ -10,7 +10,9 @@ import {
   Query,
   UseInterceptors,
   UploadedFiles,
+  Res,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -89,6 +91,17 @@ export class ProductsController {
   @Get(':id/similar')
   findSimilar(@Param('id') id: string, @Query('limit') limit?: string) {
     return this.productsService.findSimilar(+id, limit ? +limit : 8);
+  }
+
+  @Get(':id/label')
+  async downloadLabel(@Param('id') id: string, @Res() res: Response) {
+    const buffer = await this.productsService.generateLabel(+id);
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename=label-${id}.pdf`,
+      'Content-Length': buffer.length,
+    });
+    res.end(buffer);
   }
 
   @Patch(':id')

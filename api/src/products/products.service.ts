@@ -11,6 +11,8 @@ import { PriceHistory } from './entities/price-history.entity';
 import { ProductStock } from './entities/product-stock.entity';
 import { ProductColorVariant } from './entities/product-color-variant.entity';
 import { Category } from '../categories/entities/category.entity';
+import PDFDocument from 'pdfkit';
+import * as bwipjs from 'bwip-js';
 
 @Injectable()
 export class ProductsService {
@@ -211,7 +213,7 @@ export class ProductsService {
     qb.leftJoinAndSelect('colorVariants.stocks', 'stocks');
     qb.leftJoinAndSelect('product.discount', 'discount');
     qb.leftJoinAndSelect('product.priceHistory', 'priceHistory');
-    
+
     // Admin sees all non-deleted products
     qb.where('product.isDeleted = :isDeleted', { isDeleted: false });
 
@@ -935,5 +937,83 @@ export class ProductsService {
     }
 
     return { count: products.length, message: 'Products indexed successfully' };
+  }
+
+  async generateLabel(id: number): Promise<Buffer> {
+    const product = await this.findOne(id);
+    if (!product) throw new NotFoundException(ErrorMessages.PRODUCT_NOT_FOUND);
+
+    return new Promise(async (resolve, reject) => {
+      const width = 141.73;
+      const height = 85.04;
+
+      const doc = new PDFDocument({
+        size: [width, height],
+        margin: 0,
+        bufferPages: true,
+        autoFirstPage: true
+      });
+
+      const chunks: Buffer[] = [];
+      doc.on('data', (chunk) => chunks.push(chunk));
+      doc.on('end', () => resolve(Buffer.concat(chunks)));
+      doc.on('error', (err) => reject(err));
+
+      const leftMargin = 10;
+      const contentWidth = width - (leftMargin * 2);
+      let currentY = 5;
+
+      doc.fontSize(10).font('Helvetica-Bold').text('MEMIX', leftMargin, currentY, {
+        width: contentWidth,
+        align: 'left'
+      });
+      currentY += 12;
+
+      const displayName = product.name;
+      doc.fontSize(8).font('Helvetica-Bold').text(displayName, leftMargin, currentY, {
+        width: contentWidth,
+        align: 'left'
+      });
+
+      const nameHeight = doc.heightOfString(displayName, { width: contentWidth, align: 'left' });
+      currentY += Math.max(nameHeight, 9) + 1;
+
+      doc.fontSize(7).font('Helvetica').text(`SKU: ${product.sku || 'N/A'}`, leftMargin, currentY, {
+        width: contentWidth,
+        align: 'left'
+      });
+      currentY += 10;
+
+      const priceVal = Number(product.price);
+      const priceText = Number.isInteger(priceVal) ? `${priceVal} AZN` : `${priceVal.toFixed(2)} AZN`;
+      doc.fontSize(10).font('Helvetica-Bold').text(priceText, leftMargin, currentY, {
+        width: contentWidth,
+        align: 'left'
+      });
+      currentY += 14;
+
+      try {
+        const barcodeText = product.barcode || product.sku || product.id.toString();
+        const barcodeBuffer = await bwipjs.toBuffer({
+          bcid: 'code128',
+          text: barcodeText,
+          scale: 2,
+          height: 6,
+          includetext: false,
+        });
+
+        const barcodeImageWidth = 80;
+        doc.image(barcodeBuffer, leftMargin, currentY, { width: barcodeImageWidth });
+
+        doc.fontSize(6).font('Helvetica').text(`[ ${barcodeText} ]`, leftMargin, currentY + 14, {
+          width: contentWidth,
+          align: 'left'
+        });
+      } catch (err) {
+        console.error('Barcode generation failed', err);
+      }
+
+      doc.end();
+    });
   }
 }

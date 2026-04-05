@@ -7,7 +7,9 @@ import {
 } from "../../components/ui/table";
 import Badge from "../../components/ui/badge/Badge";
 import { Product } from "../../types/product";
-import { PencilIcon, TrashBinIcon, DollarLineIcon } from "../../icons";
+import { PencilIcon, TrashBinIcon, DollarLineIcon, DownloadIcon } from "../../icons";
+import productService from "../../services/productService";
+import toast from "react-hot-toast";
 
 interface ProductTableProps {
   products: Product[];
@@ -137,6 +139,23 @@ export default function ProductTable({ products, onEdit, onDelete, onDiscount }:
                       className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-100 bg-white text-gray-500 transition-all hover:border-brand-500 hover:text-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-brand-500"
                     >
                       <PencilIcon className="size-4" />
+                    </button>
+                    <button
+                      onClick={async () => {
+                        try {
+                          toast.loading("Etiket hazırlanır...");
+                          await productService.downloadLabel(product.id);
+                          toast.dismiss();
+                          toast.success("Etiket yükləndi");
+                        } catch (error) {
+                          toast.dismiss();
+                          toast.error("Etiket yüklənərkən xəta baş verdi");
+                        }
+                      }}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-100 bg-white text-gray-500 transition-all hover:border-brand-500 hover:text-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-brand-500"
+                      title="Etiketi Yüklə"
+                    >
+                      <DownloadIcon className="size-4" />
                     </button>
                     <button
                       onClick={() => onDiscount(product)}
