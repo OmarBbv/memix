@@ -64,8 +64,9 @@ const formatDate = (dateString: string) => {
   });
 };
 
-const getImageUrl = (img: string) => {
-  if (!img) return '';
+const getImageUrl = (img?: string | null) => {
+  const placeholder = "https://placehold.co/400x600?text=No+Image";
+  if (!img || typeof img !== 'string') return placeholder;
   if (img.startsWith('http')) return img;
   const normalizedPath = img.startsWith('/') ? img : `/${img}`;
   return `${baseUrl}${normalizedPath}`;
@@ -112,7 +113,7 @@ export default function OrdersPage() {
         {orders.map((order) => {
           const config = getStatusConfig(order.status);
           const firstItem = order.items?.[0];
-          const image = firstItem?.product?.banner || (firstItem?.product as any)?.image;
+          const image = firstItem?.product?.banner;
           const itemsPreview = order.items.map(i => i.product.name).join(', ');
 
           return (
@@ -121,7 +122,7 @@ export default function OrdersPage() {
                 {/* Image */}
                 <div className="relative w-20 h-28 md:w-24 md:h-24 shrink-0 rounded-xl overflow-hidden bg-zinc-50">
                   <Image
-                    src={getImageUrl(image || '')}
+                    src={getImageUrl(image)}
                     alt="Order Thumbnail"
                     fill
                     unoptimized

@@ -80,7 +80,7 @@ export class ProductsService {
     }
 
     const nextSeq = maxSeq + 1;
-    const paddedSeq = nextSeq.toString().padStart(3, '0');
+    const paddedSeq = nextSeq.toString().padStart(6, '0');
     return { sku: `${prefix}${paddedSeq}` };
   }
 
