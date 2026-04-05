@@ -337,6 +337,15 @@ export class ProductsService {
           fetchQb.andWhere('product.listingType IN (:...listingTypes)', { listingTypes });
         }
 
+        if (query.categoryId) {
+          const categoryIds = Array.isArray(query.categoryId)
+            ? query.categoryId
+            : String(query.categoryId).split(',').map(id => id.trim()).filter(Boolean).map(id => Number(id));
+          if (categoryIds.length > 0) {
+            fetchQb.andWhere('category.id IN (:...categoryIds)', { categoryIds });
+          }
+        }
+
         // Handle dynamic variants in search
         const knownKeys = ['page', 'limit', 'search', 'minPrice', 'maxPrice', 'categoryId', 'sort', 'brand', 'color', 'size', 'gender', 'listingType'];
         Object.entries(query).forEach(([key, value]) => {
@@ -379,9 +388,12 @@ export class ProductsService {
       qb.andWhere('product.isDeleted = :isDeleted', { isDeleted: false });
 
       if (query.categoryId) {
-        qb.andWhere('category.id = :categoryId', {
-          categoryId: query.categoryId,
-        });
+        const categoryIds = Array.isArray(query.categoryId)
+          ? query.categoryId
+          : String(query.categoryId).split(',').map(id => id.trim()).filter(Boolean).map(id => Number(id));
+        if (categoryIds.length > 0) {
+          qb.andWhere('category.id IN (:...categoryIds)', { categoryIds });
+        }
       }
 
       if (query.minPrice) {
@@ -508,7 +520,12 @@ export class ProductsService {
 
         if (query.categoryId) {
           qb.leftJoin('product.category', 'category');
-          qb.andWhere('category.id = :categoryId', { categoryId: query.categoryId });
+          const categoryIds = Array.isArray(query.categoryId)
+            ? query.categoryId
+            : String(query.categoryId).split(',').map(id => id.trim()).filter(Boolean).map(id => Number(id));
+          if (categoryIds.length > 0) {
+            qb.andWhere('category.id IN (:...categoryIds)', { categoryIds });
+          }
         }
 
         if (query.listingType) {
@@ -527,9 +544,14 @@ export class ProductsService {
 
       if (query.categoryId) {
         qb.leftJoin('product.category', 'category');
-        qb.andWhere('category.id = :categoryId', {
-          categoryId: query.categoryId,
-        });
+        const categoryIds = Array.isArray(query.categoryId)
+          ? query.categoryId
+          : String(query.categoryId).split(',').map(id => id.trim()).filter(Boolean).map(id => Number(id));
+        if (categoryIds.length > 0) {
+          qb.andWhere('category.id IN (:...categoryIds)', {
+            categoryIds,
+          });
+        }
       }
 
       if (query.listingType) {

@@ -2,7 +2,7 @@
 
 import logoIcon from "@/public/memi.svg";
 import searchIcon from "@/public/navbar/search.svg";
-import { Heart, ShoppingBag, User, Menu, ChevronRight, Globe, Search, X, Sparkles, RefreshCw, Briefcase } from "lucide-react";
+import { Heart, ShoppingBag, User, Menu, ChevronRight, Search, X, Sparkles, RefreshCw, Briefcase } from "lucide-react";
 import Image from "next/image";
 import { Link, usePathname, useRouter } from "@/i18n/routing";
 import LanguageSwitcher from "./LanguageSwitcher";
