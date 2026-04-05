@@ -196,6 +196,22 @@ export default function EditProduct() {
     });
   };
 
+  const getCategoryPath = (cat: any, allCats: any[]): string => {
+    const path = [cat.name];
+    let current = cat;
+    while (current.parentId || current.parent?.id) {
+      const pid = current.parentId || current.parent?.id;
+      const parent = allCats.find((c: any) => c.id === pid);
+      if (parent) {
+        path.unshift(parent.name);
+        current = parent;
+      } else {
+        break;
+      }
+    }
+    return path.join(" > ");
+  };
+
   if (isLoading) return (
     <div className="flex items-center justify-center min-h-[400px]">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500"></div>
@@ -265,7 +281,7 @@ export default function EditProduct() {
                         render={({ field }) => (
                           <SearchableSelect
                             options={[
-                              { label: "YENİ (NEW)", value: "new" },
+                              { label: "YENİ (OUTLET)", value: "new" },
                               { label: "İKİNCİ ƏL (USED)", value: "used" },
                             ]}
                             placeholder="Vəziyyəti seçin"
@@ -326,18 +342,24 @@ export default function EditProduct() {
                       <Controller
                         name="categoryId"
                         control={control}
-                        render={({ field }) => (
-                          <SearchableSelect
-                            options={categories?.map((cat) => ({
-                              label: cat.name,
-                              value: cat.id,
-                            })) || []}
-                            placeholder="Kateqoriya seçin"
-                            onChange={field.onChange}
-                            value={field.value as any}
-                            error={!!errors.categoryId}
-                          />
-                        )}
+                        render={({ field }) => {
+                          const leafCategories = categories?.filter(cat =>
+                            !categories.some(child => (child.parentId === cat.id || child.parent?.id === cat.id))
+                          ) || [];
+
+                          return (
+                            <SearchableSelect
+                              options={leafCategories.map((cat) => ({
+                                label: getCategoryPath(cat, categories || []),
+                                value: cat.id,
+                              }))}
+                              placeholder="Kateqoriya seçin"
+                              onChange={field.onChange}
+                              value={field.value as any}
+                              error={!!errors.categoryId}
+                            />
+                          );
+                        }}
                       />
                     </div>
                   </div>

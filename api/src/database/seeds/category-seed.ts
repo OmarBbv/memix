@@ -46,17 +46,13 @@ const categoriesToSeed: CategorySeedData[] = [
       },
       {
         name: 'Ayaqqabı',
-        slug: 'kisi-ayaqqabi-parent',
-        children: [
-          { name: 'Ayaqqabı', skuPrefixUsed: 'A2-A', skuPrefixNew: 'DY1-A' },
-        ]
+        skuPrefixUsed: 'A2-A',
+        skuPrefixNew: 'DY1-A'
       },
       {
         name: 'Çanta',
-        slug: 'kisi-canta-parent',
-        children: [
-          { name: 'Çanta', skuPrefixUsed: 'A1-Ç', skuPrefixNew: 'DY1-Ç' },
-        ]
+        skuPrefixUsed: 'A1-Ç',
+        skuPrefixNew: 'DY1-Ç'
       },
       {
         name: 'Aksesuar',
@@ -94,17 +90,13 @@ const categoriesToSeed: CategorySeedData[] = [
       },
       {
         name: 'Ayaqqabı',
-        slug: 'qadin-ayaqqabi-parent',
-        children: [
-          { name: 'Ayaqqabı', skuPrefixUsed: 'A2-A', skuPrefixNew: 'DY1-A' },
-        ]
+        skuPrefixUsed: 'A2-A',
+        skuPrefixNew: 'DY1-A'
       },
       {
         name: 'Çanta',
-        slug: 'qadin-canta-parent',
-        children: [
-          { name: 'Çanta', skuPrefixUsed: 'A1-Ç', skuPrefixNew: 'DY1-Ç' },
-        ]
+        skuPrefixUsed: 'A1-Ç',
+        skuPrefixNew: 'DY1-Ç'
       }
     ]
   },

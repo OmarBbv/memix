@@ -61,6 +61,9 @@ export class Category {
   })
   sizeType: string | null; // Kateqoriyanın ölçü tipi
 
+  @Column({ nullable: true })
+  parentId: number | null;
+
   @ManyToOne(() => Category, (category) => category.children, {
     onDelete: 'CASCADE',
   })
