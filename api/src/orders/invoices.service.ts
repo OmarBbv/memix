@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import PDFDocument from 'pdfkit';
 import { Order } from './entities/order.entity';
-import * as path from 'path';
-import * as fs from 'fs';
 
 @Injectable()
 export class InvoicesService {
@@ -31,27 +29,11 @@ export class InvoicesService {
     });
   }
 
-  private getFonts() {
-    const fontsDir = path.join(__dirname, '..', 'assets', 'fonts');
-    const fontRegular = path.join(fontsDir, 'Roboto-Regular.ttf');
-    const fontBold = path.join(fontsDir, 'Roboto-Bold.ttf');
-    const hasRegular = fs.existsSync(fontRegular);
-    const hasBold = fs.existsSync(fontBold);
-    
-    return {
-      regular: hasRegular ? fontRegular : 'Helvetica',
-      bold: hasBold ? fontBold : 'Helvetica-Bold'
-    };
-  }
-
   generateHeader(doc: PDFKit.PDFDocument) {
-    const fonts = this.getFonts();
     doc
       .fillColor('#444444')
-      .font(fonts.bold)
       .fontSize(20)
       .text('MEMIX E-COMMERCE', 110, 57)
-      .font(fonts.regular)
       .fontSize(10)
       .text('Bakı, Azərbaycan', 200, 65, { align: 'right' })
       .text('Phone: +994 (00) 000-00-00', 200, 80, { align: 'right' })
@@ -59,10 +41,8 @@ export class InvoicesService {
   }
 
   generateCustomerInformation(doc: PDFKit.PDFDocument, order: Order) {
-    const fonts = this.getFonts();
     doc
       .fillColor('#444444')
-      .font(fonts.bold)
       .fontSize(20)
       .text('İnvoys', 50, 160);
 
@@ -72,19 +52,18 @@ export class InvoicesService {
 
     doc
       .fontSize(10)
-      .font(fonts.regular)
       .text('Sifariş ID:', 50, customerInformationTop)
-      .font(fonts.bold)
+      .font('Helvetica-Bold')
       .text(`#${order.id}`, 150, customerInformationTop)
-      .font(fonts.regular)
+      .font('Helvetica')
       .text('Tarix:', 50, customerInformationTop + 15)
       .text(new Date(order.createdAt).toLocaleDateString('az-AZ'), 150, customerInformationTop + 15)
       .text('Məbləğ:', 50, customerInformationTop + 30)
       .text(`${Number(order.totalPrice).toFixed(2)} AZN`, 150, customerInformationTop + 30)
 
-      .font(fonts.bold)
+      .font('Helvetica-Bold')
       .text('Müştəri:', 300, customerInformationTop)
-      .font(fonts.regular)
+      .font('Helvetica')
       .text(order.user?.name || 'Qonaq', 300, customerInformationTop + 15)
       .text(order.address || 'Ünvan qeyd olunmayıb', 300, customerInformationTop + 30)
       .text(order.contactPhone || '', 300, customerInformationTop + 45)
@@ -94,11 +73,10 @@ export class InvoicesService {
   }
 
   generateInvoiceTable(doc: PDFKit.PDFDocument, order: Order) {
-    const fonts = this.getFonts();
     let i;
     const invoiceTableTop = 330;
 
-    doc.font(fonts.bold);
+    doc.font('Helvetica-Bold');
     this.generateTableRow(
       doc,
       invoiceTableTop,
@@ -108,7 +86,7 @@ export class InvoicesService {
       'Cəmi'
     );
     this.generateHr(doc, invoiceTableTop + 20);
-    doc.font(fonts.regular);
+    doc.font('Helvetica');
 
     for (i = 0; i < order.items.length; i++) {
         const item = order.items[i];
@@ -137,10 +115,8 @@ export class InvoicesService {
   }
 
   generateFooter(doc: PDFKit.PDFDocument) {
-    const fonts = this.getFonts();
     doc
       .fontSize(10)
-      .font(fonts.regular)
       .text(
         'Bizi seçdiyiniz üçün təşəkkür edirik!',
         50,

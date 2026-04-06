@@ -14,8 +14,6 @@ import { Category } from '../categories/entities/category.entity';
 import { ValuationService } from './valuation.service';
 import PDFDocument from 'pdfkit';
 import * as bwipjs from 'bwip-js';
-import * as path from 'path';
-import * as fs from 'fs';
 
 @Injectable()
 export class ProductsService {
@@ -1009,23 +1007,14 @@ export class ProductsService {
       const contentWidth = width - (leftMargin * 2);
       let currentY = 5;
 
-      // Font paths
-      const fontsDir = path.join(__dirname, '..', 'assets', 'fonts');
-      const fontRegular = path.join(fontsDir, 'Roboto-Regular.ttf');
-      const fontBold = path.join(fontsDir, 'Roboto-Bold.ttf');
-
-      // Check if fonts exist, fallback to Helvetica if not
-      const hasRegular = fs.existsSync(fontRegular);
-      const hasBold = fs.existsSync(fontBold);
-
-      doc.fontSize(10).font(hasBold ? fontBold : 'Helvetica-Bold').text('MEMIX', leftMargin, currentY, {
+      doc.fontSize(10).font('Helvetica-Bold').text('MEMIX', leftMargin, currentY, {
         width: contentWidth,
         align: 'left'
       });
       currentY += 12;
 
-      const displayName = product.name;
-      doc.fontSize(8).font(hasBold ? fontBold : 'Helvetica-Bold').text(displayName, leftMargin, currentY, {
+      const displayName = this.transliterateAzerbaijani(product.name);
+      doc.fontSize(8).font('Helvetica-Bold').text(displayName, leftMargin, currentY, {
         width: contentWidth,
         align: 'left'
       });
@@ -1033,7 +1022,7 @@ export class ProductsService {
       const nameHeight = doc.heightOfString(displayName, { width: contentWidth, align: 'left' });
       currentY += Math.max(nameHeight, 9) + 1;
 
-      doc.fontSize(7).font(hasRegular ? fontRegular : 'Helvetica').text(`SKU: ${product.sku || 'N/A'}`, leftMargin, currentY, {
+      doc.fontSize(7).font('Helvetica').text(`SKU: ${product.sku || 'N/A'}`, leftMargin, currentY, {
         width: contentWidth,
         align: 'left'
       });
@@ -1041,7 +1030,7 @@ export class ProductsService {
 
       const priceVal = Number(product.price);
       const priceText = Number.isInteger(priceVal) ? `${priceVal} AZN` : `${priceVal.toFixed(2)} AZN`;
-      doc.fontSize(10).font(hasBold ? fontBold : 'Helvetica-Bold').text(priceText, leftMargin, currentY, {
+      doc.fontSize(10).font('Helvetica-Bold').text(priceText, leftMargin, currentY, {
         width: contentWidth,
         align: 'left'
       });
@@ -1070,5 +1059,19 @@ export class ProductsService {
 
       doc.end();
     });
+  }
+
+  private transliterateAzerbaijani(text: string): string {
+    if (!text) return '';
+    const map: { [key: string]: string } = {
+      'ə': 'e', 'Ə': 'E',
+      'ğ': 'g', 'Ğ': 'G',
+      'ç': 'c', 'Ç': 'C',
+      'ş': 's', 'Ş': 'S',
+      'ö': 'o', 'Ö': 'O',
+      'ü': 'u', 'Ü': 'U',
+      'ı': 'i', 'İ': 'I',
+    };
+    return text.split('').map(char => map[char] || char).join('');
   }
 }
