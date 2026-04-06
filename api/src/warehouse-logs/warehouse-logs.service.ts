@@ -30,11 +30,12 @@ export class WarehouseLogsService {
 
     const logs = await qb.getRawMany();
 
-    // Həmin tarixlərdə yaradılan məhsulların ümumi dəyəri
+    // Həmin tarixlərdə yaradılan məhsulların ümumi dəyəri və sayı
     const productQb = this.productRepository.createQueryBuilder('p')
        .leftJoin('p.stocks', 's')
        .select('DATE(p.createdAt)', 'date')
        .addSelect('SUM(CAST(s.stock AS DECIMAL) * p.price)', 'value')
+       .addSelect('SUM(CAST(s.stock AS INTEGER))', 'count')
        .where('p.isDeleted = false')
        .groupBy('DATE(p.createdAt)');
 
@@ -46,19 +47,23 @@ export class WarehouseLogsService {
     const productStatsMap = new Map();
     productStats.forEach(ps => {
       const d = new Date(ps.date).toISOString().split('T')[0];
-      productStatsMap.set(d, parseFloat(ps.value) || 0);
+      productStatsMap.set(d, {
+        value: parseFloat(ps.value) || 0,
+        count: parseInt(ps.count) || 0
+      });
     });
 
     return logs.map(log => {
       const dateStr = new Date(log.date).toISOString().split('T')[0];
-      const prodValue = productStatsMap.get(dateStr) || 0;
+      const prodStats = productStatsMap.get(dateStr) || { value: 0, count: 0 };
       const logTotal = parseFloat(log.logTotalAmount) || 0;
       return {
         date: dateStr,
         logTotalAmount: logTotal,
         logTotalCount: parseInt(log.logTotalCount) || 0,
-        productTotalValue: prodValue,
-        balance: logTotal - prodValue
+        productTotalValue: prodStats.value,
+        productTotalCount: prodStats.count,
+        balance: logTotal - prodStats.value
       };
     });
   }

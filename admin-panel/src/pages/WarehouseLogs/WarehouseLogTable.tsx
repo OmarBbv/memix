@@ -76,6 +76,41 @@ export default function WarehouseLogTable({ logs, onDelete }: WarehouseLogTableP
                 </TableCell>
               </TableRow>
             ))}
+            {/* Total Row */}
+            {(() => {
+              const totals = logs.reduce((acc, log) => ({
+                productCount: acc.productCount + log.productCount,
+                balanceCount: acc.balanceCount + (log.balanceCount ?? log.productCount),
+                totalAmount: acc.totalAmount + log.totalAmount,
+                balanceAmount: acc.balanceAmount + (log.balanceAmount ?? log.totalAmount)
+              }), { productCount: 0, balanceCount: 0, totalAmount: 0, balanceAmount: 0 });
+
+              return (
+                <TableRow className="bg-gray-50/50 dark:bg-white/1 font-bold">
+                  <TableCell className="px-5 py-4 text-start text-gray-800 text-theme-sm dark:text-white/90 uppercase">
+                    CƏMİ
+                  </TableCell>
+                  <TableCell className="px-5 py-4 text-start text-gray-800 text-theme-sm dark:text-white/90">
+                    {formatNumber(totals.productCount, 0)} ədəd
+                  </TableCell>
+                  <TableCell className={`px-5 py-4 text-start text-theme-sm ${totals.balanceCount >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
+                    {formatNumber(totals.balanceCount, 0)} ədəd
+                  </TableCell>
+                  <TableCell className="px-5 py-4 text-start text-gray-800 text-theme-sm dark:text-white/90">
+                    {formatNumber(totals.totalAmount)} AZN
+                  </TableCell>
+                  <TableCell className={`px-5 py-4 text-start text-theme-sm ${totals.balanceAmount >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
+                    {formatNumber(totals.balanceAmount)} AZN
+                  </TableCell>
+                  <TableCell className="px-5 py-4 text-start text-gray-800 text-theme-sm dark:text-white/90">
+                    -
+                  </TableCell>
+                  <TableCell className="px-5 py-4 text-end">
+                    -
+                  </TableCell>
+                </TableRow>
+              );
+            })()}
           </TableBody>
         </Table>
       </div>

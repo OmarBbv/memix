@@ -25,5 +25,6 @@ export interface WarehouseStats {
   logTotalAmount: number;
   logTotalCount: number;
   productTotalValue: number;
+  productTotalCount: number;
   balance: number;
 }
