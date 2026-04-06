@@ -49,6 +49,8 @@ export const Card = ({ className, index = 0, category, product: propProduct, sho
     }
   } else if (originalPrice > basePrice) {
     discountPercentage = Math.round(((originalPrice - basePrice) / originalPrice) * 100);
+  } else if (valuationPrice && Number(valuationPrice) > currentPrice) {
+    discountPercentage = Math.round(((Number(valuationPrice) - currentPrice) / Number(valuationPrice)) * 100);
   }
 
   const storePrice = productData.storePriceFactor

@@ -67,6 +67,11 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
     }
   }
 
+  let valuationDiscountPercentage = 0;
+  if (product.valuationPrice && Number(product.valuationPrice) > currentPrice) {
+    valuationDiscountPercentage = Math.round(((Number(product.valuationPrice) - currentPrice) / Number(product.valuationPrice)) * 100);
+  }
+
   const getImageUrl = (img: string) => {
     if (!img) return '';
     if (img.startsWith('http')) return img;
@@ -171,12 +176,17 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   </div>
                 )}
                 {!discountPercentage && product.valuationPrice && (
-                   <div className="flex items-center gap-2.5">
+                  <div className="flex items-center gap-2.5">
                     <span className="text-lg text-zinc-400 line-through font-medium opacity-60">
                       {Number(product.valuationPrice).toFixed(2)} ₼
                     </span>
+                    {valuationDiscountPercentage > 0 && (
+                      <span className="px-2 py-0.5 bg-red-600 text-white text-[10px] font-black rounded-lg">
+                        -{valuationDiscountPercentage}%
+                      </span>
+                    )}
                     <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-bold rounded-lg border border-amber-200 uppercase">
-                      Orijinal
+                      Orijinal Qiymət
                     </span>
                   </div>
                 )}
@@ -184,14 +194,14 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             </div>
 
             <div className="grid grid-cols-2 gap-3 py-4 border-t border-zinc-50">
-               <div className="flex items-center gap-2 text-[11px] font-semibold text-zinc-600">
-                 <Truck className="w-4 h-4 text-zinc-400" />
-                 <span>Pulsuz Çatdırılma</span>
-               </div>
-               <div className="flex items-center gap-2 text-[11px] font-semibold text-zinc-600">
-                 <ShieldCheck className="w-4 h-4 text-zinc-400" />
-                 <span>100% Orijinal</span>
-               </div>
+              <div className="flex items-center gap-2 text-[11px] font-semibold text-zinc-600">
+                <Truck className="w-4 h-4 text-zinc-400" />
+                <span>Pulsuz Çatdırılma</span>
+              </div>
+              <div className="flex items-center gap-2 text-[11px] font-semibold text-zinc-600">
+                <ShieldCheck className="w-4 h-4 text-zinc-400" />
+                <span>100% Orijinal</span>
+              </div>
             </div>
 
             <div className="space-y-6 py-6 border-y border-zinc-100">
@@ -227,19 +237,19 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                           )}
                         >
                           {thumb ? (
-                            <Image 
-                              src={getImageUrl(thumb)} 
-                              fill 
-                              unoptimized 
-                              className="object-cover" 
-                              alt={cv.color} 
+                            <Image
+                              src={getImageUrl(thumb)}
+                              fill
+                              unoptimized
+                              className="object-cover"
+                              alt={cv.color}
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-[10px] text-zinc-400 font-bold uppercase p-1 text-center bg-zinc-50">
                               {cv.color}
                             </div>
                           )}
-                          
+
                           {isOut && (
                             <div className="absolute inset-0 bg-white/40 flex items-center justify-center backdrop-blur-[1px]">
                               <div className="w-full h-[1.5px] bg-red-400 -rotate-45" />

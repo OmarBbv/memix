@@ -78,7 +78,6 @@ export default function Home() {
   }, [apiProducts]);
 
   const displayCategories = useMemo(() => {
-    // API-dən gələn əsas kateqoriyalar (Qadın, Kişi, Uşaq)
     const apiCats = categories.filter(cat => ['qadin', 'kisi', 'usaq'].includes(cat.slug)).map(cat => ({
       ...cat,
       name: cat.slug === 'usaq' ? 'Uşaqlar' : cat.name,
@@ -89,9 +88,8 @@ export default function Home() {
     const kisiCat = apiCats.find(c => c.slug === 'kisi') || { name: "Kişi", slug: "kisi", imageUrl: "/cat2.jpeg", productsCount: "8.2K+", href: "/category/kisi" };
     const usaqCat = apiCats.find(c => c.slug === 'usaq') || { name: "Uşaqlar", slug: "usaq", imageUrl: "/cat3.jpeg", productsCount: "4.1K+", href: "/category/usaq" };
 
-    // Statik kateqoriyalar (Çanta, Aksesuar, Ayaqqabılar) - Həmişə təsvirləri ilə göstərilir
     const cantaCat = { name: "Çanta", slug: "canta", imageUrl: "/cat4.jpeg", productsCount: "3.8K+", href: "/search?categoryId=25,46" };
-    const aksesuarCat = { name: "Aksesuar", slug: "aksesuar", imageUrl: "/cat6.jpeg", productsCount: "5.3K+", href: "/category/aksesuar" }; 
+    const aksesuarCat = { name: "Aksesuar", slug: "aksesuar", imageUrl: "/cat6.jpeg", productsCount: "5.3K+", href: "/category/kisi-aksesuar" };
     const ayaqqabiCat = { name: "Ayaqqabılar", slug: "ayaqqabi", imageUrl: "/cat5.jpeg", productsCount: "6.5K+", href: "/category/ayaqqabi" };
 
     return [qadinCat, kisiCat, cantaCat, aksesuarCat, ayaqqabiCat, usaqCat];
