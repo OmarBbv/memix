@@ -301,14 +301,6 @@ export default function Navbar() {
                                             <ChevronRight className="w-4 h-4 text-gray-400" />
                                         </Link>
                                         <Link
-                                            href="/category/kisi"
-                                            onClick={() => setMobileMenuOpen(false)}
-                                            className="flex items-center justify-between px-3 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                                        >
-                                            Kişi
-                                            <ChevronRight className="w-4 h-4 text-gray-400" />
-                                        </Link>
-                                        <Link
                                             href="/category/qadin"
                                             onClick={() => setMobileMenuOpen(false)}
                                             className="flex items-center justify-between px-3 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
@@ -317,11 +309,11 @@ export default function Navbar() {
                                             <ChevronRight className="w-4 h-4 text-gray-400" />
                                         </Link>
                                         <Link
-                                            href="/category/usaq"
+                                            href="/category/kisi"
                                             onClick={() => setMobileMenuOpen(false)}
                                             className="flex items-center justify-between px-3 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                                         >
-                                            Uşaq
+                                            Kişi
                                             <ChevronRight className="w-4 h-4 text-gray-400" />
                                         </Link>
                                         <Link
@@ -353,8 +345,16 @@ export default function Navbar() {
                                         >
                                             <div className="flex items-center gap-3">
                                                 <Briefcase className="w-5 h-5 text-zinc-600" />
-                                                Ayaqqabı
+                                                Ayaqqabılar
                                             </div>
+                                            <ChevronRight className="w-4 h-4 text-gray-400" />
+                                        </Link>
+                                        <Link
+                                            href="/category/usaq"
+                                            onClick={() => setMobileMenuOpen(false)}
+                                            className="flex items-center justify-between px-3 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                                        >
+                                            Uşaqlar
                                             <ChevronRight className="w-4 h-4 text-gray-400" />
                                         </Link>
                                         <DropdownMenuSeparator className="my-2 bg-gray-100" />

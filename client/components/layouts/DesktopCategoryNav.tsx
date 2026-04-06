@@ -212,17 +212,6 @@ export function DesktopCategoryNav({ categories, show }: DesktopCategoryNavProps
 
           <li className="h-full flex items-center group cursor-pointer whitespace-nowrap">
             <Link
-              href="/category/kisi"
-              onClick={() => setMegaMenuOpen(false)}
-              className="h-full flex items-center font-medium text-[13px] text-gray-800 capitalize group-hover:text-black transition-colors relative px-1"
-            >
-              Kişi
-              <span className="absolute -bottom-px left-0 w-full h-[2px] bg-black scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
-            </Link>
-          </li>
-
-          <li className="h-full flex items-center group cursor-pointer whitespace-nowrap">
-            <Link
               href="/category/qadin"
               onClick={() => setMegaMenuOpen(false)}
               className="h-full flex items-center font-medium text-[13px] text-gray-800 capitalize group-hover:text-black transition-colors relative px-1"
@@ -234,11 +223,11 @@ export function DesktopCategoryNav({ categories, show }: DesktopCategoryNavProps
 
           <li className="h-full flex items-center group cursor-pointer whitespace-nowrap">
             <Link
-              href="/category/usaq"
+              href="/category/kisi"
               onClick={() => setMegaMenuOpen(false)}
               className="h-full flex items-center font-medium text-[13px] text-gray-800 capitalize group-hover:text-black transition-colors relative px-1"
             >
-              Uşaq
+              Kişi
               <span className="absolute -bottom-px left-0 w-full h-[2px] bg-black scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
             </Link>
           </li>
@@ -271,7 +260,18 @@ export function DesktopCategoryNav({ categories, show }: DesktopCategoryNavProps
               onClick={() => setMegaMenuOpen(false)}
               className="h-full flex items-center font-medium text-[13px] text-gray-800 capitalize group-hover:text-black transition-colors relative px-1"
             >
-              Ayaqqabı
+              Ayaqqabılar
+              <span className="absolute -bottom-px left-0 w-full h-[2px] bg-black scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
+            </Link>
+          </li>
+
+          <li className="h-full flex items-center group cursor-pointer whitespace-nowrap">
+            <Link
+              href="/category/usaq"
+              onClick={() => setMegaMenuOpen(false)}
+              className="h-full flex items-center font-medium text-[13px] text-gray-800 capitalize group-hover:text-black transition-colors relative px-1"
+            >
+              Uşaqlar
               <span className="absolute -bottom-px left-0 w-full h-[2px] bg-black scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
             </Link>
           </li>
