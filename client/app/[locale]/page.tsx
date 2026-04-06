@@ -8,7 +8,7 @@ import { ArrowRight, Leaf, ShieldCheck, Sparkles, Zap, ChevronRight, Star, Trend
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay, EffectFade } from 'swiper/modules';
-import { useEffect, useState, useMemo } from "react";
+import { useMemo } from "react";
 import { useHomeCategories } from "@/hooks/useCategories";
 import { useNewArrivals } from "@/hooks/useProducts";
 import { Product as ApiProduct } from "@/services/product.service";
@@ -78,30 +78,23 @@ export default function Home() {
   }, [apiProducts]);
 
   const displayCategories = useMemo(() => {
-    const targetSlugs = ['qadin', 'kisi', 'canta', 'kisi-aksesuar', 'ayaqqabi', 'usaq'];
-    const filtered = categories
-      .filter(cat => targetSlugs.includes(cat.slug))
-      .map(cat => {
-        if (cat.slug === 'ayaqqabi') return { ...cat, name: 'Ayaqqabılar' };
-        if (cat.slug === 'usaq') return { ...cat, name: 'Uşaqlar' };
-        return cat;
-      });
+    // API-dən gələn əsas kateqoriyalar (Qadın, Kişi, Uşaq)
+    const apiCats = categories.filter(cat => ['qadin', 'kisi', 'usaq'].includes(cat.slug)).map(cat => ({
+      ...cat,
+      name: cat.slug === 'usaq' ? 'Uşaqlar' : cat.name,
+      href: `/category/${cat.slug}`
+    }));
 
-    // Sort by targetSlugs order
-    const sorted = [...filtered].sort(
-      (a, b) => targetSlugs.indexOf(a.slug) - targetSlugs.indexOf(b.slug)
-    );
+    const qadinCat = apiCats.find(c => c.slug === 'qadin') || { name: "Qadın", slug: "qadin", imageUrl: "/cat.jpeg", productsCount: "12.5K+", href: "/category/qadin" };
+    const kisiCat = apiCats.find(c => c.slug === 'kisi') || { name: "Kişi", slug: "kisi", imageUrl: "/cat2.jpeg", productsCount: "8.2K+", href: "/category/kisi" };
+    const usaqCat = apiCats.find(c => c.slug === 'usaq') || { name: "Uşaqlar", slug: "usaq", imageUrl: "/cat3.jpeg", productsCount: "4.1K+", href: "/category/usaq" };
 
-    if (sorted.length > 0) return sorted;
+    // Statik kateqoriyalar (Çanta, Aksesuar, Ayaqqabılar) - Həmişə təsvirləri ilə göstərilir
+    const cantaCat = { name: "Çanta", slug: "canta", imageUrl: "/cat4.jpeg", productsCount: "3.8K+", href: "/search?categoryId=25,46" };
+    const aksesuarCat = { name: "Aksesuar", slug: "aksesuar", imageUrl: "/cat6.jpeg", productsCount: "5.3K+", href: "/category/aksesuar" }; 
+    const ayaqqabiCat = { name: "Ayaqqabılar", slug: "ayaqqabi", imageUrl: "/cat5.jpeg", productsCount: "6.5K+", href: "/category/ayaqqabi" };
 
-    return [
-      { name: "Qadın", slug: "qadin", imageUrl: "/cat.jpeg", productsCount: "12.5K+" },
-      { name: "Kişi", slug: "kisi", imageUrl: "/cat2.jpeg", productsCount: "8.2K+" },
-      { name: "Çanta", slug: "canta", imageUrl: "/cat4.jpeg", productsCount: "3.8K+" },
-      { name: "Aksesuar", slug: "kisi-aksesuar", imageUrl: "/cat6.jpeg", productsCount: "5.3K+" },
-      { name: "Ayaqqabılar", slug: "ayaqqabi", imageUrl: "/cat5.jpeg", productsCount: "6.5K+" },
-      { name: "Uşaqlar", slug: "usaq", imageUrl: "/cat3.jpeg", productsCount: "4.1K+" },
-    ];
+    return [qadinCat, kisiCat, cantaCat, aksesuarCat, ayaqqabiCat, usaqCat];
   }, [categories]);
 
   const { data: banners = [] } = useBanners(BannerLocation.HOME_MAIN_SLIDER);
@@ -235,7 +228,7 @@ export default function Home() {
           {displayCategories.map((cat: any, idx: number) => (
             <Link
               key={cat.id || idx}
-              href={`/category/${cat.slug}`}
+              href={cat.href || `/category/${cat.slug}`}
               className="shrink-0 px-4 py-2.5 rounded-full bg-zinc-100 text-sm font-medium text-zinc-700 hover:bg-black hover:text-white transition-colors active:scale-95"
             >
               {cat.name}
@@ -295,7 +288,7 @@ export default function Home() {
               displayCategories.map((cat: any, idx: number) => (
                 <Link
                   key={cat.id || idx}
-                  href={`/category/${cat.slug}`}
+                  href={cat.href || `/category/${cat.slug}`}
                   className="group relative aspect-3/4 overflow-hidden rounded-2xl bg-zinc-100"
                 >
                   <Image

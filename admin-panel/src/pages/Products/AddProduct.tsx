@@ -209,7 +209,7 @@ export default function AddProduct() {
       <div className="grid grid-cols-1 gap-9">
         <div className="flex flex-col gap-9">
           <ComponentCard title="Məhsul Məlumatları">
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={handleSubmit(onSubmit, onError)}>
               <div className="space-y-6">
                 <div className="space-y-4">
                   {/* Name Row */}

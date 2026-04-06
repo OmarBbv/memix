@@ -14,6 +14,7 @@ import { Category } from '../categories/entities/category.entity';
 import { ValuationService } from './valuation.service';
 import PDFDocument from 'pdfkit';
 import * as bwipjs from 'bwip-js';
+import * as path from 'path';
 
 @Injectable()
 export class ProductsService {
@@ -87,7 +88,7 @@ export class ProductsService {
   }
 
   async create(
-    createProductDto: any,
+    createProductDto: CreateProductDto,
     files?: Express.Multer.File[],
   ) {
     const { categoryId, brandId, variants, tags, colorVariants, ...productData } =
@@ -731,7 +732,7 @@ export class ProductsService {
 
   async update(
     id: number,
-    updateProductDto: any,
+    updateProductDto: UpdateProductDto,
     files?: Express.Multer.File[],
   ) {
     const {
@@ -998,6 +999,11 @@ export class ProductsService {
         autoFirstPage: true
       });
 
+      const regularFont = path.join(process.cwd(), 'src/assets/fonts/Roboto-Regular.ttf');
+      const boldFont = path.join(process.cwd(), 'src/assets/fonts/Roboto-Bold.ttf');
+      doc.registerFont('Roboto', regularFont);
+      doc.registerFont('Roboto-Bold', boldFont);
+
       const chunks: Buffer[] = [];
       doc.on('data', (chunk) => chunks.push(chunk));
       doc.on('end', () => resolve(Buffer.concat(chunks)));
@@ -1007,14 +1013,14 @@ export class ProductsService {
       const contentWidth = width - (leftMargin * 2);
       let currentY = 5;
 
-      doc.fontSize(10).font('Helvetica-Bold').text('MEMIX', leftMargin, currentY, {
+      doc.fontSize(10).font('Roboto-Bold').text('MEMIX', leftMargin, currentY, {
         width: contentWidth,
         align: 'left'
       });
       currentY += 12;
 
-      const displayName = this.transliterateAzerbaijani(product.name);
-      doc.fontSize(8).font('Helvetica-Bold').text(displayName, leftMargin, currentY, {
+      const displayName = product.name;
+      doc.fontSize(8).font('Roboto-Bold').text(displayName, leftMargin, currentY, {
         width: contentWidth,
         align: 'left'
       });
@@ -1022,7 +1028,7 @@ export class ProductsService {
       const nameHeight = doc.heightOfString(displayName, { width: contentWidth, align: 'left' });
       currentY += Math.max(nameHeight, 9) + 1;
 
-      doc.fontSize(7).font('Helvetica').text(`SKU: ${product.sku || 'N/A'}`, leftMargin, currentY, {
+      doc.fontSize(7).font('Roboto').text(`SKU: ${product.sku || 'N/A'}`, leftMargin, currentY, {
         width: contentWidth,
         align: 'left'
       });
@@ -1030,7 +1036,7 @@ export class ProductsService {
 
       const priceVal = Number(product.price);
       const priceText = Number.isInteger(priceVal) ? `${priceVal} AZN` : `${priceVal.toFixed(2)} AZN`;
-      doc.fontSize(10).font('Helvetica-Bold').text(priceText, leftMargin, currentY, {
+      doc.fontSize(10).font('Roboto-Bold').text(priceText, leftMargin, currentY, {
         width: contentWidth,
         align: 'left'
       });
@@ -1048,14 +1054,16 @@ export class ProductsService {
 
         const barcodeImageWidth = 100;
         const barcodeHeight = 15;
-        doc.image(barcodeBuffer, leftMargin, currentY, { 
+        const barcodeX = leftMargin;
+
+        doc.image(barcodeBuffer, barcodeX, currentY, {
           width: barcodeImageWidth,
-          height: barcodeHeight 
+          height: barcodeHeight
         });
 
-        doc.fontSize(7).font('Helvetica').text(`[ ${barcodeText} ]`, leftMargin, currentY + barcodeHeight + 2, {
+        doc.fontSize(7).font('Roboto').text(`[ ${barcodeText} ]`, barcodeX, currentY + barcodeHeight + 2, {
           width: barcodeImageWidth,
-          align: 'center'
+          align: 'left'
         });
       } catch (err) {
         console.error('Barcode generation failed', err);
@@ -1063,19 +1071,5 @@ export class ProductsService {
 
       doc.end();
     });
-  }
-
-  private transliterateAzerbaijani(text: string): string {
-    if (!text) return '';
-    const map: { [key: string]: string } = {
-      'ə': 'e', 'Ə': 'E',
-      'ğ': 'g', 'Ğ': 'G',
-      'ç': 'c', 'Ç': 'C',
-      'ş': 's', 'Ş': 'S',
-      'ö': 'o', 'Ö': 'O',
-      'ü': 'u', 'Ü': 'U',
-      'ı': 'i', 'İ': 'I',
-    };
-    return text.split('').map(char => map[char] || char).join('');
   }
 }
