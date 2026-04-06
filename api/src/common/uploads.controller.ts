@@ -9,17 +9,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiBody } from '@nestjs/swagger';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
-
-const storage = diskStorage({
-  destination: './uploads',
-  filename: (req, file, callback) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    const ext = extname(file.originalname);
-    callback(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
-  },
-});
+import { multerConfig } from './utils/multer.config';
 
 @Controller('uploads')
 export class UploadsController {
@@ -36,13 +26,13 @@ export class UploadsController {
       },
     },
   })
-  @UseInterceptors(FileInterceptor('file', { storage }))
+  @UseInterceptors(FileInterceptor('file', multerConfig))
   uploadFile(
     @UploadedFile(
       new ParseFilePipe({
         validators: [
           new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 10 }), // 10MB limit
-          new FileTypeValidator({ fileType: /(jpg|jpeg|png|gif)$/ }), // Yalnız şəkillər
+          new FileTypeValidator({ fileType: /(jpg|jpeg|png|gif|webp)$/ }), // Yalnız şəkillər
         ],
       }),
     )

@@ -1,17 +1,52 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { diskStorage } from 'multer';
-import { extname, join } from 'path';
+import { join } from 'path';
+import * as fs from 'fs';
+import sharp from 'sharp';
+
+export class SharpStorage {
+  constructor(private opts: any) { }
+
+  _handleFile(req: any, file: any, cb: any) {
+    const destination = this.opts.destination;
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const filename = `${file.fieldname}-${uniqueSuffix}.webp`;
+    const finalPath = join(destination, filename);
+
+    if (!fs.existsSync(destination)) {
+      fs.mkdirSync(destination, { recursive: true });
+    }
+
+    const outStream = fs.createWriteStream(finalPath);
+    const transform = sharp()
+      .resize(1200, 1200, {
+        fit: 'inside',            // nisbəti qoruyur, kəsmir
+        withoutEnlargement: true  // kiçik şəkilləri böyütmür
+      })
+      .webp({ quality: 80 });
+
+    transform.on('error', (err) => cb(err));
+    outStream.on('error', (err) => cb(err));
+
+    file.stream.pipe(transform).pipe(outStream);
+
+    outStream.on('finish', () => {
+      cb(null, {
+        destination: destination,
+        filename: filename,
+        path: finalPath,
+        size: outStream.bytesWritten
+      });
+    });
+  }
+
+  _removeFile(req: any, file: any, cb: any) {
+    fs.unlink(file.path, cb);
+  }
+}
 
 export const multerConfig = {
-  storage: diskStorage({
+  storage: new SharpStorage({
     destination: join(process.cwd(), 'uploads'),
-    filename: (req: any, file: any, callback: any) => {
-      console.log('Multer is processing file:', file.originalname);
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-      const ext = extname(file.originalname);
-      const filename = `${file.fieldname}-${uniqueSuffix}${ext}`;
-      callback(null, filename);
-    },
   }),
   fileFilter: (req: any, file: any, callback: any) => {
     console.log(

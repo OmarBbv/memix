@@ -285,6 +285,7 @@ export class CategoriesService {
       .leftJoinAndSelect('product.colorVariants', 'colorVariants')
       .leftJoinAndSelect('product.brand', 'brand')
       .where('product.categoryId IN (:...categoryIds)', { categoryIds })
+      .andWhere('product.isDeleted = :isDeleted', { isDeleted: false })
       .orderBy('product.createdAt', 'DESC');
 
     if (subcategory) {
@@ -474,7 +475,7 @@ export class CategoriesService {
     const products = await this.categoriesRepository.manager
       .getRepository(Product)
       .find({
-        where: { category: { id: In(categoryIds) } },
+        where: { category: { id: In(categoryIds) }, isDeleted: false },
         relations: ['stocks', 'colorVariants', 'brand'],
       });
 
