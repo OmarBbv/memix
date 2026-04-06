@@ -62,13 +62,13 @@ export const Card = ({ className, index = 0, category, product: propProduct, sho
   const city = productData.variants?.city || productData.city;
   const condition = productData.variants?.condition || productData.condition || (productData.listingType === 'used' ? 'Yaxşı' : 'Çox yaxşı');
 
-  const productObj: Product = {
-    ...productData,
-    oldPrice: originalPrice,
-    size,
-    condition,
-    city
-  };
+  // const productObj: Product = {
+  //   ...productData,
+  //   oldPrice: originalPrice,
+  //   size,
+  //   condition,
+  //   city
+  // };
 
   const isWishlisted = isInWishlist(id);
 
