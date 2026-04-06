@@ -84,15 +84,29 @@ export default function Home() {
   }, [apiProducts]);
 
   const displayCategories = useMemo(() => {
-    if (categories.length > 0) return categories;
+    const targetSlugs = ['qadin', 'kisi', 'canta', 'kisi-aksesuar', 'ayaqqabi', 'usaq'];
+    const filtered = categories
+      .filter(cat => targetSlugs.includes(cat.slug))
+      .map(cat => {
+        if (cat.slug === 'ayaqqabi') return { ...cat, name: 'Ayaqqabılar' };
+        if (cat.slug === 'usaq') return { ...cat, name: 'Uşaqlar' };
+        return cat;
+      });
+
+    // Sort by targetSlugs order
+    const sorted = [...filtered].sort(
+      (a, b) => targetSlugs.indexOf(a.slug) - targetSlugs.indexOf(b.slug)
+    );
+
+    if (sorted.length > 0) return sorted;
 
     return [
-      { name: "Qadın", slug: "women", imageUrl: "/cat.jpeg", productsCount: "12.5K+" },
-      { name: "Kişi", slug: "men", imageUrl: "/cat2.jpeg", productsCount: "8.2K+" },
-      { name: "Uşaq", slug: "kids", imageUrl: "/cat3.jpeg", productsCount: "4.1K+" },
-      { name: "Çantalar", slug: "bags", imageUrl: "/cat4.jpeg", productsCount: "3.8K+" },
-      { name: "Ayaqqabılar", slug: "shoes", imageUrl: "/cat5.jpeg", productsCount: "6.5K+" },
-      { name: "Aksesuarlar", slug: "accessories", imageUrl: "/cat6.jpeg", productsCount: "5.3K+" },
+      { name: "Qadın", slug: "qadin", imageUrl: "/cat.jpeg", productsCount: "12.5K+" },
+      { name: "Kişi", slug: "kisi", imageUrl: "/cat2.jpeg", productsCount: "8.2K+" },
+      { name: "Çanta", slug: "canta", imageUrl: "/cat4.jpeg", productsCount: "3.8K+" },
+      { name: "Aksesuar", slug: "kisi-aksesuar", imageUrl: "/cat6.jpeg", productsCount: "5.3K+" },
+      { name: "Ayaqqabılar", slug: "ayaqqabi", imageUrl: "/cat5.jpeg", productsCount: "6.5K+" },
+      { name: "Uşaqlar", slug: "usaq", imageUrl: "/cat3.jpeg", productsCount: "4.1K+" },
     ];
   }, [categories]);
 
@@ -284,7 +298,7 @@ export default function Home() {
                 <div key={i} className="aspect-3/4 animate-pulse rounded-2xl bg-zinc-100" />
               ))
             ) : (
-              displayCategories.slice(0, 12).map((cat: any, idx: number) => (
+              displayCategories.map((cat: any, idx: number) => (
                 <Link
                   key={cat.id || idx}
                   href={`/category/${cat.slug}`}
