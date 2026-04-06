@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import Image from 'next/image';
+import { SafeImage } from '@/components/shared/SafeImage';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import type { Swiper as SwiperType } from 'swiper';
 import { Mousewheel, FreeMode, Navigation } from 'swiper/modules';
@@ -102,12 +102,13 @@ export const ImageGallery = ({ allImages, productName, isLiked, onToggleWishlist
                       activeIndex === idx ? "border-black ring-2 ring-black/10" : "border-gray-100 hover:border-gray-300"
                     )}
                   >
-                    <Image
+                    <SafeImage
                       src={img}
                       alt={`Thumbnail ${idx + 1}`}
                       fill
                       unoptimized
                       className="object-cover"
+                      showSpinner={false}
                     />
                   </button>
                 </SwiperSlide>
@@ -139,13 +140,14 @@ export const ImageGallery = ({ allImages, productName, isLiked, onToggleWishlist
               {allImages.map((img, idx) => (
                 <SwiperSlide key={idx} className="relative w-full h-full">
                   <div className="absolute inset-4 lg:inset-8">
-                    <Image
+                    <SafeImage
                       src={img}
                       alt={`${productName} - ${idx + 1}`}
                       fill
                       unoptimized
                       className="object-contain"
                       priority={idx === 0}
+                      spinnerClassName="w-10 h-10"
                     />
                   </div>
                 </SwiperSlide>
@@ -222,12 +224,13 @@ export const ImageGallery = ({ allImages, productName, isLiked, onToggleWishlist
                   activeIndex === idx ? "border-black ring-2 ring-black/10" : "border-transparent hover:border-gray-200"
                 )}
               >
-                <Image
+                <SafeImage
                   src={img}
                   alt={`Thumbnail ${idx + 1}`}
                   fill
                   unoptimized
                   className="object-cover"
+                  showSpinner={false}
                 />
               </button>
             ))}

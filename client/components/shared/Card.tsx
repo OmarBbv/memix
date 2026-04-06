@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import Image from 'next/image';
+import { SafeImage } from '@/components/shared/SafeImage';
 import { Heart, Info, Trash2 } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { useAppDispatch, useAppSelector } from '@/lib/redux/hooks';
@@ -91,14 +91,15 @@ export const Card = ({ className, index = 0, category, product: propProduct, sho
       <div className="relative aspect-3/4 w-full overflow-hidden rounded-xl bg-gray-100">
         <Link href={`/product/${id}`} className="block h-full w-full">
           {imageSrc ? (
-            <Image
+            <SafeImage
               src={imageSrc}
               alt={title}
               quality={85}
               fill
               unoptimized
               sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-              className="object-cover"
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
+              spinnerClassName="w-5 h-5"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-gray-200 text-gray-400">

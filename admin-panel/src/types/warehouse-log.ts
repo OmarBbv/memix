@@ -6,6 +6,11 @@ export interface WarehouseLog {
   note?: string;
   createdAt: string;
   updatedAt: string;
+  categoryId?: number;
+  category?: {
+    id: number;
+    name: string;
+  };
   // Hesablanmış sahələr
   productExpense?: number;
   productCountExpense?: number;
@@ -17,6 +22,7 @@ export interface CreateWarehouseLogDto {
   recordDate: string;
   productCount: number;
   totalAmount: number;
+  categoryId?: number;
   note?: string;
 }
 

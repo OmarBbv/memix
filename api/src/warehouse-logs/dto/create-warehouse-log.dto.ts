@@ -20,4 +20,9 @@ export class CreateWarehouseLogDto {
   @IsString()
   @IsOptional()
   note?: string;
+
+  @ApiProperty({ description: 'Category ID of the products', example: 1 })
+  @IsInt()
+  @IsOptional()
+  categoryId?: number;
 }

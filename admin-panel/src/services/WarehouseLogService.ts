@@ -22,4 +22,9 @@ export class WarehouseLogService {
     });
     return response.data;
   }
+
+  static async getValuation(categoryId: number): Promise<number> {
+    const response = await axiosInstance.get(`/warehouse-logs/valuation/${categoryId}`);
+    return response.data;
+  }
 }

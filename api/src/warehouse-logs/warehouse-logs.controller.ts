@@ -19,6 +19,12 @@ import { ApiTags, ApiOperation } from '@nestjs/swagger';
 export class WarehouseLogsController {
   constructor(private readonly warehouseLogsService: WarehouseLogsService) {}
 
+  @Get('valuation/:categoryId')
+  @ApiOperation({ summary: 'Get valuation by category' })
+  getValuation(@Param('categoryId', ParseIntPipe) categoryId: number) {
+    return this.warehouseLogsService.getValuationByCategory(categoryId);
+  }
+
   @Post()
   @ApiOperation({ summary: 'Create a new warehouse record' })
   create(@Body() createWarehouseLogDto: CreateWarehouseLogDto) {

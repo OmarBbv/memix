@@ -39,3 +39,11 @@ export const useWarehouseStats = (startDate?: string, endDate?: string): UseQuer
     queryFn: () => WarehouseLogService.getStats(startDate, endDate),
   });
 };
+
+export const useCategoryValuation = (categoryId?: number) => {
+  return useQuery({
+    queryKey: ['category-valuation', categoryId],
+    queryFn: () => WarehouseLogService.getValuation(categoryId!),
+    enabled: !!categoryId,
+  });
+};

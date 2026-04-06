@@ -21,6 +21,7 @@ import { COLOR_OPTIONS } from "../../constants/colors";
 import { SizeType } from "../../types/category";
 import QuickCreateBrandModal from "../../components/brands/QuickCreateBrandModal";
 import productService from "../../services/productService";
+import { getCategoryPath } from "../../utils/categoryHelpers";
 
 export default function AddProduct() {
   const navigate = useNavigate();
@@ -178,21 +179,6 @@ export default function AddProduct() {
     });
   };
 
-  const getCategoryPath = (cat: any, allCats: any[]): string => {
-    const path = [cat.name];
-    let current = cat;
-    while (current.parentId || current.parent?.id) {
-      const pid = current.parentId || current.parent?.id;
-      const parent = allCats.find((c: any) => c.id === pid);
-      if (parent) {
-        path.unshift(parent.name);
-        current = parent;
-      } else {
-        break;
-      }
-    }
-    return path.join(" > ");
-  };
 
   return (
     <>

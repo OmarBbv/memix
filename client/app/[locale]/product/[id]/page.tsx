@@ -15,6 +15,7 @@ import {
   Info
 } from 'lucide-react';
 import Image from 'next/image';
+import { SafeImage } from '@/components/shared/SafeImage';
 import { cn } from '@/lib/utils';
 import { Breadcrumb } from '@/components/shared/Breadcrumb';
 import { addToCartAsync } from '@/lib/redux/features/cartSlice';
@@ -185,8 +186,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                         -{valuationDiscountPercentage}%
                       </span>
                     )}
-                    <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-bold rounded-lg border border-amber-200 uppercase">
-                      Orijinal Qiymət
+                    <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-bold rounded-lg border border-amber-200 capitalize">
+                      Ilkin Qiymət
                     </span>
                   </div>
                 )}
@@ -237,12 +238,13 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                           )}
                         >
                           {thumb ? (
-                            <Image
+                            <SafeImage
                               src={getImageUrl(thumb)}
                               fill
                               unoptimized
-                              className="object-cover"
+                              className="object-cover transition-transform duration-500 group-hover:scale-110"
                               alt={cv.color}
+                              showSpinner={false}
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-[10px] text-zinc-400 font-bold uppercase p-1 text-center bg-zinc-50">

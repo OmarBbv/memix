@@ -21,7 +21,7 @@ async function seed() {
   // 1. Ölçü tiplərini kateqoriyalara bağlayaq
   const sizeTypeMappings: Record<string, string> = {
     'ayaqqabi': 'ayaqqabi',
-    'futbolka': 'beden-text',
+    't-shirt': 'beden-text',
     'salvar': 'beden-numeric',
     'kemer': 'tek-olcu',
     'usaq-paltari': 'yas-grupu',

@@ -7,37 +7,56 @@ import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import ComponentCard from "../../components/common/ComponentCard";
 import { ChevronLeftIcon } from "../../icons";
-import { useCreateWarehouseLog } from "../../hooks/useWarehouseLogs";
+import { useCreateWarehouseLog, useCategoryValuation } from "../../hooks/useWarehouseLogs";
+import { useCategories } from "../../hooks/useCategories";
 import { allowOnlyNumbers } from "../../utils/inputHelpers";
 import Label from "../../components/form/Label";
 import Input from "../../components/form/input/InputField";
+import SearchableSelect from "../../components/ui/select/SearchableSelect";
 import DatePicker from "../../components/form/date-picker";
 import TextArea from "../../components/form/input/TextArea";
+import { getCategoryPath } from "../../utils/categoryHelpers";
 import Button from "../../components/ui/button/Button";
 import toast from "react-hot-toast";
+import { useEffect } from "react";
 
 const logSchema = z.object({
   recordDate: z.string().min(1, "Tarix seçilməlidir"),
   productCount: z.coerce.number().min(0, "Sayı mənfi ola bilməz"),
   totalAmount: z.coerce.number().min(0, "Məbləğ mənfi ola bilməz"),
+  categoryId: z.coerce.number().optional(),
   note: z.string().optional(),
 });
 
 type LogFormValues = z.infer<typeof logSchema>;
 
 const CreateWarehouseLog: React.FC = () => {
+  const { data: categories } = useCategories();
   const navigate = useNavigate();
   const createMutation = useCreateWarehouseLog();
 
-  const { control, register, handleSubmit, formState: { errors } } = useForm<LogFormValues>({
+  const { control, register, handleSubmit, watch, setValue, formState: { errors } } = useForm<LogFormValues>({
     resolver: zodResolver(logSchema) as any,
     defaultValues: {
       recordDate: new Date().toISOString().split('T')[0],
       productCount: "" as any,
       totalAmount: "" as any,
+      categoryId: undefined,
       note: "",
     },
   });
+
+  const selectedCategoryId = watch("categoryId");
+  const productCount = watch("productCount");
+
+  const { data: valuation } = useCategoryValuation(selectedCategoryId);
+
+  useEffect(() => {
+    if (valuation && productCount) {
+      const calculatedAmount = valuation * Number(productCount);
+      setValue("totalAmount", calculatedAmount);
+    }
+  }, [valuation, productCount, setValue]);
 
   const handleCreate = (values: LogFormValues) => {
     createMutation.mutate(values, {
@@ -87,6 +106,33 @@ const CreateWarehouseLog: React.FC = () => {
                   )}
                 />
                 {errors.recordDate && <p className="mt-1 text-xs text-red-500">{errors.recordDate.message}</p>}
+              </div>
+
+              <div>
+                <Label>Kateqoriya</Label>
+                <Controller
+                  name="categoryId"
+                  control={control}
+                  render={({ field }) => {
+                    const leafCategories = categories?.filter(cat =>
+                      !categories.some(child => (child.parentId === cat.id || child.parent?.id === cat.id))
+                    ) || [];
+
+                    return (
+                      <SearchableSelect
+                        options={leafCategories.map((cat: any) => ({
+                          label: getCategoryPath(cat, categories || []),
+                          value: cat.id,
+                        }))}
+                        placeholder="Kateqoriya seçin"
+                        onChange={(val) => field.onChange(val)}
+                        value={field.value}
+                        error={!!errors.categoryId}
+                      />
+                    );
+                  }}
+                />
+                {errors.categoryId && <p className="mt-1 text-xs text-red-500">{errors.categoryId.message}</p>}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

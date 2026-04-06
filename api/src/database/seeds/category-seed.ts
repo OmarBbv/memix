@@ -26,7 +26,7 @@ const categoriesToSeed: CategorySeedData[] = [
           { name: 'Çimərlik geyimi', skuPrefixUsed: 'D2-Ç', skuPrefixNew: 'BY1-Ç' },
           { name: 'Dəri geyimi', skuPrefixUsed: 'C3-D', skuPrefixNew: 'CY3-D' },
           { name: 'Dublyonka', skuPrefixUsed: 'C3-DB', skuPrefixNew: 'CY3-DB' },
-          { name: 'Futbolka', skuPrefixUsed: 'F1-F', skuPrefixNew: 'CY3-F' },
+          { name: 'T-shirt', skuPrefixUsed: 'F1-F', skuPrefixNew: 'CY3-F' },
           { name: 'Gödəkcə', skuPrefixUsed: 'D4-G', skuPrefixNew: 'CY2-G' },
           { name: 'İdman', skuPrefixUsed: 'D1-İ', skuPrefixNew: 'AY2-İ' },
           { name: 'Jilet', skuPrefixUsed: 'B2-J', skuPrefixNew: 'CY2-J' },
@@ -83,7 +83,7 @@ const categoriesToSeed: CategorySeedData[] = [
           { name: 'Kalqotka', skuPrefixUsed: 'A6-K', skuPrefixNew: 'AY1-K' },
           { name: 'Çulki', skuPrefixUsed: 'A5-C', skuPrefixNew: 'JY1-C' },
           { name: 'Köynək', skuPrefixUsed: 'E2-K', skuPrefixNew: 'DY3-K' },
-          { name: 'Futbolka', skuPrefixUsed: 'F1-F', skuPrefixNew: 'CY3-F' },
+          { name: 'T-shirt', skuPrefixUsed: 'F1-F', skuPrefixNew: 'CY3-F' },
           { name: 'Şalvar', skuPrefixUsed: 'G1-Ş', skuPrefixNew: 'AY3-Ş' },
           { name: 'Gödəkcə', skuPrefixUsed: 'D4-G', skuPrefixNew: 'CY2-G' },
         ]

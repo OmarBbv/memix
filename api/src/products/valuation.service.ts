@@ -10,7 +10,7 @@ export class ValuationService {
     'POLO': 'POLO',
     'GÖDƏKCƏ': 'GODEKCE',
     'ŞALVAR': 'SALVAR',
-    'FUTBOLKA': 'FUTBOLKA',
+    'T-SHIRT': 'T-shirt',
     'KÖYNƏK': 'KOYNEK',
     'PENCƏK': 'PENCEK',
     'KOSTYU': 'KOSTYUM',
@@ -67,9 +67,9 @@ export class ValuationService {
     const mappedKey = this.mapping[normalizedCatRaw] || normalizedCatRaw;
 
     // Excel-də bəzi brendlər fərqli yazıla bilər (məs: PULL & BEAR vs PULL&BEAR)
-    const brandData = this.valuations.find(v => 
+    const brandData = this.valuations.find(v =>
       v.MARKALAR && v.MARKALAR.trim().toUpperCase() === normalizedBrand
-    ) || this.valuations.find(v => 
+    ) || this.valuations.find(v =>
       v.MARKALAR && v.MARKALAR.trim().toUpperCase().replace(/\s+/g, '') === normalizedBrand.replace(/\s+/g, '')
     );
 
@@ -77,7 +77,7 @@ export class ValuationService {
       // Əgər brend yoxdursa ADSIZ MALLAR-a baxaq
       const adsizData = this.valuations.find(v => v.MARKALAR === 'ADSIZ MALLAR');
       if (adsizData && adsizData[mappedKey]) {
-         return adsizData[mappedKey];
+        return adsizData[mappedKey];
       }
       return null;
     }

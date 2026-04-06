@@ -25,6 +25,9 @@ export default function WarehouseLogTable({ logs, onDelete }: WarehouseLogTableP
                 Tarix
               </TableCell>
               <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                Kateqoriya
+              </TableCell>
+              <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                 Büdcə (Say)
               </TableCell>
               <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
@@ -50,6 +53,9 @@ export default function WarehouseLogTable({ logs, onDelete }: WarehouseLogTableP
               <TableRow key={log.id} className="hover:bg-gray-50/50 dark:hover:bg-white/1">
                 <TableCell className="px-5 py-4 text-start text-gray-800 text-theme-sm dark:text-white/90">
                   {new Date(log.recordDate).toLocaleDateString('az-AZ')}
+                </TableCell>
+                <TableCell className="px-5 py-4 text-start text-gray-500 text-theme-sm dark:text-gray-400">
+                  {log.category?.name || "-"}
                 </TableCell>
                 <TableCell className="px-5 py-4 text-start text-gray-500 text-theme-sm dark:text-gray-400">
                   {formatNumber(log.productCount, 0)} ədəd
@@ -89,6 +95,9 @@ export default function WarehouseLogTable({ logs, onDelete }: WarehouseLogTableP
                 <TableRow className="bg-gray-50/50 dark:bg-white/1 font-bold">
                   <TableCell className="px-5 py-4 text-start text-gray-800 text-theme-sm dark:text-white/90 uppercase">
                     CƏMİ
+                  </TableCell>
+                  <TableCell className="px-5 py-4 text-start text-gray-800 text-theme-sm dark:text-white/90 uppercase">
+                    -
                   </TableCell>
                   <TableCell className="px-5 py-4 text-start text-gray-800 text-theme-sm dark:text-white/90">
                     {formatNumber(totals.productCount, 0)} ədəd

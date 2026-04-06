@@ -4,7 +4,10 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
+import { Category } from '../../categories/entities/category.entity';
 
 @Entity('warehouse_logs')
 export class WarehouseLog {
@@ -22,6 +25,13 @@ export class WarehouseLog {
 
   @Column({ type: 'text', nullable: true })
   note: string;
+
+  @Column({ nullable: true })
+  categoryId: number;
+
+  @ManyToOne(() => Category, { onDelete: 'SET NULL', nullable: true })
+  @JoinColumn({ name: 'categoryId' })
+  category: Category;
 
   @CreateDateColumn()
   createdAt: Date;

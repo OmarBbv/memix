@@ -5,7 +5,7 @@ import { typeOrmConfig } from '../src/config/typeorm.config';
 async function run() {
   const dataSource = new DataSource(typeOrmConfig as any);
   await dataSource.initialize();
-  
+
   console.log('Cleaning up products and logs...');
   // Delete in order to satisfy foreign keys
   await dataSource.query('DELETE FROM product_stocks');
@@ -39,17 +39,17 @@ async function run() {
       INSERT INTO products (name, description, price, "categoryId", "isFeatured", "isActive", "isDeleted", "variants", "attributes", "tags", "createdAt", "updatedAt") 
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $11) 
       RETURNING id
-    `, [`Product ${i+1}`, `Description ${i+1}`, prices[i], catId, false, true, false, '{}', '{}', '{}', testDate]);
-    
+    `, [`Product ${i + 1}`, `Description ${i + 1}`, prices[i], catId, false, true, false, '{}', '{}', '{}', testDate]);
+
     const pId = pResult[0].id;
     await dataSource.query(`INSERT INTO product_stocks (stock, "productId") VALUES ($1, $2)`, [stocks[i], pId]);
-    console.log(`  ✅ Added Product ${i+1}: Price ${prices[i]}, Stock ${stocks[i]}`);
+    console.log(`  ✅ Added Product ${i + 1}: Price ${prices[i]}, Stock ${stocks[i]}`);
   }
 
   console.log('\nCreating warehouse budget log for today...');
   const budget = 10000;
   const budgetCount = 100;
-  
+
   await dataSource.query(`
     INSERT INTO warehouse_logs ("recordDate", "productCount", "totalAmount", note, "createdAt", "updatedAt") 
     VALUES ($1, $2, $3, $4, $1, $1)

@@ -5,6 +5,8 @@ import { CreateWarehouseLogDto } from './dto/create-warehouse-log.dto';
 import { UpdateWarehouseLogDto } from './dto/update-warehouse-log.dto';
 import { WarehouseLog } from './entities/warehouse-log.entity';
 import { Product } from '../products/entities/product.entity';
+import { Category } from '../categories/entities/category.entity';
+import { ValuationService } from '../products/valuation.service';
 
 @Injectable()
 export class WarehouseLogsService {
@@ -13,7 +15,18 @@ export class WarehouseLogsService {
     private readonly repository: Repository<WarehouseLog>,
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
-  ) {}
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
+    private readonly valuationService: ValuationService,
+  ) { }
+
+  async getValuationByCategory(categoryId: number) {
+    const category = await this.categoryRepository.findOneBy({ id: categoryId });
+    if (!category) throw new NotFoundException('Category not found');
+
+    const valuation = this.valuationService.getValuation('ADSIZ MALLAR', category.name);
+    return valuation || 0;
+  }
 
   async getDailyStats(startDate?: string, endDate?: string) {
     const qb = this.repository.createQueryBuilder('log')
@@ -75,6 +88,7 @@ export class WarehouseLogsService {
 
   async findAll() {
     const logs = await this.repository.find({
+      relations: ['category'],
       order: { recordDate: 'DESC' },
     });
 
