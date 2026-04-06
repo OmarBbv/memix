@@ -108,6 +108,11 @@ export default function AddProduct() {
 
 
 
+  const onError = (errors: any) => {
+    console.log("Validation Errors:", errors);
+    toast.error("Zəhmət olmasa bütün mütləq sahələri (Ad, Qiymət, Kateqoriya, Rəng, Ölçü və s.) düzgün doldurun.");
+  };
+
   const onSubmit = (data: ProductFormValues) => {
     const formData = new FormData();
 
@@ -205,7 +210,7 @@ export default function AddProduct() {
       <div className="grid grid-cols-1 gap-9">
         <div className="flex flex-col gap-9">
           <ComponentCard title="Məhsul Məlumatları">
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={handleSubmit(onSubmit, onError)}>
               <div className="space-y-6">
                 <div className="space-y-4">
                   {/* Name Row */}
@@ -421,20 +426,26 @@ export default function AddProduct() {
                               <Label required className="text-[10px] font-black uppercase tracking-widest text-[#64748B] mb-0!">RƏNG</Label>
                             </div>
                             <div className="flex-1 max-w-sm">
-                              <Controller
-                                name={`colorVariants.${index}.color`}
-                                control={control}
-                                render={({ field }) => (
-                                  <SearchableSelect
-                                    options={COLOR_OPTIONS}
-                                    placeholder="Rəng seçin"
-                                    value={field.value}
-                                    onChange={field.onChange}
-                                    allowCustomValue={true}
-                                    className="min-h-[44px]!"
-                                  />
-                                )}
-                              />
+                                  <div className="space-y-1">
+                                    <Controller
+                                      name={`colorVariants.${index}.color`}
+                                      control={control}
+                                      render={({ field }) => (
+                                        <SearchableSelect
+                                          options={COLOR_OPTIONS}
+                                          placeholder="Rəng seçin"
+                                          value={field.value}
+                                          onChange={field.onChange}
+                                          allowCustomValue={true}
+                                          className="min-h-[44px]!"
+                                          error={!!errors.colorVariants?.[index]?.color}
+                                        />
+                                      )}
+                                    />
+                                    {errors.colorVariants?.[index]?.color && (
+                                      <p className="text-[10px] text-error-500 font-medium">{errors.colorVariants[index]?.color?.message}</p>
+                                    )}
+                                  </div>
                             </div>
                           </div>
 
@@ -459,22 +470,26 @@ export default function AddProduct() {
                                   key={sIdx}
                                   className="group relative flex items-center gap-2 p-2 bg-white dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm transition-all hover:border-brand-500/30 hover:shadow-lg hover:shadow-brand-500/5"
                                 >
-                                  <div className="flex-1 min-w-0">
-                                    <Controller
-                                      name={`colorVariants.${index}.stocks.${sIdx}.size`}
-                                      control={control}
-                                      render={({ field }) => (
-                                        <SearchableSelect
-                                          options={availableSizes ? availableSizes.map(sizeVal => ({ value: sizeVal, label: sizeVal })) : []}
-                                          placeholder="Ölçü"
-                                          value={field.value}
-                                          onChange={field.onChange}
-                                          allowCustomValue={true}
-                                          className="min-h-[40px]! h-10!"
-                                        />
+                                    <div className="space-y-1">
+                                      <Controller
+                                        name={`colorVariants.${index}.stocks.${sIdx}.size`}
+                                        control={control}
+                                        render={({ field }) => (
+                                          <SearchableSelect
+                                            options={availableSizes ? availableSizes.map(sizeVal => ({ value: sizeVal, label: sizeVal })) : []}
+                                            placeholder="Ölçü"
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                            allowCustomValue={true}
+                                            className="min-h-[40px]! h-10!"
+                                            error={!!(errors.colorVariants?.[index]?.stocks as any)?.[sIdx]?.size}
+                                          />
+                                        )}
+                                      />
+                                      {(errors.colorVariants?.[index]?.stocks as any)?.[sIdx]?.size && (
+                                        <p className="text-[10px] text-error-500 font-medium">{(errors.colorVariants?.[index]?.stocks as any)[sIdx]?.size?.message}</p>
                                       )}
-                                    />
-                                  </div>
+                                    </div>
 
                                   <div className="w-16">
                                     <div className="relative">
