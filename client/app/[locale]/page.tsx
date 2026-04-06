@@ -69,17 +69,11 @@ export default function Home() {
     if (!apiProducts.length) return Array.from({ length: 8 });
 
     return apiProducts.map((p: ApiProduct) => ({
-      id: p.id,
+      ...p,
       title: p.name,
       price: Number(p.price),
       image: p.images?.[0] || p.banner || "",
-      brand: p.tags?.[0] || "Brand",
       category: p.category?.name.toLowerCase() || "women",
-      priceHistory: p.priceHistory,
-      discount: p.discount,
-      valuationPrice: p.valuationPrice,
-      variants: p.variants,
-      tags: p.tags
     }));
   }, [apiProducts]);
 
