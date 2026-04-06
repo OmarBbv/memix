@@ -1042,16 +1042,20 @@ export class ProductsService {
           bcid: 'code128',
           text: barcodeText,
           scale: 2,
-          height: 6,
+          height: 10,
           includetext: false,
         });
 
-        const barcodeImageWidth = 80;
-        doc.image(barcodeBuffer, leftMargin, currentY, { width: barcodeImageWidth });
+        const barcodeImageWidth = 100;
+        const barcodeHeight = 15;
+        doc.image(barcodeBuffer, leftMargin, currentY, { 
+          width: barcodeImageWidth,
+          height: barcodeHeight 
+        });
 
-        doc.fontSize(6).font('Helvetica').text(`[ ${barcodeText} ]`, leftMargin, currentY + 14, {
-          width: contentWidth,
-          align: 'left'
+        doc.fontSize(7).font('Helvetica').text(`[ ${barcodeText} ]`, leftMargin, currentY + barcodeHeight + 2, {
+          width: barcodeImageWidth,
+          align: 'center'
         });
       } catch (err) {
         console.error('Barcode generation failed', err);
