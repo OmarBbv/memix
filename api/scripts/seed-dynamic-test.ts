@@ -79,7 +79,7 @@ async function seed() {
 
   const parentSubMappings: Record<string, string[]> = {
     'ayaqqabi': ['İdman ayaqqabısı', 'Klassik ayaqqabı', 'Botlar'],
-    'futbolka': ['Polo Futbolka', 'V-yaxa Futbolka', 'Printli Futbolka'],
+    'T-shirt': ['Polo T-shirt', 'V-yaxa T-shirt', 'Printli T-shirt'],
     'salvar': ['Cins Şalvar', 'Klassik Şalvar', 'Kargo Şalvar'],
     'canta': ['Sırt çantası', 'Əl çantası', 'Cüzdanlar'],
   };
