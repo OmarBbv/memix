@@ -196,7 +196,7 @@ export const Card = ({ className, index = 0, category, product: propProduct, sho
 
             {valuationPrice && (
               <div className="flex items-center gap-1 mt-1 px-1.5 py-0.5 bg-amber-50/50 rounded border border-amber-100/50 w-fit">
-                <span className="text-[9px] sm:text-[10px] text-zinc-500 font-medium whitespace-nowrap">Orijinal:</span>
+                <span className="text-[9px] sm:text-[10px] text-zinc-500 font-medium whitespace-nowrap">Ilkin qiymət:</span>
                 <span className="text-[10px] sm:text-xs font-semibold text-zinc-600 decoration-zinc-400/50 line-through whitespace-nowrap">
                   {Number(valuationPrice).toFixed(2)} ₼
                 </span>
