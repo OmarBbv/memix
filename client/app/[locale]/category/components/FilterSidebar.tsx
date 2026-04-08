@@ -248,7 +248,7 @@ const PriceFilter = ({ priceRange, valueMin, valueMax, onChange }: PriceFilterPr
             onKeyDown={handleMinKeyDown}
             min={priceRange.min}
             max={sliderMax - 1}
-            className="w-full h-10 px-3 text-sm border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#10b981] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            className="w-full h-10 px-3 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#10b981] focus:ring-1 focus:ring-inset focus:ring-[#10b981] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             placeholder="Min"
           />
           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">₼</span>
@@ -263,7 +263,7 @@ const PriceFilter = ({ priceRange, valueMin, valueMax, onChange }: PriceFilterPr
             onKeyDown={handleMaxKeyDown}
             min={sliderMin + 1}
             max={priceRange.max}
-            className="w-full h-10 px-3 text-sm border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#10b981] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            className="w-full h-10 px-3 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#10b981] focus:ring-1 focus:ring-inset focus:ring-[#10b981] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             placeholder="Max"
           />
           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">₼</span>
@@ -322,7 +322,7 @@ const FilterGroup = ({ filter, selectedValues, onFilterChange }: FilterGroupProp
                 placeholder={`${filter.name} axtar...`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-9 pl-9 pr-3 text-sm border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#10b981]"
+                className="w-full h-9 pl-9 pr-3 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#10b981] focus:ring-1 focus:ring-inset focus:ring-[#10b981]"
               />
               {searchQuery && (
                 <button 

@@ -1028,7 +1028,7 @@ export class ProductsService {
       const nameHeight = doc.heightOfString(displayName, { width: contentWidth, align: 'left' });
       currentY += Math.max(nameHeight, 9) + 1;
 
-      doc.fontSize(7).font('Roboto').text(`SKU: ${product.sku || 'N/A'}`, leftMargin, currentY, {
+      doc.fontSize(7).font('Roboto-Bold').text(`SKU: ${product.sku || 'N/A'}`, leftMargin, currentY, {
         width: contentWidth,
         align: 'left'
       });
@@ -1061,7 +1061,7 @@ export class ProductsService {
           height: barcodeHeight
         });
 
-        doc.fontSize(7).font('Roboto').text(`[ ${barcodeText} ]`, barcodeX, currentY + barcodeHeight + 2, {
+        doc.fontSize(7).font('Roboto-Bold').text(`[ ${barcodeText} ]`, barcodeX, currentY + barcodeHeight + 2, {
           width: barcodeImageWidth,
           align: 'left'
         });
