@@ -1,6 +1,7 @@
 'use client';
 
-import { use, useMemo, useCallback, useState } from 'react';
+import { use, useMemo, useCallback, useState, useEffect } from 'react';
+import { useInView } from 'react-intersection-observer';
 import Link from 'next/link';
 import { Card } from '@/components/shared/Card';
 import { Button } from '@/components/ui/button';
@@ -66,6 +67,17 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
     const category = infiniteData?.pages[0];
     const isFiltering = isFetching && !isLoading && !isFetchingNextPage;
     const { data: filtersData } = useCategoryFilters(category?.id as number);
+
+    const { ref: loadMoreRef, inView } = useInView({
+        threshold: 0,
+        rootMargin: '200px',
+    });
+
+    useEffect(() => {
+        if (inView && hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+        }
+    }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
     const buildUrlParams = useCallback((filters: Record<string, string[]>, priceMin?: number, priceMax?: number) => {
         const params = new URLSearchParams();
@@ -361,27 +373,28 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                                     )}
                                 </div>
 
-                                {hasNextPage && (
-                                    <div className="mt-12 flex flex-col items-center gap-4">
+                                <div ref={loadMoreRef} className="mt-12 flex flex-col items-center gap-4 pb-8">
+                                    {products.length > 0 && products.length < totalProducts && (
                                         <p className="text-sm text-gray-500">
                                             {products.length} / {totalProducts} məhsul göstərilir
                                         </p>
+                                    )}
+                                    {isFetchingNextPage ? (
+                                        <div className="flex items-center gap-2">
+                                            <Loading /> Yüklənir...
+                                        </div>
+                                    ) : hasNextPage ? (
                                         <Button
                                             variant="outline"
                                             className="px-8 border-gray-300 h-12 rounded-xl"
                                             onClick={() => fetchNextPage()}
-                                            disabled={isFetchingNextPage}
                                         >
-                                            {isFetchingNextPage ? (
-                                                <div className="flex items-center gap-2">
-                                                    <Loading /> Yüklənir...
-                                                </div>
-                                            ) : (
-                                                'Daha çox göstər'
-                                            )}
+                                            Daha çox göstər
                                         </Button>
-                                    </div>
-                                )}
+                                    ) : products.length > 0 ? (
+                                        <p className="text-sm text-gray-400">Bütün məhsullar göstərildi</p>
+                                    ) : null}
+                                </div>
                             </div>
                         </div>
                     </div>

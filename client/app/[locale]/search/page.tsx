@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, useCallback, useRef, useEffect } from 'react';
+import { useMemo, useCallback, useEffect } from 'react';
+import { useInView } from 'react-intersection-observer';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { Card } from '@/components/shared/Card';
 import { Button } from '@/components/ui/button';
@@ -28,7 +29,6 @@ export default function SearchPage() {
   const pathname = usePathname();
 
   const query = searchParams.get('q') || '';
-  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   const selectedFilters = useMemo(() => {
     const filters: Record<string, string[]> = {};
@@ -93,23 +93,16 @@ export default function SearchPage() {
   const totalProducts = data?.pages[0]?.meta?.total ?? 0;
 
   // Infinite Scroll Observer
-  const handleObserver = useCallback(
-    (entries: IntersectionObserverEntry[]) => {
-      const [entry] = entries;
-      if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
-        fetchNextPage();
-      }
-    },
-    [hasNextPage, isFetchingNextPage, fetchNextPage]
-  );
+  const { ref: loadMoreRef, inView } = useInView({
+    threshold: 0,
+    rootMargin: '200px',
+  });
 
   useEffect(() => {
-    const element = loadMoreRef.current;
-    if (!element) return;
-    const observer = new IntersectionObserver(handleObserver, { threshold: 0, rootMargin: '200px' });
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [handleObserver]);
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // URL State Güncelleyici fonksiyonlar
   const buildUrlParams = useCallback((filters: Record<string, string[]>, priceMin?: number, priceMax?: number) => {

@@ -19,10 +19,10 @@ export class SharpStorage {
     const outStream = fs.createWriteStream(finalPath);
     const transform = sharp()
       .resize(1200, 1200, {
-        fit: 'inside',            // nisbəti qoruyur, kəsmir
-        withoutEnlargement: true  // kiçik şəkilləri böyütmür
+        fit: 'inside',
+        withoutEnlargement: true
       })
-      .webp({ quality: 80 });
+      .webp({ quality: 70 });
 
     transform.on('error', (err) => cb(err));
     outStream.on('error', (err) => cb(err));

@@ -22,6 +22,7 @@ import { SizeType } from "../../types/category";
 import QuickCreateBrandModal from "../../components/brands/QuickCreateBrandModal";
 import productService from "../../services/productService";
 import { getCategoryPath } from "../../utils/categoryHelpers";
+import VariantImageUpload from "../../components/form/VariantImageUpload";
 
 export default function AddProduct() {
   const navigate = useNavigate();
@@ -109,11 +110,16 @@ export default function AddProduct() {
 
 
   const onError = (errors: any) => {
-    console.log("Validation Errors:", errors);
+    console.log("❌ Validation Errors:", errors);
+    // Hansı sahələrdə xəta olduğunu daha aydın görmək üçün sahələri tək-tək log edirik
+    Object.keys(errors).forEach((key) => {
+      console.log(`Field: ${key}, Error:`, errors[key]);
+    });
     toast.error("Zəhmət olmasa bütün mütləq sahələri (Ad, Qiymət, Kateqoriya, Rəng, Ölçü və s.) düzgün doldurun.");
   };
 
   const onSubmit = (data: ProductFormValues) => {
+    console.log("✅ Submitting Data:", data);
     const formData = new FormData();
 
     formData.append("name", data.name);
@@ -517,51 +523,12 @@ export default function AddProduct() {
                                 name={`colorVariants.${index}.imageFiles`}
                                 control={control}
                                 render={({ field }) => (
-                                  <div className="flex flex-wrap gap-4">
-                                    {(field.value || []).map((file: File, fileIdx: number) => (
-                                      <div key={fileIdx} className="group relative h-28 w-28 overflow-hidden rounded-2xl border border-gray-100 shadow-sm transition-transform hover:scale-105 dark:border-gray-800">
-                                        <img
-                                          src={URL.createObjectURL(file)}
-                                          className="h-full w-full object-cover"
-                                          alt="variant"
-                                        />
-                                        <button
-                                          type="button"
-                                          onClick={() => {
-                                            const newFiles = [...field.value];
-                                            newFiles.splice(fileIdx, 1);
-                                            field.onChange(newFiles);
-                                          }}
-                                          className="absolute inset-0 flex items-center justify-center bg-black/60 text-white opacity-0 transition-opacity group-hover:opacity-100"
-                                        >
-                                          <TrashBinIcon className="size-6" />
-                                        </button>
-                                      </div>
-                                    ))}
-                                    {(field.value || []).length < 20 && (
-                                      <label className="flex h-28 w-28 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-100 bg-gray-50 text-gray-400 transition-all hover:border-brand-500 hover:bg-brand-50/10 hover:text-brand-500 dark:border-gray-800 dark:bg-gray-800/50">
-                                        <PlusIcon className="size-8" />
-                                        <span className="mt-2 text-[10px] font-black uppercase tracking-tighter">Şəkil Əlavə Et</span>
-                                        <input
-                                          type="file"
-                                          multiple
-                                          accept="image/*"
-                                          className="hidden"
-                                          onChange={(e) => {
-                                            const selectedFiles = Array.from(e.target.files || []);
-                                            const currentFiles = field.value || [];
-                                            if (currentFiles.length + selectedFiles.length > 20) {
-                                              const canTake = 20 - currentFiles.length;
-                                              if (canTake > 0) field.onChange([...currentFiles, ...selectedFiles.slice(0, canTake)]);
-                                            } else {
-                                              field.onChange([...currentFiles, ...selectedFiles]);
-                                            }
-                                            e.target.value = '';
-                                          }}
-                                        />
-                                      </label>
-                                    )}
-                                  </div>
+                                  <VariantImageUpload
+                                    value={field.value || []}
+                                    onChange={field.onChange}
+                                    maxFiles={20}
+                                    currentTotal={(field.value || []).length}
+                                  />
                                 )}
                               />
                             </div>
