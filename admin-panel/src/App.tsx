@@ -9,6 +9,8 @@ import SignUp from "./pages/AuthPages/SignUp";
 import NotFound from "./pages/OtherPage/NotFound";
 import UserProfiles from "./pages/UserProfiles";
 import Users from "./pages/Users";
+import Roles from "./pages/Roles";
+import RoleForm from "./pages/Roles/RoleForm";
 import Videos from "./pages/UiElements/Videos";
 import Images from "./pages/UiElements/Images";
 import Alerts from "./pages/UiElements/Alerts";
@@ -28,7 +30,6 @@ import CreateCampaign from "./pages/Marketing/Campaigns/CreateCampaign";
 import Discounts from "./pages/Marketing/Discounts";
 import LineChart from "./pages/Charts/LineChart";
 import BarChart from "./pages/Charts/BarChart";
-import Calendar from "./pages/Calendar";
 import BasicTables from "./pages/Tables/BasicTables";
 import FormElements from "./pages/Forms/FormElements";
 import Blank from "./pages/Blank";
@@ -36,10 +37,13 @@ import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import RoleRoute from "./components/auth/RoleRoute";
 import Orders from "./pages/Orders";
 import WarehouseLogs from "./pages/WarehouseLogs";
 import CreateWarehouseLog from "./pages/WarehouseLogs/CreateWarehouseLog";
 import PendingDiscounts from "./pages/PendingDiscounts";
+import UserForm from "./pages/Users/UserForm";
+import Unauthorized from "./pages/OtherPage/Unauthorized";
 
 export default function App() {
   return (
@@ -78,42 +82,72 @@ export default function App() {
             <Route element={<AppLayout />}>
               <Route index path="/" element={<Home />} />
 
-              {/* E-commerce Routes */}
-              <Route path="/products" element={<Products />} />
-              <Route path="/products/create" element={<AddProduct />} />
-              <Route path="/products/edit/:id" element={<EditProduct />} />
-              <Route path="/categories" element={<Categories />} />
-              <Route path="/categories/create" element={<CategoryForm />} />
-              <Route path="/categories/edit/:id" element={<CategoryForm />} />
-              <Route path="/orders" element={<Orders />} />
-              <Route path="/orders/returns" element={<PlaceholderPage title="Geri Qaytarılanlar" />} />
-              <Route path="/users" element={<Users />} />
-              <Route path="/warehouse-logs" element={<WarehouseLogs />} />
-              <Route path="/warehouse-logs/create" element={<CreateWarehouseLog />} />
+              {/* Products — view:products icazəsi */}
+              <Route element={<RoleRoute requiredPermissions={['view:products']} />}>
+                <Route path="/products" element={<Products />} />
+                <Route path="/products/create" element={<AddProduct />} />
+                <Route path="/products/edit/:id" element={<EditProduct />} />
+                <Route path="/categories" element={<Categories />} />
+                <Route path="/categories/create" element={<CategoryForm />} />
+                <Route path="/categories/edit/:id" element={<CategoryForm />} />
+              </Route>
 
-              {/* Marketing Routes */}
-              <Route path="/marketing/banners" element={<Banners />} />
-              <Route path="/marketing/banners/create" element={<CreateBanner />} />
-              <Route path="/marketing/banners/edit/:id" element={<CreateBanner />} />
-              <Route path="/marketing/coupons" element={<Coupons />} />
-              <Route path="/marketing/coupons/create" element={<CreateCoupon />} />
-              <Route path="/marketing/coupons/edit/:id" element={<CreateCoupon />} />
-              <Route path="/marketing/brands" element={<Brands />} />
-              <Route path="/marketing/brands/create" element={<CreateBrand />} />
-              <Route path="/marketing/brands/edit/:id" element={<CreateBrand />} />
-              <Route path="/marketing/campaigns" element={<Campaigns />} />
-              <Route path="/marketing/campaigns/create" element={<CreateCampaign />} />
-              <Route path="/marketing/campaigns/edit/:id" element={<CreateCampaign />} />
-              <Route path="/marketing/discounts" element={<Discounts />} />
-              <Route path="/marketing/pending-discounts" element={<PendingDiscounts />} />
+              {/* Orders — view:orders icazəsi */}
+              <Route element={<RoleRoute requiredPermissions={['view:orders']} />}>
+                <Route path="/orders" element={<Orders />} />
+                <Route path="/orders/returns" element={<PlaceholderPage title="Geri Qaytarılanlar" />} />
+              </Route>
 
-              {/* Other Routes */}
-              <Route path="/analytics" element={<PlaceholderPage title="Statistika" />} />
-              <Route path="/settings" element={<PlaceholderPage title="Tənzimləmələr" />} />
+              {/* Warehouse — view:warehouse icazəsi */}
+              <Route element={<RoleRoute requiredPermissions={['view:warehouse']} />}>
+                <Route path="/warehouse-logs" element={<WarehouseLogs />} />
+                <Route path="/warehouse-logs/create" element={<CreateWarehouseLog />} />
+              </Route>
 
-              {/* Original Routes (kept for reference or moved) */}
+              {/* Users & Roles — view:users icazəsi */}
+              <Route element={<RoleRoute requiredPermissions={['view:users']} />}>
+                <Route path="/users" element={<Users />} />
+                <Route path="/users/create" element={<UserForm />} />
+                <Route path="/users/edit/:id" element={<UserForm />} />
+              </Route>
+
+              {/* Roles management — manage:roles icazəsi */}
+              <Route element={<RoleRoute requiredPermissions={['manage:roles']} />}>
+                <Route path="/roles" element={<Roles />} />
+                <Route path="/roles/create" element={<RoleForm />} />
+                <Route path="/roles/edit/:id" element={<RoleForm />} />
+              </Route>
+
+              {/* Marketing — view:marketing icazəsi */}
+              <Route element={<RoleRoute requiredPermissions={['view:marketing']} />}>
+                <Route path="/marketing/banners" element={<Banners />} />
+                <Route path="/marketing/banners/create" element={<CreateBanner />} />
+                <Route path="/marketing/banners/edit/:id" element={<CreateBanner />} />
+                <Route path="/marketing/coupons" element={<Coupons />} />
+                <Route path="/marketing/coupons/create" element={<CreateCoupon />} />
+                <Route path="/marketing/coupons/edit/:id" element={<CreateCoupon />} />
+                <Route path="/marketing/brands" element={<Brands />} />
+                <Route path="/marketing/brands/create" element={<CreateBrand />} />
+                <Route path="/marketing/brands/edit/:id" element={<CreateBrand />} />
+                <Route path="/marketing/campaigns" element={<Campaigns />} />
+                <Route path="/marketing/campaigns/create" element={<CreateCampaign />} />
+                <Route path="/marketing/campaigns/edit/:id" element={<CreateCampaign />} />
+                <Route path="/marketing/discounts" element={<Discounts />} />
+                <Route path="/marketing/pending-discounts" element={<PendingDiscounts />} />
+              </Route>
+
+              {/* Analytics & Settings */}
+              <Route element={<RoleRoute requiredPermissions={['view:analytics']} />}>
+                <Route path="/analytics" element={<PlaceholderPage title="Statistika" />} />
+              </Route>
+              <Route element={<RoleRoute requiredPermissions={['view:settings']} />}>
+                <Route path="/settings" element={<PlaceholderPage title="Tənzimləmələr" />} />
+              </Route>
+
+              {/* Always accessible routes */}
+              <Route path="/unauthorized" element={<Unauthorized />} />
               <Route path="/profile" element={<UserProfiles />} />
-              <Route path="/calendar" element={<Calendar />} />
+
               <Route path="/blank" element={<Blank />} />
 
               {/* Forms */}

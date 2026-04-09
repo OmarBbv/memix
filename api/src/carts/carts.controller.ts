@@ -12,7 +12,7 @@ import { CartsService } from './carts.service';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { UserRole } from '../users/entities/user.entity';
+import { UserType } from '../users/entities/user.entity';
 
 @Controller('carts')
 @UseGuards(AuthGuard('jwt'))
@@ -50,7 +50,7 @@ export class CartsController {
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserType.ADMIN)
   @Delete('admin/clear/:userId')
   adminClearCart(@Param('userId') userId: string) {
     return this.cartsService.clearCart(+userId);

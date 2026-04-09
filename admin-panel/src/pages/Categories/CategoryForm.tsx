@@ -15,6 +15,18 @@ import Input from "../../components/form/input/InputField";
 import Button from "../../components/ui/button/Button";
 import { ChevronLeftIcon } from "../../icons";
 
+const getCategoryPath = (catId: number, categories: any[], visited = new Set<number>()): string => {
+  if (visited.has(catId)) return "";
+  visited.add(catId);
+  const cat = categories.find((c) => c.id === catId);
+  if (!cat) return "";
+  if (cat.parentId) {
+    const parentPath = getCategoryPath(cat.parentId, categories, visited);
+    return parentPath ? `${parentPath} > ${cat.name}` : cat.name;
+  }
+  return cat.name;
+};
+
 export default function CategoryFormPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -162,7 +174,7 @@ export default function CategoryFormPage() {
                         allCategories
                           ?.filter((cat) => cat.id !== Number(id))
                           .map((cat) => ({
-                            label: cat.name,
+                            label: getCategoryPath(cat.id, allCategories),
                             value: cat.id,
                           })) || []
                       }
@@ -193,21 +205,21 @@ export default function CategoryFormPage() {
                       onChange={(val) => {
                         const strVal = val ? val.toString() : "";
                         const isExisting = sizeTypes?.some(st => st.slug === strVal) || strVal === "";
-                        
+
                         if (!isExisting && strVal !== "") {
-                           const loadingToast = toast.loading("Yeni ölçü tipi yaradılır...");
-                           createSizeTypeMutation.mutate({ name: strVal }, {
-                             onSuccess: (newSize) => {
-                               toast.success("Ölçü tipi yaradıldı!", { id: loadingToast });
-                               field.onChange(newSize.slug);
-                             },
-                             onError: () => {
-                               toast.error("Ölçü tipi yaradılarkən xəta baş verdi", { id: loadingToast });
-                               field.onChange("");
-                             }
-                           });
+                          const loadingToast = toast.loading("Yeni ölçü tipi yaradılır...");
+                          createSizeTypeMutation.mutate({ name: strVal }, {
+                            onSuccess: (newSize) => {
+                              toast.success("Ölçü tipi yaradıldı!", { id: loadingToast });
+                              field.onChange(newSize.slug);
+                            },
+                            onError: () => {
+                              toast.error("Ölçü tipi yaradılarkən xəta baş verdi", { id: loadingToast });
+                              field.onChange("");
+                            }
+                          });
                         } else {
-                           field.onChange(val);
+                          field.onChange(val);
                         }
                       }}
                       error={!!errors.sizeType}

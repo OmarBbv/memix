@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { Link } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "../../icons";
+import { EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
@@ -36,7 +35,7 @@ export default function SignInForm() {
 
   return (
     <div className="flex flex-col flex-1">
-      <div className="w-full max-w-md pt-10 mx-auto">
+      {/* <div className="w-full max-w-md pt-10 mx-auto">
         <Link
           to="/"
           className="inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
@@ -44,7 +43,7 @@ export default function SignInForm() {
           <ChevronLeftIcon className="size-5" />
           Dashboard-a qayıt
         </Link>
-      </div>
+      </div> */}
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
         <div>
           <div className="mb-5 sm:mb-8 text-center">
@@ -103,10 +102,15 @@ export default function SignInForm() {
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <Checkbox checked={isChecked} onChange={setIsChecked} />
-                    <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
+                    <Checkbox checked={isChecked} onChange={setIsChecked}
+                      id="remember"
+                    />
+                    <label
+                      htmlFor="remember"
+                      className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400 cursor-pointer select-none"
+                    >
                       Məni yadda saxla
-                    </span>
+                    </label>
                   </div>
                 </div>
                 <div>

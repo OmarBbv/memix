@@ -17,9 +17,8 @@ import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { UserRole } from '../users/entities/user.entity';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { multerConfig } from '../common/utils/multer.config';
 
@@ -27,8 +26,8 @@ import { multerConfig } from '../common/utils/multer.config';
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
+  @RequirePermissions('create:products')
   @Post()
   @UseInterceptors(AnyFilesInterceptor(multerConfig))
   create(
@@ -43,8 +42,8 @@ export class ProductsController {
     return this.productsService.findAll(query);
   }
 
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
+  @RequirePermissions('view:products')
   @Get('admin')
   findAllAdmin(@Query() query: any) {
     return this.productsService.findAllAdmin(query);
@@ -83,8 +82,8 @@ export class ProductsController {
     }
   }
 
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
+  @RequirePermissions('view:products')
   @Get('stats')
   getGlobalStats() {
     return this.productsService.getGlobalStats();
@@ -121,8 +120,8 @@ export class ProductsController {
     return this.productsService.update(+id, updateProductDto, files);
   }
 
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
+  @RequirePermissions('delete:products')
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.productsService.remove(+id);

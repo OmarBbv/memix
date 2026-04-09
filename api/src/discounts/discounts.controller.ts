@@ -13,9 +13,8 @@ import { AutoDiscountService } from './auto-discount.service';
 import { CreateDiscountDto } from './dto/create-discount.dto';
 import { UpdateDiscountDto } from './dto/update-discount.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { UserRole } from '../users/entities/user.entity';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 
 @Controller('discounts')
 export class DiscountsController {
@@ -38,8 +37,8 @@ export class DiscountsController {
    * Admin paneldə təsdiq gözləyən endirimləri listələyir.
    * Yalnız "new" listingType — 60/90 gün keçmiş məhsullar.
    */
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
+  @RequirePermissions('view:marketing')
   @Get('pending')
   getPendingDiscounts() {
     return this.autoDiscountService.getPendingDiscounts();
@@ -48,8 +47,8 @@ export class DiscountsController {
   /**
    * Cron job-u manual trigger etmək üçün (test / dev mode).
    */
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
+  @RequirePermissions('view:marketing')
   @Post('trigger-auto')
   triggerAutoDiscounts() {
     return this.autoDiscountService.handleAutoDiscounts();
@@ -59,8 +58,8 @@ export class DiscountsController {
    * Admin tərəfindən toplu təsdiq.
    * Body: { productIds: number[] }
    */
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
+  @RequirePermissions('view:marketing')
   @Post('approve-bulk')
   approveBulkDiscounts(@Body() body: { productIds: number[] }) {
     return this.autoDiscountService.approveBulkDiscounts(body.productIds);

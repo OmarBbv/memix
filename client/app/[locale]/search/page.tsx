@@ -168,10 +168,10 @@ export default function SearchPage() {
     id: key,
     name: getFilterName(key),
     options: (options as string[]).map(opt => {
-        if (key === 'listingType') {
-            return { value: opt, label: getOptionLabel(key, opt) };
-        }
-        return opt;
+      if (key === 'listingType') {
+        return { value: opt, label: getOptionLabel(key, opt) };
+      }
+      return opt;
     })
   })) : [];
 

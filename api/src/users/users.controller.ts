@@ -11,10 +11,11 @@ import {
   Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { CreateUserDto } from './dto/create-user.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { User, UserRole } from './entities/user.entity';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermissions } from '../auth/decorators/permissions.decorator';
+import { User, UserType } from './entities/user.entity';
 import type { AuthenticatedRequest } from '../common/interfaces/request.interface';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateAddressDto } from './dto/create-address.dto';
@@ -32,7 +33,7 @@ export class UsersController {
   @UseGuards(AuthGuard('jwt'))
   @Get('profile')
   getProfile(@Request() req: AuthenticatedRequest): Promise<User> {
-    return this.usersService.findOne(req.user.userId);
+    return this.usersService.findOneWithRole(req.user.id);
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -41,7 +42,7 @@ export class UsersController {
     @Request() req: AuthenticatedRequest,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<User> {
-    return this.usersService.update(req.user.userId, updateUserDto);
+    return this.usersService.update(req.user.id, updateUserDto);
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -50,13 +51,13 @@ export class UsersController {
     @Request() req: AuthenticatedRequest,
     @Body() createAddressDto: CreateAddressDto,
   ): Promise<Address> {
-    return this.addressesService.create(req.user.userId, createAddressDto);
+    return this.addressesService.create(req.user.id, createAddressDto);
   }
 
   @UseGuards(AuthGuard('jwt'))
   @Get('addresses')
   findAllAddresses(@Request() req: AuthenticatedRequest): Promise<Address[]> {
-    return this.addressesService.findAll(req.user.userId);
+    return this.addressesService.findAll(req.user.id);
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -65,7 +66,7 @@ export class UsersController {
     @Request() req: AuthenticatedRequest,
     @Param('id') id: string,
   ): Promise<Address> {
-    return this.addressesService.findOne(+id, req.user.userId);
+    return this.addressesService.findOne(+id, req.user.id);
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -75,7 +76,7 @@ export class UsersController {
     @Param('id') id: string,
     @Body() updateAddressDto: UpdateAddressDto,
   ): Promise<Address> {
-    return this.addressesService.update(+id, req.user.userId, updateAddressDto);
+    return this.addressesService.update(+id, req.user.id, updateAddressDto);
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -84,11 +85,11 @@ export class UsersController {
     @Request() req: AuthenticatedRequest,
     @Param('id') id: string,
   ): Promise<void> {
-    return this.addressesService.remove(+id, req.user.userId);
+    return this.addressesService.remove(+id, req.user.id);
   }
 
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
+  @RequirePermissions('view:users')
   @Get()
   async findAll(
     @Request() req: AuthenticatedRequest,
@@ -96,25 +97,61 @@ export class UsersController {
     @Query('limit') limit?: string,
     @Query('search') search?: string,
   ) {
+    console.log('UsersController.findAll - req.user:', req.user);
     return this.usersService.findAll(
-      req.user.userId,
+      req.user?.id,
       page ? parseInt(page, 10) : 1,
       limit ? parseInt(limit, 10) : 10,
       search,
     );
   }
 
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
+  @RequirePermissions('edit:users')
   @Patch(':id/toggle-status')
   async toggleStatus(@Param('id') id: string): Promise<User> {
     return this.usersService.toggleStatus(+id);
   }
 
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
+  @RequirePermissions('edit:users')
+  @Patch(':id/admin-update')
+  async adminUpdate(
+    @Param('id') id: string,
+    @Body() body: { name?: string; surname?: string; email?: string; roleId?: number },
+  ): Promise<User> {
+    return this.usersService.adminUpdate(+id, body);
+  }
+
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
+  @RequirePermissions('view:users')
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<User | null> {
     return this.usersService.findOne(+id);
+  }
+
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
+  @RequirePermissions('delete:users')
+  @Delete(':id')
+  async remove(@Param('id') id: string): Promise<void> {
+    return this.usersService.remove(+id);
+  }
+
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
+  @RequirePermissions('create:users')
+  @Post('employee')
+  async createEmployee(@Body() data: CreateUserDto & { roleId: number }): Promise<User> {
+    const { roleId, ...userDetail } = data;
+    const user = await this.usersService.create({
+      ...userDetail,
+      userType: UserType.EMPLOYEE,
+    });
+    
+    if (roleId) {
+      // In a real scenario, you might want to join the role in the service or use a different method
+      // For now, let's assume we can update the user with the role
+      return this.usersService.assignRole(user.id, roleId);
+    }
+    return user;
   }
 }

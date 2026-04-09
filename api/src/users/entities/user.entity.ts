@@ -4,15 +4,19 @@ import {
   PrimaryGeneratedColumn,
   OneToMany,
   OneToOne,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { Address } from './address.entity';
 import { Order } from '../../orders/entities/order.entity';
 import { Cart } from '../../carts/entities/cart.entity';
 import { Card } from '../../cards/entities/card.entity';
+import { Role } from '../../roles/entities/role.entity';
 
-export enum UserRole {
+export enum UserType {
   ADMIN = 'admin',
-  USER = 'user',
+  EMPLOYEE = 'employee',
+  CUSTOMER = 'customer',
 }
 
 export enum UserGender {
@@ -52,8 +56,12 @@ export class User {
   @Column({ type: 'enum', enum: UserGender, nullable: true })
   gender: UserGender;
 
-  @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
-  role: UserRole;
+  @Column({ type: 'enum', enum: UserType, default: UserType.CUSTOMER })
+  userType: UserType;
+
+  @ManyToOne(() => Role, (role) => role.users, { nullable: true })
+  @JoinColumn({ name: 'roleId' })
+  role: Role;
 
   @Column({ default: true })
   isActive: boolean;

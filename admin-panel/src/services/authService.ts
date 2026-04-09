@@ -1,4 +1,5 @@
 import axiosInstance from "../api/axiosInstance";
+import { User } from "../types/user";
 
 export interface LoginResponse {
   access_token: string;
@@ -7,14 +8,6 @@ export interface LoginResponse {
 export interface LoginDto {
   email: string;
   password?: string;
-}
-
-export interface User {
-  id: number;
-  name: string;
-  surname: string;
-  email: string;
-  avatar?: string;
 }
 
 export interface IAuthService {

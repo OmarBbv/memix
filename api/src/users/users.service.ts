@@ -42,6 +42,17 @@ export class UsersService {
     return user;
   }
 
+  async findOneWithRole(id: number): Promise<User> {
+    const user = await this.usersRepository.findOne({
+      where: { id },
+      relations: ['role'],
+    });
+    if (!user) {
+      throw new NotFoundException(ErrorMessages.USER_NOT_FOUND);
+    }
+    return user;
+  }
+
   async findAll(
     currentUserId: number,
     page: number = 1,
@@ -56,7 +67,9 @@ export class UsersService {
   }> {
     const queryBuilder = this.usersRepository.createQueryBuilder('user');
 
-    queryBuilder.where('user.id != :currentUserId', { currentUserId });
+    if (currentUserId) {
+      queryBuilder.where('user.id != :currentUserId', { currentUserId });
+    }
 
     if (search) {
       queryBuilder.andWhere(
@@ -71,6 +84,7 @@ export class UsersService {
     queryBuilder.take(limit);
 
     const [data, total] = await queryBuilder.getManyAndCount();
+    console.log('UsersService.findAll:', { currentUserId, total, dataLength: data.length });
 
     return {
       data,
@@ -79,6 +93,14 @@ export class UsersService {
       limit,
       totalPages: Math.ceil(total / limit),
     };
+  }
+
+  async assignRole(userId: number, roleId: number): Promise<User> {
+    const user = await this.findOne(userId);
+    // We update the user with a partial object containing the roleId
+    // Directly assigning to the 'role' property with an object containing id works in TypeORM
+    user.role = { id: roleId } as any;
+    return this.usersRepository.save(user);
   }
 
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
@@ -126,6 +148,31 @@ export class UsersService {
     const user = await this.findOne(id);
     user.isActive = !user.isActive;
     return this.usersRepository.save(user);
+  }
+
+  async adminUpdate(
+    id: number,
+    data: { name?: string; surname?: string; email?: string; roleId?: number },
+  ): Promise<User> {
+    const user = await this.findOne(id);
+    if (data.name !== undefined) user.name = data.name;
+    if (data.surname !== undefined) user.surname = data.surname;
+    if (data.email !== undefined) {
+      const existing = await this.findByEmail(data.email);
+      if (existing && existing.id !== id) {
+        throw new ConflictException(ErrorMessages.USER_ALREADY_EXISTS);
+      }
+      user.email = data.email;
+    }
+    if (data.roleId !== undefined) {
+      user.role = { id: data.roleId } as any;
+    }
+    return this.usersRepository.save(user);
+  }
+
+  async remove(id: number): Promise<void> {
+    const user = await this.findOne(id);
+    await this.usersRepository.remove(user);
   }
 
   async findByEmail(email: string): Promise<User | null> {

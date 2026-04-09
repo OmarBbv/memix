@@ -3,7 +3,7 @@ import { MailService } from './mail.service';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { UserRole } from '../users/entities/user.entity';
+import { UserType } from '../users/entities/user.entity';
 
 @Controller('mail')
 export class MailController {

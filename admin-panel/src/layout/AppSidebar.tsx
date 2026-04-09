@@ -15,11 +15,15 @@ import {
   BoxIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
+import { useMe } from "../hooks/useAuth";
+import { UserType } from "../types/user";
 
 type NavItem = {
   name: string;
   icon: React.ReactNode;
   path?: string;
+  /** Admin-only items have no permission (always shown to admin). Employee must have at least one of these permissions. */
+  permission?: string;
   subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
 };
 
@@ -28,10 +32,12 @@ const navItems: NavItem[] = [
     icon: <GridIcon />,
     name: "İdarə Paneli",
     path: "/",
+    permission: 'view:dashboard',
   },
   {
     icon: <BoxCubeIcon />,
     name: "Məhsullar",
+    permission: 'view:products',
     subItems: [
       { name: "Məhsul Siyahısı", path: "/products", pro: false },
       { name: "Kateqoriyalar", path: "/categories", pro: false },
@@ -40,6 +46,7 @@ const navItems: NavItem[] = [
   {
     icon: <ListIcon />,
     name: "Sifarişlər",
+    permission: 'view:orders',
     subItems: [
       { name: "Bütün Sifarişlər", path: "/orders", pro: false },
       { name: "Geri Qaytarılanlar", path: "/orders/returns", pro: false },
@@ -48,11 +55,16 @@ const navItems: NavItem[] = [
   {
     icon: <UserCircleIcon />,
     name: "İstifadəçilər",
-    path: "/users",
+    permission: 'view:users',
+    subItems: [
+      { name: "Bütün İstifadəçilər", path: "/users", pro: false },
+      { name: "Rollar və İcazələr", path: "/roles", pro: false },
+    ],
   },
   {
     icon: <ShootingStarIcon />,
     name: "Marketinq",
+    permission: 'view:marketing',
     subItems: [
       { name: "Bannerlər", path: "/marketing/banners", pro: false },
       { name: "Kuponlar", path: "/marketing/coupons", pro: false },
@@ -66,6 +78,7 @@ const navItems: NavItem[] = [
     icon: <BoxIcon />,
     name: "Anbar Qeydləri",
     path: "/warehouse-logs",
+    permission: 'view:warehouse',
   },
 ];
 
@@ -74,17 +87,29 @@ const othersItems: NavItem[] = [
     icon: <PieChartIcon />,
     name: "Statistika",
     path: "/analytics",
+    permission: 'view:analytics',
   },
   {
     icon: <PlugInIcon />,
     name: "Tənzimləmələr",
     path: "/settings",
+    permission: 'view:settings',
   },
 ];
 
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
+  const { data: user } = useMe();
+
+  const isAdmin = user?.userType === UserType.ADMIN;
+  const permissions: string[] = user?.role?.permissions ?? [];
+
+  const hasAccess = (item: NavItem): boolean => {
+    if (isAdmin) return true;                   // admin sees everything
+    if (!item.permission) return false;          // no permission key = hidden from employees
+    return permissions.includes(item.permission);
+  };
 
   const [openSubmenu, setOpenSubmenu] = useState<{
     type: "main" | "others";
@@ -286,7 +311,7 @@ const AppSidebar: React.FC = () => {
             <span className="font-semibold tracking-widest text-xl text-brand-500">Memix</span>
           ) : (
             <img
-              src="/images/logo/logo-icon.svg"
+              src="/admin/images/logo/logo-icon.svg"
               alt="Logo"
               width={32}
               height={32}
@@ -310,7 +335,7 @@ const AppSidebar: React.FC = () => {
                   <HorizontaLDots className="size-6" />
                 )}
               </h2>
-              {renderMenuItems(navItems, "main")}
+              {renderMenuItems(navItems.filter(hasAccess), "main")}
             </div>
             <div className="">
               <h2
@@ -325,7 +350,7 @@ const AppSidebar: React.FC = () => {
                   <HorizontaLDots />
                 )}
               </h2>
-              {renderMenuItems(othersItems, "others")}
+              {renderMenuItems(othersItems.filter(hasAccess), "others")}
             </div>
           </div>
         </nav>

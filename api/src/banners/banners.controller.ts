@@ -14,16 +14,15 @@ import { CreateBannerDto } from './dto/create-banner.dto';
 import { UpdateBannerDto } from './dto/update-banner.dto';
 import { BannerLocation } from './entities/banner.entity';
 import { AuthGuard } from '@nestjs/passport';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { UserRole } from '../users/entities/user.entity';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 
 @Controller('banners')
 export class BannersController {
   constructor(private readonly bannersService: BannersService) {}
 
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
+  @RequirePermissions('view:marketing')
   @Post()
   create(@Body() createBannerDto: CreateBannerDto) {
     return this.bannersService.create(createBannerDto);
@@ -39,15 +38,15 @@ export class BannersController {
     return this.bannersService.findOne(+id);
   }
 
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
+  @RequirePermissions('view:marketing')
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateBannerDto: UpdateBannerDto) {
     return this.bannersService.update(+id, updateBannerDto);
   }
 
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
+  @RequirePermissions('view:marketing')
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.bannersService.remove(+id);

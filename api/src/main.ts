@@ -27,10 +27,13 @@ async function bootstrap() {
       'http://en.localhost:3000',
       'http://ru.localhost:3000',
       'http://localhost:5173',
+      'http://localhost:5174',
+      'http://localhost:5175',
       'http://localhost:4000',
-      'http://93.180.133.166',
     ],
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   });
 
   await app.listen(port);

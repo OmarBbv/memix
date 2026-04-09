@@ -1,4 +1,4 @@
-import { User, UserRole } from "../../types/user";
+import { User, UserType } from "../../types/user";
 import {
   Table,
   TableBody,
@@ -7,9 +7,11 @@ import {
   TableRow,
 } from "../../components/ui/table";
 import Badge from "../../components/ui/badge/Badge";
-import { useToggleUserStatus, useClearUserCart } from "../../hooks/useUsers";
-import { LockIcon, TaskIcon, TrashBinIcon } from "../../icons";
+import { useToggleUserStatus, useDeleteUser } from "../../hooks/useUsers";
+import { LockIcon, TaskIcon, TrashBinIcon, PencilIcon } from "../../icons";
 import { Link } from "react-router";
+import { useState } from "react";
+import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 
 interface UserTableProps {
   users: User[];
@@ -17,7 +19,18 @@ interface UserTableProps {
 
 export default function UserTable({ users }: UserTableProps) {
   const toggleStatus = useToggleUserStatus();
-  const clearCart = useClearUserCart();
+  const deleteUser = useDeleteUser();
+
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+
+  const handleDeleteConfirm = () => {
+    if (selectedUserId !== null) {
+      deleteUser.mutate(selectedUserId);
+      setIsDeleteDialogOpen(false);
+      setSelectedUserId(null);
+    }
+  };
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/5 dark:bg-white/3">
@@ -103,9 +116,9 @@ export default function UserTable({ users }: UserTableProps) {
                 <TableCell className="px-5 py-4 text-start text-gray-500 text-theme-sm dark:text-gray-400">
                   <Badge
                     size="sm"
-                    color={user.role === UserRole.ADMIN ? "success" : "light"}
+                    color={user.userType === UserType.ADMIN ? "success" : user.userType === UserType.EMPLOYEE ? "warning" : "light"}
                   >
-                    {user.role === UserRole.ADMIN ? "Admin" : "İstifadəçi"}
+                    {user.userType === UserType.ADMIN ? "Admin" : user.userType === UserType.EMPLOYEE ? "İşçi" : "Müştəri"}
                   </Badge>
                 </TableCell>
                 <TableCell className="px-5 py-4 text-start text-gray-500 text-theme-sm dark:text-gray-400">
@@ -122,8 +135,8 @@ export default function UserTable({ users }: UserTableProps) {
                       onClick={() => toggleStatus.mutate(user.id)}
                       disabled={toggleStatus.isPending}
                       className={`p-1.5 rounded-lg border transition-colors ${user.isActive
-                          ? "text-red-500 border-red-100 hover:bg-red-50 dark:border-red-500/20 dark:hover:bg-red-500/10"
-                          : "text-green-500 border-green-100 hover:bg-green-50 dark:border-green-500/20 dark:hover:bg-green-500/10"
+                        ? "text-red-500 border-red-100 hover:bg-red-50 dark:border-red-500/20 dark:hover:bg-red-500/10"
+                        : "text-green-500 border-green-100 hover:bg-green-50 dark:border-green-500/20 dark:hover:bg-green-500/10"
                         }`}
                       title={user.isActive ? "Blokla" : "Blokdan çıxar"}
                     >
@@ -136,15 +149,21 @@ export default function UserTable({ users }: UserTableProps) {
                     >
                       <TaskIcon className="size-4" />
                     </Link>
+                    <Link
+                      to={`/users/edit/${user.id}`}
+                      className="p-1.5 rounded-lg border border-gray-100 text-brand-500 hover:bg-brand-50 hover:border-brand-100 transition-colors dark:border-gray-800 dark:hover:bg-brand-500/10"
+                      title="Redaktə et"
+                    >
+                      <PencilIcon className="size-4" />
+                    </Link>
                     <button
                       onClick={() => {
-                        if (window.confirm("Bu istifadəçinin səbətini təmizləmək istədiyinizə əminsiniz?")) {
-                          clearCart.mutate(user.id);
-                        }
+                        setSelectedUserId(user.id);
+                        setIsDeleteDialogOpen(true);
                       }}
-                      disabled={clearCart.isPending}
-                      className="p-1.5 rounded-lg border border-gray-100 text-gray-500 hover:bg-orange-50 hover:text-orange-500 transition-colors dark:border-gray-800 dark:hover:bg-orange-500/10"
-                      title="Səbəti Təmizlə"
+                      disabled={deleteUser.isPending}
+                      className="p-1.5 rounded-lg border border-gray-100 text-gray-500 hover:bg-red-50 hover:text-red-500 transition-colors dark:border-gray-800 dark:hover:bg-red-500/10"
+                      title="İstifadəçini Sil"
                     >
                       <TrashBinIcon className="size-4" />
                     </button>
@@ -155,6 +174,20 @@ export default function UserTable({ users }: UserTableProps) {
           </TableBody>
         </Table>
       </div>
+
+      <ConfirmDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => {
+          setIsDeleteDialogOpen(false);
+          setSelectedUserId(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        title="İstifadəçini Sil"
+        description="Bu istifadəçini silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz."
+        confirmLabel="Bəli, Sil"
+        cancelLabel="Ləğv et"
+        isDanger={true}
+      />
     </div>
   );
 }

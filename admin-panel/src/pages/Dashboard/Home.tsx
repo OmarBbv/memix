@@ -4,7 +4,7 @@ import RecentOrders from "../../components/ecommerce/RecentOrders";
 import TopSellingProducts from "../../components/ecommerce/TopSellingProducts";
 import PageMeta from "../../components/common/PageMeta";
 import OrderStatusChart from "../../components/dashboard/OrderStatusChart";
-import BranchPerformance from "../../components/dashboard/BranchPerformance";
+
 
 export default function Home() {
   return (
@@ -29,7 +29,7 @@ export default function Home() {
             <RecentOrders />
           </div>
           <div className="col-span-12 xl:col-span-4 flex flex-col gap-6">
-            <BranchPerformance />
+
             <TopSellingProducts />
           </div>
         </div>

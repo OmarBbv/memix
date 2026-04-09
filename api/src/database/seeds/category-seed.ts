@@ -86,6 +86,9 @@ const categoriesToSeed: CategorySeedData[] = [
           { name: 'T-shirt', skuPrefixUsed: 'F1-F', skuPrefixNew: 'CY3-F' },
           { name: 'Şalvar', skuPrefixUsed: 'G1-Ş', skuPrefixNew: 'AY3-Ş' },
           { name: 'Gödəkcə', skuPrefixUsed: 'D4-G', skuPrefixNew: 'CY2-G' },
+          { name: 'Şortik', skuPrefixUsed: 'D3-Ş', skuPrefixNew: 'BY1-Ş' },
+          { name: 'Pencək', skuPrefixUsed: 'C2-P', skuPrefixNew: 'CY2-P' },
+          { name: 'Dəri gödəkçə', skuPrefixUsed: 'C3-D', skuPrefixNew: 'CY3-D' },
         ]
       },
       {

@@ -8,13 +8,20 @@ import {
   Delete,
   ParseIntPipe,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { WarehouseLogsService } from './warehouse-logs.service';
 import { CreateWarehouseLogDto } from './dto/create-warehouse-log.dto';
 import { UpdateWarehouseLogDto } from './dto/update-warehouse-log.dto';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 
 @ApiTags('Warehouse Logs')
+@ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'), PermissionsGuard)
+@RequirePermissions('view:warehouse')
 @Controller('warehouse-logs')
 export class WarehouseLogsController {
   constructor(private readonly warehouseLogsService: WarehouseLogsService) {}

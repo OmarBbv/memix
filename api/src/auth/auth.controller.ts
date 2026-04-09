@@ -63,6 +63,6 @@ export class AuthController {
   @UseGuards(AuthGuard('jwt'))
   @Get('profile')
   async getProfile(@Request() req) {
-    return this.usersService.findOne(req.user.userId);
+    return req.user;
   }
 }

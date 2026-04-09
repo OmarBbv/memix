@@ -14,7 +14,7 @@ import { CreateReviewDto } from './dto/create-review.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { UserRole } from '../users/entities/user.entity';
+import { UserType } from '../users/entities/user.entity';
 
 @Controller('reviews')
 export class ReviewsController {
@@ -37,7 +37,7 @@ export class ReviewsController {
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserType.ADMIN)
   @Patch(':id/approve')
   approve(@Param('id') id: string) {
     return this.reviewsService.approve(+id);
@@ -46,7 +46,7 @@ export class ReviewsController {
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   remove(@Request() req: any, @Param('id') id: string) {
-    const isAdmin = req.user.role === UserRole.ADMIN;
+    const isAdmin = req.user.role === UserType.ADMIN;
     return this.reviewsService.remove(+id, req.user.id, isAdmin);
   }
 }

@@ -23,6 +23,7 @@ import QuickCreateBrandModal from "../../components/brands/QuickCreateBrandModal
 import productService from "../../services/productService";
 import { getCategoryPath } from "../../utils/categoryHelpers";
 import VariantImageUpload from "../../components/form/VariantImageUpload";
+import SortableExistingImages from "../../components/form/SortableExistingImages";
 
 export default function EditProduct() {
   const { id } = useParams();
@@ -543,24 +544,10 @@ export default function EditProduct() {
                                   name={`colorVariants.${index}.images`}
                                   control={control}
                                   render={({ field }) => (
-                                    <>
-                                      {(field.value || []).map((img: string, imgIdx: number) => (
-                                        <div key={imgIdx} className="group relative h-28 w-28 overflow-hidden rounded-2xl border border-gray-100 shadow-sm transition-transform hover:scale-105">
-                                          <img src={img} className="h-full w-full object-cover" alt="existing variant" />
-                                          <button
-                                            type="button"
-                                            onClick={() => {
-                                              const newImages = [...field.value];
-                                              newImages.splice(imgIdx, 1);
-                                              field.onChange(newImages);
-                                            }}
-                                            className="absolute inset-0 flex items-center justify-center bg-black/60 text-white opacity-0 transition-opacity group-hover:opacity-100"
-                                          >
-                                            <TrashBinIcon className="size-6" />
-                                          </button>
-                                        </div>
-                                      ))}
-                                    </>
+                                    <SortableExistingImages
+                                       images={field.value || []}
+                                       onChange={field.onChange}
+                                    />
                                   )}
                                 />
 

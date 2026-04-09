@@ -1,12 +1,15 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import { useUsers } from "../../hooks/useUsers";
 import UserTable from "./UserTable";
 import SearchInput from "../../components/common/SearchInput";
+import { PlusIcon } from "../../icons";
 import Button from "../../components/ui/button/Button";
 
 export default function Users() {
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const limit = 10;
@@ -44,6 +47,10 @@ export default function Users() {
               placeholder="İstifadəçi axtar (ad, email, id)..."
               className="w-full max-w-sm"
             />
+            <Button variant="primary" size="sm" onClick={() => navigate("/users/create")}>
+              <PlusIcon className="mr-2 size-4" />
+              Yeni İşçi
+            </Button>
           </div>
 
           {isLoading ? (
@@ -75,6 +82,8 @@ export default function Users() {
           )}
         </div>
       </div>
+
+
     </>
   );
 }

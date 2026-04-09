@@ -8,7 +8,7 @@ import { ArrowRight, Leaf, ShieldCheck, Sparkles, Zap, ChevronRight, Star, Trend
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay, EffectFade } from 'swiper/modules';
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useHomeCategories } from "@/hooks/useCategories";
 import { useNewArrivals } from "@/hooks/useProducts";
 import { Product as ApiProduct } from "@/services/product.service";
@@ -63,7 +63,7 @@ const staticBrands = [
 
 export default function Home() {
   const { data: categories = [], isLoading } = useHomeCategories();
-  const { data: apiProducts = [], isLoading: isProductsLoading } = useNewArrivals(8);
+  const { data: apiProducts = [], isLoading: isProductsLoading } = useNewArrivals(36);
 
   const products = useMemo(() => {
     if (!apiProducts.length) return Array.from({ length: 8 });
@@ -76,6 +76,28 @@ export default function Home() {
       category: p.category?.name.toLowerCase() || "women",
     }));
   }, [apiProducts]);
+
+  const [chunkSize, setChunkSize] = useState(12);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) setChunkSize(6);
+      else if (window.innerWidth < 1024) setChunkSize(9);
+      else setChunkSize(12);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const chunkedProducts = useMemo(() => {
+    if (!products || products.length === 0) return [];
+    const chunks = [];
+    for (let i = 0; i < products.length; i += chunkSize) {
+      chunks.push(products.slice(i, i + chunkSize));
+    }
+    return chunks;
+  }, [products, chunkSize]);
 
   const displayCategories = useMemo(() => {
     const apiCats = categories.filter(cat => ['qadin', 'kisi', 'usaq'].includes(cat.slug)).map(cat => ({
@@ -408,24 +430,22 @@ export default function Home() {
 
           <div className="px-0">
             <Swiper
-              slidesPerView={1.3}
-              spaceBetween={16}
+              slidesPerView={1}
+              spaceBetween={24}
               navigation={{
                 nextEl: '.products-next',
                 prevEl: '.products-prev',
               }}
               modules={[Navigation]}
-              breakpoints={{
-                480: { slidesPerView: 2, spaceBetween: 16 },
-                640: { slidesPerView: 2.5, spaceBetween: 20 },
-                768: { slidesPerView: 3, spaceBetween: 20 },
-                1024: { slidesPerView: 4, spaceBetween: 24 },
-              }}
-              className="w-full pb-4 px-4! md:px-0!"
+              className="w-full pb-4 px-4 md:px-0"
             >
-              {products.map((product: any, i: number) => (
-                <SwiperSlide key={product?.id || i} className="h-auto">
-                  <Card index={i} className="h-full" product={product} />
+              {chunkedProducts.map((chunk: any[], slideIndex: number) => (
+                <SwiperSlide key={slideIndex} className="h-auto">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 w-full">
+                    {chunk.map((product: any, i: number) => (
+                      <Card key={product?.id || i} index={i} className="h-full" product={product} />
+                    ))}
+                  </div>
                 </SwiperSlide>
               ))}
             </Swiper>

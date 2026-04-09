@@ -70,13 +70,14 @@ class AnalyticsService {
 
   async getBranchPerformance() {
     try {
-      const response = await axiosInstance.get('/analytics/branches/performance');
+      const response = await axiosInstance.get('/analytics/branch-performance');
       return response.data;
     } catch (error) {
       console.error('Error fetching branch performance:', error);
       throw error;
     }
   }
+
 }
 
 const analyticsService = new AnalyticsService();

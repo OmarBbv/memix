@@ -15,9 +15,8 @@ import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { UserRole } from '../users/entities/user.entity';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerConfig } from '../common/utils/multer.config';
 
@@ -30,8 +29,8 @@ export class CategoriesController {
     return this.categoriesService.syncSearchIndex();
   }
 
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
+  @RequirePermissions('view:categories')
   @Post()
   @UseInterceptors(FileInterceptor('image', multerConfig))
   create(
@@ -70,8 +69,8 @@ export class CategoriesController {
     return this.categoriesService.findOne(+id);
   }
 
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
+  @RequirePermissions('view:categories')
   @Patch(':id')
   @UseInterceptors(FileInterceptor('image', multerConfig))
   update(
@@ -82,8 +81,8 @@ export class CategoriesController {
     return this.categoriesService.update(+id, updateCategoryDto, image);
   }
 
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
+  @RequirePermissions('view:categories')
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.categoriesService.remove(+id);

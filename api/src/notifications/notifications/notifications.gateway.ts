@@ -17,8 +17,7 @@ import { UseGuards } from '@nestjs/common';
   },
 })
 export class NotificationsGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
-{
+  implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 

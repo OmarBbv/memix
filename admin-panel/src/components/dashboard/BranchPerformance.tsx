@@ -1,4 +1,4 @@
-import { useBranchPerformance } from "../../hooks/useAnalytics";
+import { useBranchPerformance } from '../../hooks/useAnalytics';
 
 interface BranchData {
   branchId: number;
@@ -45,8 +45,8 @@ export default function BranchPerformance() {
                 </div>
               </div>
               <div className="w-full bg-gray-100 rounded-full h-1.5 dark:bg-gray-800">
-                <div 
-                  className="bg-brand-500 h-1.5 rounded-full" 
+                <div
+                  className="bg-brand-500 h-1.5 rounded-full"
                   style={{ width: `${Math.min((branch.totalStock / 1000) * 100, 100)}%` }}
                 ></div>
               </div>

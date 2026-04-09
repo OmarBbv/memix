@@ -9,6 +9,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ProductsModule } from './products/products.module';
 import { CategoriesModule } from './categories/categories.module';
+import { RolesModule } from './roles/roles.module';
 
 import { UploadsController } from './common/uploads.controller';
 import { CartsModule } from './carts/carts.module';
@@ -44,6 +45,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     AuthModule,
     ProductsModule,
     CategoriesModule,
+    RolesModule,
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'uploads'),
       serveRoot: '/uploads',

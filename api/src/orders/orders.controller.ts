@@ -12,9 +12,8 @@ import {
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { AuthGuard } from '@nestjs/passport';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { UserRole } from '../users/entities/user.entity';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 import { OrderStatus } from './entities/order.entity';
 
 import type { Response } from 'express';
@@ -42,8 +41,8 @@ export class OrdersController {
     return this.ordersService.findByUserId(req.user.id);
   }
 
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermissions('view:orders')
   @Get(':id/invoice')
   async downloadInvoice(@Param('id') id: string, @Res() res: Response) {
     const order = await this.ordersService.findOne(+id);
@@ -63,15 +62,15 @@ export class OrdersController {
     return this.ordersService.findOne(+id);
   }
 
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermissions('view:orders')
   @Get()
   findAll(@Query('search') search?: string, @Query('status') status?: OrderStatus) {
     return this.ordersService.findAll(search, status);
   }
 
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermissions('edit:orders')
   @Patch(':id/status')
   updateStatus(@Param('id') id: string, @Body('status') status: OrderStatus) {
     return this.ordersService.updateStatus(+id, status);
